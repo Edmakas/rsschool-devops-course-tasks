@@ -10,22 +10,22 @@ variable "project" {
   default     = "udemy-hands-on"
 }
 
-variable "tf_bucket" {
-  description = "S3 bucket for state"
-  type        = string
-  default     = "udemytfstate"
-}
+# variable "tf_bucket" {
+#   description = "S3 bucket for state"
+#   type        = string
+#   default     = "rstfstatecif"
+# }
 
-variable "tf_bucket_key" {
-  description = "S3 bucket key for state"
-  type        = string
-  default     = "tf-state"
-}
+# variable "tf_bucket_key" {
+#   description = "S3 bucket key for state"
+#   type        = string
+#   default     = "tf-state"
+# }
 
 variable "aws_region" {
   description = "AWS region"
   type        = string
-  default     = "us-east-1"
+  default     = "us-west-2"
 }
 
 variable "aws_account_id" {
