@@ -16,24 +16,6 @@ resource "aws_network_acl" "public_nacl" {
 
   ingress {
     protocol   = "tcp"
-    rule_no    = 110
-    action     = "allow"
-    cidr_block = "0.0.0.0/0"
-    from_port  = 80
-    to_port    = 80
-  }
-
-  ingress {
-    protocol   = "tcp"
-    rule_no    = 120
-    action     = "allow"
-    cidr_block = "0.0.0.0/0"
-    from_port  = 443
-    to_port    = 443
-  }
-
-  ingress {
-    protocol   = "tcp"
     rule_no    = 130
     action     = "allow"
     cidr_block = "0.0.0.0/0"
@@ -47,34 +29,7 @@ resource "aws_network_acl" "public_nacl" {
     rule_no    = 100
     action     = "allow"
     cidr_block = "0.0.0.0/0"
-    from_port  = 22
-    to_port    = 22
-  }
-
-  egress {
-    protocol   = "tcp"
-    rule_no    = 110
-    action     = "allow"
-    cidr_block = "0.0.0.0/0"
-    from_port  = 80
-    to_port    = 80
-  }
-
-  egress {
-    protocol   = "tcp"
-    rule_no    = 120
-    action     = "allow"
-    cidr_block = "0.0.0.0/0"
-    from_port  = 443
-    to_port    = 443
-  }
-
-  egress {
-    protocol   = "tcp"
-    rule_no    = 130
-    action     = "allow"
-    cidr_block = "0.0.0.0/0"
-    from_port  = 1024
+    from_port  = 0
     to_port    = 65535
   }
 
@@ -115,31 +70,13 @@ resource "aws_network_acl" "private_nacl" {
     to_port    = 65535
   }
 
-  # Outbound rules - Only HTTP/HTTPS for updates
+  # Outbound rules
   egress {
     protocol   = "tcp"
     rule_no    = 100
     action     = "allow"
     cidr_block = "0.0.0.0/0"
-    from_port  = 80
-    to_port    = 80
-  }
-
-  egress {
-    protocol   = "tcp"
-    rule_no    = 110
-    action     = "allow"
-    cidr_block = "0.0.0.0/0"
-    from_port  = 443
-    to_port    = 443
-  }
-
-  egress {
-    protocol   = "tcp"
-    rule_no    = 120
-    action     = "allow"
-    cidr_block = "0.0.0.0/0"
-    from_port  = 1024
+    from_port  = 0
     to_port    = 65535
   }
 

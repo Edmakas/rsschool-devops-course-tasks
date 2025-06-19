@@ -29,9 +29,8 @@ variable "aws_region" {
 }
 
 variable "aws_account_id" {
-  description = "AWS account ID"
+  description = "AWS account ID main module"
   type        = string
-  default     = "111"
 }
 
 #modules/infra
@@ -40,10 +39,10 @@ variable "vpc_cidr" {
   type        = string
 }
 
-# variable "key_name" {
-#   description = "Name of SSH public key file for the bastion host"
-#   type        = string
-# }
+variable "ips_to_bastion" {
+  description = "List of CIDR blocks allowed to SSH to the bastion host"
+  type        = list(string)
+}
 
 variable "public_key" {
   description = "SSH public key content for the bastion host"

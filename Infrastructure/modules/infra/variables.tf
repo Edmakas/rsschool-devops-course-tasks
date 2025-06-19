@@ -18,6 +18,10 @@ variable "public_key" {
 variable "allowed_ssh_cidr_blocks" {
   description = "List of CIDR blocks allowed to SSH to the bastion host"
   type        = list(string)
-  default     = ["0.0.0.0/0"] # Warning: This allows access from anywhere. Restrict in production!
+  default     = ["0.0.0.0/0"]
 }
 
+variable "ips_to_bastion" {
+  description = "List of IP addresses allowed to SSH to the bastion host"
+  type        = list(string)
+}

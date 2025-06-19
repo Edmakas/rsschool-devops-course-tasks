@@ -12,10 +12,9 @@ resource "aws_security_group" "bastion_sg" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = var.allowed_ssh_cidr_blocks
+    cidr_blocks = var.ips_to_bastion
     description = "SSH access from allowed IPs only"
   }
-
   # Allow all outbound traffic
   egress {
     from_port   = 0
@@ -30,19 +29,19 @@ resource "aws_security_group" "bastion_sg" {
   }
 }
 
-# Security Group for Private Instances - SSH from bastion only
+# Security Group for Private Instances
 resource "aws_security_group" "private_sg" {
   name        = "${var.prefix}-private-sg"
-  description = "Security group for private instances - SSH from bastion only"
+  description = "Security group for private instances"
   vpc_id      = aws_vpc.main.id
 
-  # SSH access from bastion host only
+  # SSH access from bastion host
   ingress {
     from_port       = 22
     to_port         = 22
     protocol        = "tcp"
     security_groups = [aws_security_group.bastion_sg.id]
-    description     = "SSH access from bastion host only"
+    description     = "SSH access from bastion host"
   }
 
   # Allow all outbound traffic
