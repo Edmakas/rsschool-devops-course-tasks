@@ -1,26 +1,8 @@
 variable "prefix" {
   description = "Prefix for resources in AWS"
   type        = string
-  default     = "udemy"
+  default     = "rsschool"
 }
-
-variable "project" {
-  description = "Project default tag"
-  type        = string
-  default     = "udemy-hands-on"
-}
-
-# variable "tf_bucket" {
-#   description = "S3 bucket for state"
-#   type        = string
-#   default     = "rstfstatecif"
-# }
-
-# variable "tf_bucket_key" {
-#   description = "S3 bucket key for state"
-#   type        = string
-#   default     = "tf-state"
-# }
 
 variable "aws_region" {
   description = "AWS region"

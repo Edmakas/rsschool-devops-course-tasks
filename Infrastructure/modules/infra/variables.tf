@@ -7,7 +7,7 @@ variable "vpc_cidr" {
 variable "prefix" {
   description = "Prefix for resources in AWS"
   type        = string
-  default     = "udemy"
+  default     = "rsschool"
 }
 
 variable "public_key" {
