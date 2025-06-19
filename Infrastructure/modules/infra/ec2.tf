@@ -8,7 +8,7 @@ resource "aws_key_pair" "bastion_key" {
 
 # Bastion Host for secure access to private subnets
 resource "aws_instance" "bastion" {
-  ami                    = "ami-09e6f87a47903347c"
+  ami                    = "ami-0c65adc9a5c1b5d7c" # Ubuntu 22.04 LTS for us-west-2
   instance_type          = "t2.micro"
   subnet_id              = aws_subnet.public[0].id # Place in first public subnet
   vpc_security_group_ids = [aws_security_group.bastion_sg.id]
