@@ -4,7 +4,7 @@ This repository implements the requirements of [RS School DevOps Module 1, Task 
 
 ---
 
-## 📋 Prerequisites
+## Prerequisites
 - AWS Account
 - GitHub Account
 - [AWS CLI v2](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
@@ -13,7 +13,7 @@ This repository implements the requirements of [RS School DevOps Module 1, Task 
 
 ---
 
-## 🚀 Setup Instructions
+## Setup Instructions
 
 ### 1. AWS IAM & S3 State Backend
 - Create an **IAM user** with these policies:
@@ -56,7 +56,7 @@ aws ec2 describe-instance-types --instance-types t4g.nano
 
 ---
 
-## 🛠️ Project Structure
+## Project Structure
 ```
 .
 ├── Infrastructure/
@@ -123,13 +123,13 @@ aws ec2 describe-instance-types --instance-types t4g.nano
 
 ---
 
-## ⚙️ GitHub Actions Workflows
+## GitHub Actions Workflows
 - **terraform-create.yml**: Runs on push/PR to main, develop, or task_* branches. Performs `terraform init`, `terraform fmt`, and `terraform apply` in the `Infrastructure` directory using the IAM role and secrets.
 - **terraform-destroy.yml**: Manual workflow to destroy all resources.
 
 ---
 
-## 🏗️ What This Project Does
+## What This Project Does
 - Provisions a VPC with public/private subnets, NAT, and bastion host
 - Manages state in S3
 - Uses modules for infrastructure
@@ -137,12 +137,12 @@ aws ec2 describe-instance-types --instance-types t4g.nano
 
 ---
 
-## 📚 References
+## References
 - [RS School Task 2 Description](https://github.com/rolling-scopes-school/tasks/blob/master/devops/modules/1_basic-configuration/task_2.md)
 - [AWS CLI Docs](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
 - [Terraform Docs](https://developer.hashicorp.com/terraform/docs)
 
 ---
 
-## 👤 Author
-Your Name Here
+## Author
+Edmundas
