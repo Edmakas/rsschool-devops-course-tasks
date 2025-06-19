@@ -46,6 +46,7 @@ jobs:
 
 
   terraform-init-apply:
+    needs: terraform-init-fmt-plan
     runs-on: ubuntu-latest
     permissions:
       id-token: write
