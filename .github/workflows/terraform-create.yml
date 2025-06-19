@@ -1,4 +1,4 @@
-name: RsSchool module 1 - Create  resources
+name: RsSchool - Create  resources
 
 on:
   push:
@@ -7,70 +7,18 @@ on:
       - develop
       - task_*
   pull_request:
-    branches:
-      - main
-      - develop
-      - task_*
-      
-env:
-  TF_VAR_AWS_ACCOUNT_ID:    ${{ secrets.AWS_ACCOUNT_ID }}
-  TF_VAR_GithubActionsRole: ${{ vars.GithubActionsRole }}
 
 jobs:
-  terraform-check:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: Infrastructure
-
-    steps:
-      - name: Checkout repository code
-        uses: actions/checkout@v4
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: ~> 1.12.0
-
-      - name: Terraform fmt
-        run: terraform fmt
-
-
-  terraform-plan:
-    needs: terraform-check
+  terraform-init-fmt-apply:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
       contents: read
-    defaults:
-      run:
-        working-directory: Infrastructure
-
-    steps:
-      - name: Checkout repository code
-        uses: actions/checkout@v4
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: arn:aws:iam::${{ env.TF_VAR_AWS_ACCOUNT_ID }}:role/${{ env.TF_VAR_GithubActionsRole }}
-          aws-region: us-east-2
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: ~> 1.12.0
-
-      - name: Terraform Init-Plan
-        run: terraform init && terraform plan
-      
-
-  terraform-apply:
-    needs: terraform-plan
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
+    env:
+      TF_VAR_AWS_ACCOUNT_ID:    ${{ secrets.AWS_ACCOUNT_ID }}
+      TF_VAR_GithubActionsRole: ${{ vars.GithubActionsRole }}
+      TF_VAR_public_key:        ${{ secrets.SSH_PUBLIC_KEY }}
+      TF_VAR_vpc_cidr:          ${{ vars.vpc_cidr }}
     defaults:
       run:
         working-directory: Infrastructure
@@ -89,6 +37,8 @@ jobs:
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ~> 1.12.0
+      - name: Terraform fmt
+        run: terraform fmt 
 
-      - name: Terraform Init-Apply
-        run: terraform init && terraform apply -auto-approve
+      - name: Terraform Init-Fmt-Apply
+        run: terraform init && terraform fmt && terraform apply -auto-approve

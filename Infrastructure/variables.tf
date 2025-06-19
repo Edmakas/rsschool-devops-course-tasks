@@ -1,19 +1,19 @@
 variable "prefix" {
   description = "Prefix for resources in AWS"
   type        = string
-  default     = "rsschool"
+  default     = "udemy"
 }
 
 variable "project" {
   description = "Project default tag"
   type        = string
-  default     = "rs-devops"
+  default     = "udemy-hands-on"
 }
 
 variable "tf_bucket" {
   description = "S3 bucket for state"
   type        = string
-  default     = "rstfstatecif"
+  default     = "udemytfstate"
 }
 
 variable "tf_bucket_key" {
@@ -25,15 +25,27 @@ variable "tf_bucket_key" {
 variable "aws_region" {
   description = "AWS region"
   type        = string
-  default     = "us-west-2"
+  default     = "us-east-1"
 }
 
-variable "AWS_ACCOUNT_ID" {
-  description = "AWS account ID - Required for GitHub Actions role assumption. Set this as a GitHub secret named AWS_ACCOUNT_ID."
+variable "aws_account_id" {
+  description = "AWS account ID"
+  type        = string
+  default     = "111"
+}
+
+#modules/infra
+variable "vpc_cidr" {
+  description = "CIDR for vpc"
   type        = string
 }
 
-variable "GithubActionsRole" {
-  description = "IAM role for Github Actions"
+# variable "key_name" {
+#   description = "Name of SSH public key file for the bastion host"
+#   type        = string
+# }
+
+variable "public_key" {
+  description = "SSH public key content for the bastion host"
   type        = string
 }
