@@ -10,10 +10,11 @@ jobs:
       id-token: write
       contents: read
     env:
-      TF_VAR_AWS_ACCOUNT_ID:    ${{ secrets.AWS_ACCOUNT_ID }}
+      TF_VAR_aws_account_id:    ${{ secrets.AWS_ACCOUNT_ID }}
       TF_VAR_GithubActionsRole: ${{ vars.GithubActionsRole }}
       TF_VAR_public_key:        ${{ secrets.SSH_PUBLIC_KEY }}
       TF_VAR_vpc_cidr:          ${{ vars.vpc_cidr }}
+      TF_VAR_ips_to_bastion:    ${{ vars.IPS_TO_BASTION }}
     defaults:
       run:
         working-directory: Infrastructure
@@ -25,7 +26,7 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::${{ env.TF_VAR_AWS_ACCOUNT_ID }}:role/${{ env.TF_VAR_GithubActionsRole }}
+          role-to-assume: arn:aws:iam::${{ env.TF_VAR_aws_account_id }}:role/${{ env.TF_VAR_GithubActionsRole }}
           aws-region: us-east-2
 
       - name: Setup Terraform
