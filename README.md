@@ -1,128 +1,148 @@
-# AWS DevOps 2025Q2 Course Tasks
+# RS School DevOps Module 1: Basic AWS Infrastructure with Terraform
 
-## Description
-This repository contains the implementation of tasks for the AWS DevOps 2025Q2 course at Rolling Scopes School. The repository focuses on setting up AWS infrastructure using Terraform and implementing CI/CD practices with GitHub Actions.
+This repository implements the requirements of [RS School DevOps Module 1, Task 2](https://github.com/rolling-scopes-school/tasks/blob/master/devops/modules/1_basic-configuration/task_2.md). It demonstrates how to set up basic AWS infrastructure using Terraform, manage state in S3, and automate deployments with GitHub Actions.
 
+---
 
 ## Prerequisites
-- AWS CLI 2
-- Terraform 1.12+
-- Git
-- GitHub Account
 - AWS Account
+- GitHub Account
+- [AWS CLI v2](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
+- [Terraform 1.12+](https://learn.hashicorp.com/tutorials/terraform/install-cli)
+- Git
+
+---
 
 ## Setup Instructions
 
-### 1. Install Required Tools
+### 1. AWS IAM & S3 State Backend
+- Create an **IAM user** with these policies:
+  - AmazonEC2FullAccess
+  - AmazonRoute53FullAccess
+  - AmazonS3FullAccess
+  - IAMFullAccess
+  - AmazonVPCFullAccess
+  - AmazonSQSFullAccess
+  - AmazonEventBridgeFullAccess
+- Enable MFA for both root and IAM user.
+- Create an **S3 bucket** for Terraform state:
+  ```bash
+  aws s3api create-bucket --bucket <your-terraform-state-bucket> --region <your-region>
+  ```
+- Configure your `backend` in Terraform to use this S3 bucket.
 
-#### AWS CLI Installation
-Follow the official instructions to install AWS CLI 2:
-```bash
-# For Linux
-curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-unzip awscliv2.zip
-sudo ./aws/install
-```
-
-#### Terraform Installation
-Install Terraform 1.6 or higher:
-```bash
-# Using tfenv (recommended)
-git clone https://github.com/tfutils/tfenv.git ~/.tfenv
-echo 'export PATH="$HOME/.tfenv/bin:$PATH"' >> ~/.bashrc
-tfenv install latest
-tfenv use latest
-```
-
-### 2. AWS Configuration
-
-#### IAM User Setup
-1. Create a new IAM user with the following policies:
-   - AmazonEC2FullAccess
-   - AmazonRoute53FullAccess
-   - AmazonS3FullAccess
-   - IAMFullAccess
-   - AmazonVPCFullAccess
-   - AmazonSQSFullAccess
-   - AmazonEventBridgeFullAccess
-
-2. Configure MFA for both the new user and root user
-3. Generate Access Key ID and Secret Access Key
-
-#### AWS CLI Configuration
+### 2. AWS CLI Configuration
 ```bash
 aws configure
-# Enter your Access Key ID
-# Enter your Secret Access Key
-# Enter your preferred region
-# Enter your preferred output format (json recommended)
+# Enter Access Key, Secret Key, region, and output format
 ```
-
-Verify the configuration:
+Test with:
 ```bash
 aws ec2 describe-instance-types --instance-types t4g.nano
 ```
 
-### 3. Terraform State Configuration
+### 3. GitHub Actions IAM Role (for CI/CD)
+- The Terraform code for creating the `GithubActionsRole` IAM role is located in the `Setup` directory of this repository (`Setup/iam.tf`).
+- This role should have the same permissions as the IAM user described above.
+- Set up an OIDC identity provider for GitHub Actions in your AWS account.
+- Configure the trust policy to allow GitHub Actions to assume this role securely.
 
-1. Create an S3 bucket for Terraform states:
-```bash
-aws s3api create-bucket \
-    --bucket your-terraform-state-bucket \
-    --region your-region
-```
+### 4. GitHub Repository Secrets/Variables
+- `AWS_ACCOUNT_ID` (secret): Your AWS account ID
+- `SSH_PUBLIC_KEY` (secret): Public key for bastion host
+- `GithubActionsRole` (variable): Name of the IAM role for GitHub Actions
+- `vpc_cidr` (variable): CIDR block for VPC
+- `IPS_TO_BASTION` (variable): List of CIDR blocks allowed to SSH to the bastion host
 
-2. Configure Terraform backend in your configuration:
-```hcl
-terraform {
-  backend "s3" {
-    bucket = "your-terraform-state-bucket"
-    key    = "terraform.tfstate"
-    region = "your-region"
-  }
-}
-```
-
-### 4. GitHub Actions IAM Role (Additional Task)
-
-1. Create IAM role `GithubActionsRole` with the same permissions as the IAM user
-2. Configure Identity Provider and Trust policies for GitHub Actions
-3. Update the role with appropriate trust relationships
-
-### 5. GitHub Actions Workflow
-
-The repository includes a GitHub Actions workflow with three jobs:
-- `terraform-check`: Format checking using `terraform fmt`
-- `terraform-plan`: Planning deployments using `terraform plan`
-- `terraform-apply`: Deploying changes using `terraform apply -auto-approve`
-
-The workflow runs on:
-- Pull requests to main, develop, and task_* branches
-- Pushes to main, develop, and task_* branches
-
-Each job uses:
-- Terraform version ~> 1.12.0
-- AWS credentials configured via IAM role
-- Working directory set to Infrastructure folder
+---
 
 ## Project Structure
 ```
 .
-├── Infrastructure/         # Terraform infrastructure code
-│   ├── main.tf            # Main Terraform configuration
-│   ├── variables.tf       # Variable definitions
-│   └── s3-test.tf         # S3 bucket configuration
-├── Setup/                 # Setup and configuration files
-│   ├── main.tf            # Main Terraform configuration for setup
-│   ├── variables.tf       # Variable definitions for setup
-│   └── iam.tf             # IAM roles and policies configuration
-├── .github/              # GitHub specific configurations
-│   └── workflows/        # GitHub Actions workflows
-│       ├── terraform-create.yml  # Workflow for creating resources
-│       └── terraform-destroy.yml # Workflow for destroying resources
-├── .gitignore           # Git ignore rules
-└── README.md            # This file
+├── Infrastructure/
+│   ├── .terraform.lock.hcl
+│   ├── backends.tf
+│   ├── main.tf
+│   ├── outputs.tf
+│   ├── terraform.tfvars
+│   ├── variables.tf
+│   ├── versions.tf
+│   ├── modules/
+│   │   └── infra/
+│   │       ├── ec2.tf
+│   │       ├── nacl.tf
+│   │       ├── nat.tf
+│   │       ├── outputs.tf
+│   │       ├── security_groups.tf
+│   │       ├── test_ec2.tf
+│   │       ├── vpc.tf
+│   │       ├── variables.tf
+│   │       └── _nacl copy.tf_
+│   └── .terraform/
+├── Setup/        # Contains Terraform code for creation of GithubActionsRole IAM role for GitHub Actions
+│   ├── .terraform.lock.hcl
+│   ├── iam.tf
+│   ├── main.tf
+│   ├── terraform.tfvars
+│   ├── variables.tf
+│   └── .terraform/
+├── .github/
+│   └── workflows/
+│       ├── terraform-create.yml
+│       └── terraform-destroy.yml
+├── .gitignore
+└── README.md
 ```
+
+### Directory and File Descriptions
+- **Infrastructure/**: Main Terraform configuration for AWS infrastructure (VPC, subnets, NAT, bastion, etc.)
+  - **main.tf**: Root Terraform module, includes the infra module
+  - **variables.tf**: Variable definitions for the infrastructure
+  - **outputs.tf**: Outputs from the infrastructure
+  - **backends.tf**: S3 backend configuration for state
+  - **terraform.tfvars**: Variable values (not committed if sensitive)
+  - **modules/infra/**: Reusable module for core AWS resources
+    - **vpc.tf**: VPC and subnet resources
+    - **ec2.tf**: Bastion host and key pair
+    - **security_groups.tf**: Security group definitions
+    - **nacl.tf**: Network ACLs
+    - **nat.tf**: NAT gateway and routing
+    - **outputs.tf**: Module outputs
+    - **variables.tf**: Module variables
+    - **test_ec2.tf**: Test EC2 instances (for learning/testing)
+- **Setup/**: Terraform code for initial AWS setup (IAM role for GitHub Actions)
+  - **iam.tf**: IAM role and policies for GitHub Actions
+  - **main.tf**: Terraform backend and provider config
+  - **variables.tf**: Variable definitions for setup
+  - **terraform.tfvars**: Variable values for setup (not committed if sensitive)
+- **.github/workflows/**: GitHub Actions CI/CD workflows
+  - **terraform-create.yml**: Workflow for provisioning/updating infrastructure
+  - **terraform-destroy.yml**: Workflow for destroying infrastructure
+- **.gitignore**: Standard gitignore for Terraform projects
+- **README.md**: This documentation file
+
+---
+
+## GitHub Actions Workflows
+- **terraform-create.yml**: Runs on push/PR to main, develop, or task_* branches. Performs `terraform init`, `terraform fmt`, and `terraform apply` in the `Infrastructure` directory using the IAM role and secrets.
+- **terraform-destroy.yml**: Manual workflow to destroy all resources.
+
+---
+
+## What This Project Does
+- Provisions a VPC with public/private subnets, NAT, and bastion host
+- Manages state in S3
+- Uses modules for infrastructure
+- Automates deployment and destroy via GitHub Actions
+
+---
+
+## References
+- [RS School Task 2 Description](https://github.com/rolling-scopes-school/tasks/blob/master/devops/modules/1_basic-configuration/task_2.md)
+- [AWS CLI Docs](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
+- [Terraform Docs](https://developer.hashicorp.com/terraform/docs)
+
+---
 
 ## Author
 Edmundas

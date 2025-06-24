@@ -10,18 +10,6 @@ variable "project" {
   default     = "rs-devops"
 }
 
-variable "tf_bucket" {
-  description = "S3 bucket for state"
-  type        = string
-  default     = "rstfstatecif"
-}
-
-variable "tf_bucket_setup_key" {
-  description = "S3 bucket key for state"
-  type        = string
-  default     = "tf-state-setup"
-}
-
 variable "aws_region" {
   description = "AWS region"
   type        = string
