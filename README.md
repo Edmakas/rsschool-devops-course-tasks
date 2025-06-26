@@ -74,6 +74,7 @@ aws ec2 describe-instance-types --instance-types t4g.nano
 │   │       ├── nat.tf
 │   │       ├── outputs.tf
 │   │       ├── security_groups.tf
+│   │       ├── security_groups_k3s.tf
 │   │       ├── test_ec2.tf
 │   │       ├── vpc.tf
 │   │       ├── variables.tf
@@ -95,7 +96,7 @@ aws ec2 describe-instance-types --instance-types t4g.nano
 ```
 
 ### Directory and File Descriptions
-- **Infrastructure/**: Main Terraform configuration for AWS infrastructure (VPC, subnets, NAT, bastion, etc.)
+- **Infrastructure/**: Main Terraform configuration for AWS infrastructure (VPC, subnets, NAT, bastion, K3s nodes, etc.)
   - **main.tf**: Root Terraform module, includes the infra module
   - **variables.tf**: Variable definitions for the infrastructure
   - **outputs.tf**: Outputs from the infrastructure
@@ -104,11 +105,13 @@ aws ec2 describe-instance-types --instance-types t4g.nano
   - **modules/infra/**: Reusable module for core AWS resources
     - **vpc.tf**: VPC and subnet resources
     - **ec2.tf**: Bastion host and key pair
-    - **security_groups.tf**: Security group definitions
+    - **security_groups.tf**: Security group definitions (bastion, private, etc.)
+    - **security_groups_k3s.tf**: Security group for K3s nodes (all required K3s ports)
     - **nacl.tf**: Network ACLs
     - **nat.tf**: NAT gateway and routing
     - **outputs.tf**: Module outputs
     - **variables.tf**: Module variables
+    - **k3s_nodes.tf**: EC2 instances for K3s nodes
     - **test_ec2.tf**: Test EC2 instances (for learning/testing)
 - **Setup/**: Terraform code for initial AWS setup (IAM role for GitHub Actions)
   - **iam.tf**: IAM role and policies for GitHub Actions
@@ -130,10 +133,50 @@ aws ec2 describe-instance-types --instance-types t4g.nano
 ---
 
 ## What This Project Does
-- Provisions a VPC with public/private subnets, NAT, and bastion host
+- Provisions a VPC with public/private subnets, NAT, and bastion host, two nodes for K3S installation
 - Manages state in S3
 - Uses modules for infrastructure
 - Automates deployment and destroy via GitHub Actions
+
+---
+
+## K3s (Kubernetes) Cluster Setup and Deployment
+
+This project provisions a lightweight Kubernetes (K3s) cluster on AWS using Terraform. The setup includes:
+- A VPC with public and private subnets
+- A bastion host for secure SSH access
+- Security groups for bastion, private nodes, and K3s nodes (with all required K3s ports)
+- EC2 instances for K3s nodes (can be used as server or agent nodes)
+- All networking and IAM resources required for a secure, functional cluster
+
+### K3s Security Group
+The file `modules/infra/security_groups_k3s.tf` defines all required inbound rules for K3s nodes, as per the [official K3s requirements](https://docs.k3s.io/installation/requirements). All ports are restricted to the VPC CIDR for security.
+
+### Deployment Steps
+1. **Clone the repository**
+2. **Configure your AWS credentials** (e.g., using `aws configure`)
+3. **Set required variables** in `terraform.tfvars` or via environment variables (see `variables.tf` for details)
+4. **Initialize Terraform**:
+   ```bash
+   cd Infrastructure
+   terraform init
+   ```
+5. **Review the plan**:
+   ```bash
+   terraform plan
+   ```
+6. **Apply the configuration**:
+   ```bash
+   terraform apply
+   ```
+7. **Access the bastion host** using the generated SSH key
+8. **Install and configure K3s** on your nodes (manually or via automation)
+
+### Notes
+- The security group for K3s nodes allows only internal VPC traffic on required ports for maximum security.
+- You can scale the number of K3s nodes by adjusting the resources in `k3s_nodes.tf`.
+- For production, review and restrict security group rules as needed.
+- For K3s installation and requirements, see the [official documentation](https://docs.k3s.io/installation/requirements).
 
 ---
 
