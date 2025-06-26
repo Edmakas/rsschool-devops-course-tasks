@@ -27,16 +27,16 @@ resource "aws_instance" "bastion" {
               EOF
 
   # Wait for the instance to be ready before running provisioners
-  provisioner "remote-exec" {
-    inline = ["echo 'Instance is ready'"]
+  # provisioner "remote-exec" {
+  #   inline = ["echo 'Instance is ready'"]
 
-    connection {
-      type        = "ssh"
-      user        = "ubuntu"
-      private_key = file("/home/ubuntu/.ssh/bastion_aws_test_rsa")
-      host        = self.public_ip
-    }
-  }
+  #   connection {
+  #     type        = "ssh"
+  #     user        = "ubuntu"
+  #     private_key = file("/home/ubuntu/.ssh/bastion_aws_test_rsa")
+  #     host        = self.public_ip
+  #   }
+  # }
 
   # Copy the public key file to the bastion host
   # provisioner "file" {
@@ -50,18 +50,18 @@ resource "aws_instance" "bastion" {
   #     host        = self.public_ip
   #   }
   # }
-  
-  # Set correct permissions on the private key
-#   provisioner "remote-exec" {
-#     inline = [
-#       "chmod 400 /home/ubuntu/.ssh/bastion_aws_test_rsa"
-#     ]
 
-#     connection {
-#       type        = "ssh"
-#       user        = "ubuntu"
-#       private_key = file("/home/ubuntu/.ssh/bastion_aws_test_rsa")
-#       host        = self.public_ip
-#     }
-#   }
-# }
+  # Set correct permissions on the private key
+  #   provisioner "remote-exec" {
+  #     inline = [
+  #       "chmod 400 /home/ubuntu/.ssh/bastion_aws_test_rsa"
+  #     ]
+
+  #     connection {
+  #       type        = "ssh"
+  #       user        = "ubuntu"
+  #       private_key = file("/home/ubuntu/.ssh/bastion_aws_test_rsa")
+  #       host        = self.public_ip
+  #     }
+  #   }
+}
