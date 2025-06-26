@@ -66,10 +66,12 @@ aws ec2 describe-instance-types --instance-types t4g.nano
 │   ├── outputs.tf
 │   ├── terraform.tfvars
 │   ├── variables.tf
-│   ├── versions.tf
+│   ├── providers.tf
 │   ├── modules/
 │   │   └── infra/
+│   │       ├── bastion.tf
 │   │       ├── ec2.tf
+│   │       ├── k3s_nodes.tf
 │   │       ├── nacl.tf
 │   │       ├── nat.tf
 │   │       ├── outputs.tf
@@ -80,7 +82,7 @@ aws ec2 describe-instance-types --instance-types t4g.nano
 │   │       ├── variables.tf
 │   │       └── _nacl copy.tf_
 │   └── .terraform/
-├── Setup/        # Contains Terraform code for creation of GithubActionsRole IAM role for GitHub Actions
+├── Setup/
 │   ├── .terraform.lock.hcl
 │   ├── iam.tf
 │   ├── main.tf
@@ -102,16 +104,17 @@ aws ec2 describe-instance-types --instance-types t4g.nano
   - **outputs.tf**: Outputs from the infrastructure
   - **backends.tf**: S3 backend configuration for state
   - **terraform.tfvars**: Variable values (not committed if sensitive)
+  - **providers.tf**: Provider configuration
   - **modules/infra/**: Reusable module for core AWS resources
-    - **vpc.tf**: VPC and subnet resources
-    - **ec2.tf**: Bastion host and key pair
+    - **bastion.tf**: Bastion host EC2 instance and SSH key pair (with user_data for hostname and kubectl install; provisioners are commented out)
+    - **ec2.tf**: Additional EC2 resources if any
+    - **k3s_nodes.tf**: EC2 instances for K3s nodes
     - **security_groups.tf**: Security group definitions (bastion, private, etc.)
     - **security_groups_k3s.tf**: Security group for K3s nodes (all required K3s ports)
     - **nacl.tf**: Network ACLs
     - **nat.tf**: NAT gateway and routing
     - **outputs.tf**: Module outputs
     - **variables.tf**: Module variables
-    - **k3s_nodes.tf**: EC2 instances for K3s nodes
     - **test_ec2.tf**: Test EC2 instances (for learning/testing)
 - **Setup/**: Terraform code for initial AWS setup (IAM role for GitHub Actions)
   - **iam.tf**: IAM role and policies for GitHub Actions
@@ -127,8 +130,8 @@ aws ec2 describe-instance-types --instance-types t4g.nano
 ---
 
 ## GitHub Actions Workflows
-- **terraform-create.yml**: Runs on push/PR to main, develop, or task_* branches. Performs `terraform init`, `terraform fmt`, and `terraform apply` in the `Infrastructure` directory using the IAM role and secrets.
-- **terraform-destroy.yml**: Manual workflow to destroy all resources.
+- **terraform-create.yml**: Runs on push/PR to main, develop, or task_* branches. Performs `terraform init`, `terraform fmt`, and `terraform apply` in the `Infrastructure` directory using the IAM role and secrets. This workflow ensures your infrastructure is always up to date with your codebase.
+- **terraform-destroy.yml**: Manual workflow to destroy all resources. This is useful for cleanup and cost control. It runs `terraform init` and `terraform destroy -auto-approve` in the `Infrastructure` directory.
 
 ---
 
