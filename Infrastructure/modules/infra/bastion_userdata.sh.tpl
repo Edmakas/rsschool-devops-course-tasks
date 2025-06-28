@@ -25,3 +25,9 @@ ssh -o StrictHostKeyChecking=no -i /home/ubuntu/.ssh/id_rsa ubuntu@$MASTER_IP "s
 sed -i "s/127.0.0.1/$MASTER_IP/" /home/ubuntu/k3s.yaml
 chown ubuntu:ubuntu /home/ubuntu/k3s.yaml
 echo 'export KUBECONFIG=/home/ubuntu/k3s.yaml' >> /home/ubuntu/.bashrc
+
+# Deploy a simple pod to test the cluster
+echo "Deploying test pod to verify cluster functionality..."
+export KUBECONFIG=/home/ubuntu/k3s.yaml
+kubectl apply -f https://k8s.io/examples/pods/simple-pod.yaml
+
