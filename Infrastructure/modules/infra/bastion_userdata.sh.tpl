@@ -20,7 +20,8 @@ chown -R ubuntu:ubuntu /home/ubuntu/.ssh
 # Wait for master node
 sleep 60
 MASTER_IP="${master_ip}"
-scp -o StrictHostKeyChecking=no -i /home/ubuntu/.ssh/id_rsa ubuntu@$MASTER_IP:/etc/rancher/k3s/k3s.yaml /home/ubuntu/k3s.yaml
+
+ssh -o StrictHostKeyChecking=no -i /home/ubuntu/.ssh/id_rsa ubuntu@$MASTER_IP "sudo cat /etc/rancher/k3s/k3s.yaml" > k3s.yaml
 sed -i "s/127.0.0.1/$MASTER_IP/" /home/ubuntu/k3s.yaml
 chown ubuntu:ubuntu /home/ubuntu/k3s.yaml
 echo 'export KUBECONFIG=/home/ubuntu/k3s.yaml' >> /home/ubuntu/.bashrc
