@@ -32,17 +32,16 @@
 
 # Test EC2 in Private Subnet 1
 resource "aws_instance" "test_private_1" {
-  ami                    = "ami-05f991c49d264708f" # Ubuntu 22.04 LTS for us-west-2
+  ami                    = "ami-05f991c49d264708f"
   instance_type          = "t2.medium"
   subnet_id              = aws_subnet.private[0].id
   vpc_security_group_ids = [aws_security_group.private_sg.id, aws_security_group.k3s_nodes.id]
   key_name               = aws_key_pair.bastion_key.key_name
-  user_data              = <<-EOF
-              #!/bin/bash
-              hostnamectl set-hostname node-1
-              echo "127.0.1.1 node-1" >> /etc/hosts
-              apt-get update -y
-              EOF
+
+  user_data = base64encode(templatefile("${path.module}/node1_userdata.sh.tpl", {
+    private_key = var.private_key
+  }))
+
   tags = {
     Name    = "${var.prefix}-node-1"
     Purpose = "k3s-node"
@@ -51,17 +50,19 @@ resource "aws_instance" "test_private_1" {
 
 # Test EC2 in Private Subnet 2
 resource "aws_instance" "test_private_2" {
-  ami                    = "ami-05f991c49d264708f" # Ubuntu 22.04 LTS for us-west-2
+  ami                    = "ami-05f991c49d264708f"
   instance_type          = "t2.medium"
   subnet_id              = aws_subnet.private[1].id
   vpc_security_group_ids = [aws_security_group.private_sg.id, aws_security_group.k3s_nodes.id]
   key_name               = aws_key_pair.bastion_key.key_name
-  user_data              = <<-EOF
-              #!/bin/bash
-              hostnamectl set-hostname node-2
-              echo "127.0.1.1 node-2" >> /etc/hosts
-              apt-get update -y
-              EOF
+
+  depends_on = [aws_instance.test_private_1]
+
+  user_data = base64encode(templatefile("${path.module}/node2_userdata.sh.tpl", {
+    master_ip   = aws_instance.test_private_1.private_ip
+    private_key = var.private_key
+  }))
+
   tags = {
     Name    = "${var.prefix}-node-2"
     Purpose = "k3s-node"

@@ -143,18 +143,6 @@ aws ec2 describe-instance-types --instance-types t4g.nano
 
 ---
 
-## K3s (Kubernetes) Cluster Setup and Deployment
-
-This project provisions a lightweight Kubernetes (K3s) cluster on AWS using Terraform. The setup includes:
-- A VPC with public and private subnets
-- A bastion host for secure SSH access
-- Security groups for bastion, private nodes, and K3s nodes (with all required K3s ports)
-- EC2 instances for K3s nodes (can be used as server or agent nodes)
-- All networking and IAM resources required for a secure, functional cluster
-
-### K3s Security Group
-The file `modules/infra/security_groups_k3s.tf` defines all required inbound rules for K3s nodes, as per the [official K3s requirements](https://docs.k3s.io/installation/requirements). All ports are restricted to the VPC CIDR for security.
-
 ### Deployment Steps
 1. **Clone the repository**
 2. **Configure your AWS credentials** (e.g., using `aws configure`)
@@ -175,11 +163,57 @@ The file `modules/infra/security_groups_k3s.tf` defines all required inbound rul
 7. **Access the bastion host** using the generated SSH key
 8. **Install and configure K3s** on your nodes (manually or via automation)
 
-### Notes
-- The security group for K3s nodes allows only internal VPC traffic on required ports for maximum security.
-- You can scale the number of K3s nodes by adjusting the resources in `k3s_nodes.tf`.
-- For production, review and restrict security group rules as needed.
-- For K3s installation and requirements, see the [official documentation](https://docs.k3s.io/installation/requirements).
+## K3s (Kubernetes) Cluster Setup and Deployment
+
+This project provisions a lightweight Kubernetes (K3s) cluster on AWS using Terraform. The setup includes:
+- A VPC with public and private subnets
+- A bastion host for secure SSH access
+- Security groups for bastion, private nodes, and K3s nodes (with all required K3s ports)
+- EC2 instances for K3s nodes (can be used as server or agent nodes)
+- All networking and IAM resources required for a secure, functional cluster
+
+### K3s Security Group
+The file `modules/infra/security_groups_k3s.tf` defines all required inbound rules for K3s nodes, as per the [official K3s requirements](https://docs.k3s.io/installation/requirements). All ports are restricted to the VPC CIDR for security.
+
+### How to Install K3s on Two Nodes
+
+After provisioning your infrastructure with Terraform, you can install K3s on your two EC2 nodes (one as server, one as agent) as follows:
+
+### 1. SSH into the K3s Server Node
+- Use the bastion host as a jump box
+
+### 2. Install K3s Server
+- On the server node, run:
+  ```bash
+  curl -sfL https://get.k3s.io | sh -
+  # Check status
+  sudo k3s kubectl get node
+  # Get the node token for agent join
+  sudo cat /var/lib/rancher/k3s/server/node-token
+  ```
+
+### 3. SSH into the K3s Agent Node
+- Again, use the bastion as a jump box:
+  ```bash
+  ssh -i /path/to/your/private_key -J ubuntu@<bastion_public_ip> ubuntu@<k3s_agent_private_ip>
+  ```
+
+### 4. Install K3s Agent
+- On the agent node, replace `<server_private_ip>` and `<token>` with your actual values:
+  ```bash
+  curl -sfL https://get.k3s.io | K3S_URL="https://<server_private_ip>:6443" K3S_TOKEN="<token>" sh -
+  ```
+
+### 5. Verify the Cluster
+- On the server node:
+  ```bash
+  sudo k3s kubectl get nodes
+  ```
+  You should see both the server and agent nodes listed as Ready.
+
+**Tip:** You can copy the kubeconfig from the server node (`/etc/rancher/k3s/k3s.yaml`) to your local machine for direct `kubectl` access.
+
+For more details, see the [official K3s installation guide](https://docs.k3s.io/installation/quick-start).
 
 ---
 
