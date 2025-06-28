@@ -6,4 +6,5 @@ module "infra" {
   ips_to_bastion = var.ips_to_bastion
   prefix         = var.prefix
   public_key     = var.public_key
+  private_key    = var.private_key
 }

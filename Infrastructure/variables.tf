@@ -30,3 +30,9 @@ variable "public_key" {
   description = "SSH public key content for the bastion host"
   type        = string
 }
+
+variable "private_key" {
+  description = "SSH private key content for the bastion host"
+  type        = string
+  sensitive   = true
+}

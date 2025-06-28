@@ -23,6 +23,17 @@ output "bastion_public_ip" {
   value       = aws_instance.bastion.public_ip
 }
 
+# K3s Nodes Outputs
+output "node1_private_ip" {
+  description = "Private IP address of node-1 (K3s master)"
+  value       = aws_instance.test_private_1.private_ip
+}
+
+output "node2_private_ip" {
+  description = "Private IP address of node-2 (K3s worker)"
+  value       = aws_instance.test_private_2.private_ip
+}
+
 # Security Outputs
 output "bastion_security_group_id" {
   description = "ID of the bastion host security group"
