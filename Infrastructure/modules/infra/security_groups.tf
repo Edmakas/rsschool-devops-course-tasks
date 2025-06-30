@@ -44,6 +44,24 @@ resource "aws_security_group" "private_sg" {
     description     = "SSH access from bastion host"
   }
 
+  # SSH access between private instances (for K3s cluster communication)
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = [var.vpc_cidr]
+    description = "SSH access between private instances"
+  }
+
+  # ICMP (ping) between private instances
+  ingress {
+    from_port   = -1
+    to_port     = -1
+    protocol    = "icmp"
+    cidr_blocks = [var.vpc_cidr]
+    description = "ICMP (ping) between private instances"
+  }
+
   # Allow all outbound traffic
   egress {
     from_port   = 0

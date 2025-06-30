@@ -15,6 +15,12 @@ variable "public_key" {
   type        = string
 }
 
+variable "private_key" {
+  description = "SSH private key content for the bastion host"
+  type        = string
+  sensitive   = true
+}
+
 variable "allowed_ssh_cidr_blocks" {
   description = "List of CIDR blocks allowed to SSH to the bastion host"
   type        = list(string)
