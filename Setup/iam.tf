@@ -58,6 +58,28 @@ resource "aws_iam_role_policy_attachment" "eventbridge" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEventBridgeFullAccess"
 }
 
+resource "aws_iam_policy" "github_actions_ssm_getparameter" {
+  name        = "github-actions-ssm-getparameter"
+  description = "Allow GithubActionsRole to get k3s.yaml from SSM Parameter Store"
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "ssm:GetParameter"
+        ],
+        Resource = "arn:aws:ssm:us-east-2:${var.AWS_ACCOUNT_ID}:parameter/rsschool/k3s-yaml"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "github_actions_ssm_getparameter" {
+  role       = aws_iam_role.github_actions.name
+  policy_arn = aws_iam_policy.github_actions_ssm_getparameter.arn
+}
+
 #######  Creating aws_iam_instance_profile
 
 resource "aws_iam_role" "k3s_node" {
