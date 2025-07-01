@@ -70,6 +70,7 @@ jobs:
             --name "/rsschool/k3s-yaml" \
             --with-decryption \
             --query "Parameter.Value" \
+            --region us-west-2 \
             --output text > k3s-config.yaml
           
           # Replace localhost with the actual IP if needed
