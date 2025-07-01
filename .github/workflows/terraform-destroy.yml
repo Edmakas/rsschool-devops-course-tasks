@@ -16,6 +16,7 @@ jobs:
       TF_VAR_private_key:       ${{ secrets.SSH_PRIVATE_KEY }}
       TF_VAR_vpc_cidr:          ${{ vars.vpc_cidr }}
       TF_VAR_ips_to_bastion:    ${{ vars.IPS_TO_BASTION }}
+      TF_VAR_node_instance_profile: ${{ vars.node_instance_profile }}
     defaults:
       run:
         working-directory: Infrastructure
