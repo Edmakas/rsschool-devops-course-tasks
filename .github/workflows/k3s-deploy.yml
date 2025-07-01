@@ -105,7 +105,7 @@ jobs:
           # Deploy Jenkins with your custom values
           helm upgrade --install jenkins jenkins/jenkins \
             --namespace jenkins \
-            --values ../../K3S_Manifests/Mod3_Task4/jenkins-values.yaml \
+            --values ../K3S_Manifests/Mod3_Task4/jenkins-values.yaml \
             --wait \
             --timeout 10m
           
