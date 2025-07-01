@@ -107,7 +107,7 @@ jobs:
             --namespace jenkins \
             --values ../K3S_Manifests/Mod3_Task4/jenkins-values.yaml \
             --wait \
-            --timeout 10m
+            --timeout 5m
           
           # Get Jenkins service info
           kubectl get svc -n jenkins
