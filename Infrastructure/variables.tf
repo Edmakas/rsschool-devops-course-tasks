@@ -35,5 +35,5 @@ variable "private_key" {
 variable "node_instance_profile" {
   description = "The name of the IAM instance profile to attach to node-1 for SSM access."
   type        = string
-  default     = "cif-k3s-node-instance-profile"
+  #default     = "cif-k3s-node-instance-profile"
 }
