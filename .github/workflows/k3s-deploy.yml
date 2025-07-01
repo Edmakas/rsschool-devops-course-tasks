@@ -1,0 +1,163 @@
+name: Deploy to K3s Cluster
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy-to-k3s:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    env:
+      TF_VAR_aws_account_id:    ${{ secrets.AWS_ACCOUNT_ID }}
+      TF_VAR_GithubActionsRole: ${{ vars.GithubActionsRole }}
+      TF_VAR_public_key:        ${{ secrets.SSH_PUBLIC_KEY }}
+      TF_VAR_private_key:       ${{ secrets.SSH_PRIVATE_KEY }}
+      TF_VAR_vpc_cidr:          ${{ vars.vpc_cidr }}
+      TF_VAR_ips_to_bastion:    ${{ vars.IPS_TO_BASTION }}
+    defaults:
+      run:
+        working-directory: Infrastructure
+
+    steps:
+      - name: Checkout repository code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ env.TF_VAR_aws_account_id }}:role/${{ env.TF_VAR_GithubActionsRole }}
+          aws-region: us-east-2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ~> 1.12.0
+
+      - name: Get K3s Node IPs
+        id: get-ips
+        run: |
+          terraform init
+          NODE1_IP=$(terraform output -raw node-1_public_ip)
+          NODE2_IP=$(terraform output -raw node-2_public_ip)
+          echo "node1_ip=$NODE1_IP" >> $GITHUB_OUTPUT
+          echo "node2_ip=$NODE2_IP" >> $GITHUB_OUTPUT
+          echo "K3s Master IP: $NODE1_IP"
+          echo "K3s Worker IP: $NODE2_IP"
+
+      - name: Setup SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ steps.get-ips.outputs.node1_ip }} >> ~/.ssh/known_hosts
+          ssh-keyscan -H ${{ steps.get-ips.outputs.node2_ip }} >> ~/.ssh/known_hosts
+
+      - name: Wait for K3s to be ready
+        run: |
+          echo "Waiting for K3s master to be ready..."
+          until ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=no ubuntu@${{ steps.get-ips.outputs.node1_ip }} 'kubectl get nodes' 2>/dev/null; do
+            echo "K3s not ready yet, waiting..."
+            sleep 30
+          done
+          echo "K3s master is ready!"
+
+      - name: Get K3s Config
+        run: |
+          # Get k3s.yaml from AWS Parameter Store
+          aws ssm get-parameter \
+            --name "/rsschool/k3s-yaml" \
+            --with-decryption \
+            --query "Parameter.Value" \
+            --output text > k3s-config.yaml
+          
+          # Replace localhost with the actual IP if needed
+          if grep -q "127.0.0.1\|localhost" k3s-config.yaml; then
+            sed -i "s/127.0.0.1/${{ steps.get-ips.outputs.node1_ip }}/g" k3s-config.yaml
+            sed -i "s/localhost/${{ steps.get-ips.outputs.node1_ip }}/g" k3s-config.yaml
+          fi
+          
+          echo "K3s config retrieved from Parameter Store"
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+
+      - name: Deploy to K3s
+        run: |
+          export KUBECONFIG=k3s-config.yaml
+          
+          # Test connection
+          kubectl get nodes
+          
+          # Create namespace if it doesn't exist
+          kubectl create namespace jenkins --dry-run=client -o yaml | kubectl apply -f -
+          
+          # Deploy Jenkins using Helm
+          helm repo add jenkins https://charts.jenkins.io
+          helm repo update
+          
+          # Deploy Jenkins with your custom values
+          helm upgrade --install jenkins jenkins/jenkins \
+            --namespace jenkins \
+            --values ../../K3S_Manifests/Mod3_Task4/jenkins-values.yaml \
+            --wait \
+            --timeout 10m
+          
+          # Get Jenkins service info
+          kubectl get svc -n jenkins
+          
+          # Get Jenkins admin password
+          echo "Jenkins admin password:"
+          kubectl exec --namespace jenkins -c jenkins -it deployment/jenkins -- /bin/cat /run/secrets/additional/chart-admin-password
+
+      - name: Deploy Application Manifests
+        run: |
+          export KUBECONFIG=k3s-config.yaml
+          
+          # Apply any additional manifests from K3S_Manifests directory
+          if [ -d "../../K3S_Manifests" ]; then
+            echo "Applying manifests from K3S_Manifests directory..."
+            find ../../K3S_Manifests -name "*.yaml" -o -name "*.yml" | while read file; do
+              if [[ "$file" != *"jenkins-values.yaml"* ]]; then
+                echo "Applying $file"
+                kubectl apply -f "$file" || echo "Failed to apply $file, continuing..."
+              fi
+            done
+          fi
+          
+          # Show deployed resources
+          kubectl get all --all-namespaces
+
+      - name: Verify Deployment
+        run: |
+          export KUBECONFIG=k3s-config.yaml
+          
+          # Check if all pods are running
+          kubectl get pods --all-namespaces
+          
+          # Check node status
+          kubectl get nodes -o wide
+          
+          # Check services
+          kubectl get svc --all-namespaces
+
+      - name: Output Access Information
+        run: |
+          echo "## K3s Cluster Access Information" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**K3s Master Node:** ${{ steps.get-ips.outputs.node1_ip }}" >> $GITHUB_STEP_SUMMARY
+          echo "**K3s Worker Node:** ${{ steps.get-ips.outputs.node2_ip }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Jenkins Access:**" >> $GITHUB_STEP_SUMMARY
+          echo "- URL: http://${{ steps.get-ips.outputs.node1_ip }}:30111" >> $GITHUB_STEP_SUMMARY
+          echo "- Username: admin" >> $GITHUB_STEP_SUMMARY
+          echo "- Password: Check the deployment logs above" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**SSH Access:**" >> $GITHUB_STEP_SUMMARY
+          echo "```bash" >> $GITHUB_STEP_SUMMARY
+          echo "ssh ubuntu@${{ steps.get-ips.outputs.node1_ip }}" >> $GITHUB_STEP_SUMMARY
+          echo "ssh ubuntu@${{ steps.get-ips.outputs.node2_ip }}" >> $GITHUB_STEP_SUMMARY
+          echo "```" >> $GITHUB_STEP_SUMMARY 

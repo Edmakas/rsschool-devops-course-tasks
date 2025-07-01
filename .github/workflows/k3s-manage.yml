@@ -1,0 +1,156 @@
+name: Manage K3s Cluster
+
+on:
+  workflow_dispatch:
+
+# on:
+#   workflow_dispatch:
+#     inputs:
+#       action:
+#         description: 'Action to perform'
+#         required: true
+#         default: 'status'
+#         type: choice
+#         options:
+#         - status
+#         - get-pods
+#         - get-nodes
+#         - get-services
+#         - get-logs
+#         - restart-jenkins
+#         - apply-manifests
+
+jobs:
+  manage-k3s:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    env:
+      TF_VAR_aws_account_id:    ${{ secrets.AWS_ACCOUNT_ID }}
+      TF_VAR_GithubActionsRole: ${{ vars.GithubActionsRole }}
+      TF_VAR_public_key:        ${{ secrets.SSH_PUBLIC_KEY }}
+      TF_VAR_private_key:       ${{ secrets.SSH_PRIVATE_KEY }}
+      TF_VAR_vpc_cidr:          ${{ vars.vpc_cidr }}
+      TF_VAR_ips_to_bastion:    ${{ vars.IPS_TO_BASTION }}
+    defaults:
+      run:
+        working-directory: Infrastructure
+
+    steps:
+      - name: Checkout repository code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ env.TF_VAR_aws_account_id }}:role/${{ env.TF_VAR_GithubActionsRole }}
+          aws-region: us-east-2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ~> 1.12.0
+
+      - name: Get K3s Node IPs
+        id: get-ips
+        run: |
+          terraform init
+          NODE1_IP=$(terraform output -raw node-1_public_ip)
+          NODE2_IP=$(terraform output -raw node-2_public_ip)
+          echo "node1_ip=$NODE1_IP" >> $GITHUB_OUTPUT
+          echo "node2_ip=$NODE2_IP" >> $GITHUB_OUTPUT
+          echo "K3s Master IP: $NODE1_IP"
+          echo "K3s Worker IP: $NODE2_IP"
+
+      - name: Setup SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ steps.get-ips.outputs.node1_ip }} >> ~/.ssh/known_hosts
+          ssh-keyscan -H ${{ steps.get-ips.outputs.node2_ip }} >> ~/.ssh/known_hosts
+
+      - name: Get K3s Config
+        run: |
+          # Get k3s.yaml from AWS Parameter Store
+          aws ssm get-parameter \
+            --name "/rsschool/k3s-yaml" \
+            --with-decryption \
+            --query "Parameter.Value" \
+            --output text > k3s-config.yaml
+          
+          # Replace localhost with the actual IP if needed
+          if grep -q "127.0.0.1\|localhost" k3s-config.yaml; then
+            sed -i "s/127.0.0.1/${{ steps.get-ips.outputs.node1_ip }}/g" k3s-config.yaml
+            sed -i "s/localhost/${{ steps.get-ips.outputs.node1_ip }}/g" k3s-config.yaml
+          fi
+          
+          echo "K3s config retrieved from Parameter Store"
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+
+      - name: Execute Action
+        run: |
+          export KUBECONFIG=k3s-config.yaml
+          
+          case "${{ github.event.inputs.action }}" in
+            "status")
+              echo "=== K3s Cluster Status ==="
+              kubectl get nodes -o wide
+              echo ""
+              echo "=== All Pods ==="
+              kubectl get pods --all-namespaces
+              echo ""
+              echo "=== All Services ==="
+              kubectl get svc --all-namespaces
+              ;;
+            "get-pods")
+              echo "=== All Pods ==="
+              kubectl get pods --all-namespaces -o wide
+              ;;
+            "get-nodes")
+              echo "=== Cluster Nodes ==="
+              kubectl get nodes -o wide
+              kubectl describe nodes
+              ;;
+            "get-services")
+              echo "=== All Services ==="
+              kubectl get svc --all-namespaces
+              ;;
+            "get-logs")
+              echo "=== Jenkins Pod Logs ==="
+              JENKINS_POD=$(kubectl get pods -n jenkins -l app.kubernetes.io/name=jenkins -o jsonpath='{.items[0].metadata.name}')
+              kubectl logs -n jenkins $JENKINS_POD --tail=50
+              ;;
+            "restart-jenkins")
+              echo "=== Restarting Jenkins ==="
+              kubectl rollout restart deployment/jenkins -n jenkins
+              kubectl rollout status deployment/jenkins -n jenkins
+              ;;
+            "apply-manifests")
+              echo "=== Applying Manifests ==="
+              if [ -d "../../K3S_Manifests" ]; then
+                find ../../K3S_Manifests -name "*.yaml" -o -name "*.yml" | while read file; do
+                  if [[ "$file" != *"jenkins-values.yaml"* ]]; then
+                    echo "Applying $file"
+                    kubectl apply -f "$file" || echo "Failed to apply $file, continuing..."
+                  fi
+                done
+              fi
+              ;;
+          esac
+
+      - name: Output Cluster Info
+        run: |
+          echo "## K3s Cluster Information" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Master Node:** ${{ steps.get-ips.outputs.node1_ip }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Worker Node:** ${{ steps.get-ips.outputs.node2_ip }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Action Performed:** ${{ github.event.inputs.action }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Access Jenkins:** http://${{ steps.get-ips.outputs.node1_ip }}:30111" >> $GITHUB_STEP_SUMMARY 

@@ -21,11 +21,6 @@ variable "vpc_cidr" {
   type        = string
 }
 
-variable "ips_to_bastion" {
-  description = "List of CIDR blocks allowed to SSH to the bastion host"
-  type        = list(string)
-}
-
 variable "public_key" {
   description = "SSH public key content for the bastion host"
   type        = string
@@ -35,4 +30,9 @@ variable "private_key" {
   description = "SSH private key content for the bastion host"
   type        = string
   sensitive   = true
+}
+
+variable "node_instance_profile" {
+  description = "The name of the IAM instance profile to attach to node-1 for SSM access."
+  type        = string
 }

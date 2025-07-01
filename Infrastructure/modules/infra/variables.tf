@@ -16,18 +16,23 @@ variable "public_key" {
 }
 
 variable "private_key" {
-  description = "SSH private key content for the bastion host"
+  description = "SSH private key content"
   type        = string
   sensitive   = true
 }
 
 variable "allowed_ssh_cidr_blocks" {
-  description = "List of CIDR blocks allowed to SSH to the bastion host"
+  description = "List of CIDR blocks allowed to SSH to hosts"
   type        = list(string)
   default     = ["0.0.0.0/0"]
 }
 
-variable "ips_to_bastion" {
-  description = "List of IP addresses allowed to SSH to the bastion host"
-  type        = list(string)
+variable "node_instance_profile" {
+  description = "The name of the IAM instance profile to attach to node-1 for SSM access."
+  type        = string
+}
+
+variable "aws_region" {
+  description = "AWS region for resources and scripts."
+  type        = string
 }

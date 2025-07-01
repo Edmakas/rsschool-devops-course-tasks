@@ -1,0 +1,8 @@
+helm install jenkins -n jenkins -f jenkins-values.yaml jenkinsci/jenkins
+#helm upgrade jenkins jenkinsci/jenkins -n jenkins -f jenkins-values.yam
+
+
+jsonpath="{.data.jenkins-admin-password}"
+secret=$(kubectl get secret -n jenkins jenkins -o jsonpath=$jsonpath)
+echo $(echo $secret | base64 --decode)
+

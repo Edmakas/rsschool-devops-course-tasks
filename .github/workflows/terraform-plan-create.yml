@@ -1,12 +1,13 @@
 name: RsSchool - Create  resources
-
 on:
-  push:
-    branches:
-      - main
-      - develop
-      - task_*
-  pull_request:
+  workflow_dispatch:
+# on:
+#   push:
+#     branches:
+#       - main
+#       - develop
+#       - task_*
+#   pull_request:
 
 jobs:
   terraform-init-fmt-plan:

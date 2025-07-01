@@ -10,32 +10,23 @@ output "public_subnet_cidrs" {
   value       = module.infra.public_subnet_cidrs
 }
 
-output "private_subnet_cidrs" {
-  description = "List of private subnet CIDR blocks"
-  value       = module.infra.private_subnet_cidrs
+
+output "node-1_public_ip" {
+  description = "Public IP address of the node-1 host"
+  value       = module.infra.node-1_public_ip
 }
 
-output "bastion_public_ip" {
-  description = "Public IP address of the bastion host"
-  value       = module.infra.bastion_public_ip
+output "node-2_public_ip" {
+  description = "Public IP address of the node-2 host"
+  value       = module.infra.node-2_public_ip
 }
 
-output "bastion_security_group_id" {
-  description = "ID of the bastion host security group"
-  value       = module.infra.bastion_security_group_id
+output "node-1_private_ip" {
+  description = "Private IP address of the node-1 host"
+  value       = module.infra.node-1_private_ip
 }
 
-output "private_security_group_id" {
-  description = "ID of the private instances security group"
-  value       = module.infra.private_security_group_id
-}
-
-output "nat_gateway_id" {
-  description = "ID of the NAT Gateway"
-  value       = module.infra.nat_gateway_id
-}
-
-output "nat_gateway_public_ip" {
-  description = "Public IP address of the NAT Gateway"
-  value       = module.infra.nat_gateway_public_ip
+output "node-2_private_ip" {
+  description = "Private IP address of the node-2 host"
+  value       = module.infra.node-2_private_ip
 }

@@ -17,7 +17,7 @@ resource "aws_security_group" "k3s_nodes" {
     from_port   = 6443
     to_port     = 6443
     protocol    = "tcp"
-    cidr_blocks = [var.vpc_cidr]
+    cidr_blocks = ["0.0.0.0/0"]
     description = "Kubernetes API Server and Embedded distributed registry (Spegel)"
   }
 

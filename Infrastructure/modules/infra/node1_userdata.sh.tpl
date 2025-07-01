@@ -14,8 +14,26 @@ sudo hostnamectl set-hostname node-1
 echo "127.0.1.1 node-1" | sudo tee -a /etc/hosts
 sudo apt-get update -y
 
-log "Installing K3s server..."
-curl -sfL https://get.k3s.io | sh -
+sudo apt-get install -y net-tools
+# Install unzip if not present
+if ! command -v unzip &> /dev/null; then
+  sudo apt-get install -y unzip
+fi
+
+# Install AWS CLI v2 if not present
+if ! command -v aws &> /dev/null; then
+  log "Installing AWS CLI v2..."
+  curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"
+  unzip -q /tmp/awscliv2.zip -d /tmp
+  sudo /tmp/aws/install
+  rm -rf /tmp/aws /tmp/awscliv2.zip
+fi
+
+# Get public IP for TLS SAN
+TOKEN=$(curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 60")
+PUBLIC_IP=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/meta-data/public-ipv4)
+log "Installing K3s server with --tls-san $PUBLIC_IP..."
+curl -sfL https://get.k3s.io | sh -s - server --tls-san $PUBLIC_IP
 
 # Create private key file for SSH access
 log "Setting up SSH key..."
@@ -51,5 +69,24 @@ else
   log "ERROR: K3s is not listening on port 6443"
   exit 1
 fi
+
+# Wait for k3s.yaml to exist
+log "Waiting for /etc/rancher/k3s/k3s.yaml to be created..."
+while [ ! -f /etc/rancher/k3s/k3s.yaml ]; do
+  sleep 2
+done
+
+# Copy k3s.yaml to /tmp and replace server address with public IP
+sudo cp /etc/rancher/k3s/k3s.yaml /tmp/k3s.yaml
+log "Replacing server address in /tmp/k3s.yaml with public IP: $PUBLIC_IP"
+sudo sed -i "s|server: https://127.0.0.1:6443|server: https://$PUBLIC_IP:6443|" /tmp/k3s.yaml
+
+log "Uploading /tmp/k3s.yaml to SSM Parameter Store..."
+aws ssm put-parameter \
+  --name "/${prefix}/k3s-yaml" \
+  --type "SecureString" \
+  --value "$(sudo cat /tmp/k3s.yaml)" \
+  --overwrite \
+  --region ${region}
 
 log "=== Node-1 Setup Completed Successfully ===" 

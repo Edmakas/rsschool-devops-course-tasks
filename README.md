@@ -65,7 +65,6 @@ aws ec2 describe-instance-types --instance-types t4g.nano
 - `SSH_PRIVATE_KEY` (secret): Private key for node communication
 - `GithubActionsRole` (variable): Name of the IAM role for GitHub Actions
 - `vpc_cidr` (variable): CIDR block for VPC
-- `IPS_TO_BASTION` (variable): List of CIDR blocks allowed to SSH to the bastion host
 
 ---
 
@@ -283,3 +282,30 @@ After running this Terraform configuration, you'll have:
 
 ## Author
 Edmundas
+
+---
+
+## GitHub Repository Secrets and Variables
+
+For GitHub Actions CI/CD to work, you must set the following in your repository:
+
+### **Secrets**
+- `AWS_ACCOUNT_ID`: Your AWS account ID (12 digits)
+- `SSH_PUBLIC_KEY`: Public key for bastion host and nodes
+- `SSH_PRIVATE_KEY`: Private key for node communication
+
+### **Variables**
+- `GithubActionsRole`: Name of the IAM role for GitHub Actions (e.g., `GithubActionsRole`)
+- `vpc_cidr`: CIDR block for your VPC (e.g., `10.0.0.0/16`)
+
+These are referenced in `.github/workflows/terraform-plan-create.yml` and `.github/workflows/terraform-destroy.yml`.
+
+---
+
+## K3s Automation Improvements
+- The K3s server (node-1) is now installed with its public IP as a TLS SAN, so the kubeconfig is valid for public access.
+- The kubeconfig (`/etc/rancher/k3s/k3s.yaml`) is copied, patched with the public IP, and uploaded to AWS SSM Parameter Store as a SecureString for easy retrieval.
+- All file operations on `/etc/rancher/k3s/k3s.yaml` use `sudo` for security and compatibility.
+- The automation is robust for IMDSv2 and works on all modern Ubuntu EC2 images.
+
+---
