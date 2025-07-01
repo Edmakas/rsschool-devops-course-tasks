@@ -72,7 +72,9 @@ jobs:
             --query "Parameter.Value" \
             --region us-west-2 \
             --output text > k3s-config.yaml
-          
+
+          echo "ECKA ECKA ECKA ECKA ECKA"
+
           # Replace localhost with the actual IP if needed
           if grep -q "127.0.0.1\|localhost" k3s-config.yaml; then
             sed -i "s/127.0.0.1/${{ steps.get-ips.outputs.node1_ip }}/g" k3s-config.yaml
