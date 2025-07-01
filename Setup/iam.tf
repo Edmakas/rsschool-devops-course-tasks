@@ -69,7 +69,7 @@ resource "aws_iam_policy" "github_actions_ssm_getparameter" {
         Action = [
           "ssm:GetParameter"
         ],
-        Resource = "arn:aws:ssm:us-east-2:${var.AWS_ACCOUNT_ID}:parameter/rsschool/k3s-yaml"
+        Resource = "arn:aws:ssm:us-west-2:${var.AWS_ACCOUNT_ID}:parameter/rsschool/k3s-yaml"
       }
     ]
   })
