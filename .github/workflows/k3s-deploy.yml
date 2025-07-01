@@ -57,7 +57,7 @@ jobs:
       - name: Wait for K3s to be ready
         run: |
           echo "Waiting for K3s master to be ready..."
-          until ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=no ubuntu@${{ steps.get-ips.outputs.node1_ip }} 'kubectl get nodes' 2>/dev/null; do
+          until ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=no ubuntu@${{ steps.get-ips.outputs.node1_ip }} 'sudo kubectl get nodes' 2>/dev/null; do
             echo "K3s not ready yet, waiting..."
             sleep 30
           done
