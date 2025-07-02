@@ -126,7 +126,7 @@ jobs:
           
           # Get Jenkins admin password
           echo "Jenkins admin password:"
-          kubectl exec --namespace jenkins -c jenkins -it deployment/jenkins -- /bin/cat /run/secrets/additional/chart-admin-password
+          kubectl exec --namespace jenkins -c jenkins -it statefulset/jenkins -- /bin/cat /run/secrets/additional/chart-admin-password
 
       - name: Deploy Application Manifests
         run: |
