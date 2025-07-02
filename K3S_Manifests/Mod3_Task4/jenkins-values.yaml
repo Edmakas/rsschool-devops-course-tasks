@@ -31,7 +31,7 @@ renderHelmLabels: true
 
 controller:
 #Edmundas. 2025-07-02. Added rsschool-username and rsschool-password to the controller env.
-  env:
+  containerEnv:
     - name: rsschool-username
       valueFrom:
         secretKeyRef:
