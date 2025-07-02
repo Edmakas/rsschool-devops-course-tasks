@@ -30,18 +30,6 @@ credentialsId:
 renderHelmLabels: true
 
 controller:
-#Edmundas. 2025-07-02. Added rsschool-username and rsschool-password to the controller env.
-  containerEnv:
-    - name: rsschool-username
-      valueFrom:
-        secretKeyRef:
-          name: jenkins-user-secret
-          key: rsschool-username
-    - name: rsschool-password
-      valueFrom:
-        secretKeyRef:
-          name: jenkins-user-secret
-          key: rsschool-password
   # -- Used for label app.kubernetes.io/component
   componentName: "jenkins-controller"
   image:
@@ -549,14 +537,12 @@ controller:
         allowsSignup: false
         enableCaptcha: false
         users:
-        - id: "${chart-admin-username}"
-          name: "Jenkins Admin"
-          password: "${chart-admin-password}"
-
-        - id: "${rsschool-username}"
-          name: "RS School User"
-          password: "${rsschool-password}"
-
+          - id: "admin"
+            name: "Jenkins Admin"
+            password: "adminPassword"
+          - id: "rsschool"
+            name: "RS School User"
+            password: "SuperSecretPassword"
 
     # Ignored if authorizationStrategy is defined in controller.JCasC.configScripts
     # -- Jenkins Config as Code Authorization Strategy-section
@@ -847,7 +833,7 @@ controller:
     prometheusRuleNamespace: ""
 
     # RelabelConfigs to apply to samples before scraping. Prometheus Operator automatically adds
-    # relabelings for a few standard Kubernetes fields. The original scrape job’s name
+    # relabelings for a few standard Kubernetes fields. The original scrape job's name
     # is available via the __tmp_prometheus_job_name label.
     # More info: https://prometheus.io/docs/prometheus/latest/configuration/configuration/#relabel_config
     relabelings: []
