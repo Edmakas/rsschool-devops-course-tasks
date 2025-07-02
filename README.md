@@ -68,7 +68,7 @@ This project automates AWS infrastructure provisioning and K3s Kubernetes cluste
   - **prerequisites-jenkins-SC.yaml**: Defines a StorageClass for Jenkins persistent volumes
   - **prerequisites-jenkins-SA.yaml**: ServiceAccount, ClusterRole, and ClusterRoleBinding for Jenkins
   - **prerequisites-jenkins-Ingress.yaml**: (Optional) Ingress resource for Jenkins
-  - **prerequisites-command.txt**: Helm install and repo commands
+  - **prerequisites-command.txt**: (Optional) Helm install and repo commands
 - **.github/workflows/**: GitHub Actions workflows
   - **k3s-deploy.yml**: Provisions infra, applies Jenkins prerequisites, installs Jenkins via Helm
   - **k3s-manage.yml**: Cluster management (get status, logs, restart Jenkins, etc.)
