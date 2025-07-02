@@ -1,18 +1,86 @@
-# RS School DevOps Module 1: Automated AWS Infrastructure with K3s Cluster
+# RS School DevOps: Automated AWS Infrastructure & K3s Cluster
 
-This repository implements the requirements of [RS School DevOps Module 1, Task 2](https://github.com/rolling-scopes-school/tasks/blob/master/devops/modules/1_basic-configuration/task_2.md). It demonstrates how to set up a complete AWS infrastructure with an **automated K3s Kubernetes cluster** using Terraform, manage state in S3, and automate deployments with GitHub Actions.
+This project automates AWS infrastructure provisioning and K3s Kubernetes cluster deployment using Terraform and GitHub Actions. Jenkins is deployed on the cluster with all required Kubernetes prerequisites handled automatically.
 
-## 🚀 **NEW: Fully Automated K3s Installation**
+---
 
-**No manual work required!** This project now automatically:
-- ✅ **Installs K3s server** on node-1 (master)
-- ✅ **Installs K3s agent** on node-2 (worker) 
-- ✅ **Configures kubectl** on bastion host
-- ✅ **Deploys test pod** to verify cluster functionality
-- ✅ **Sets up SSH keys** for secure node communication
-- ✅ **Configures all networking** and security groups
+## Detailed Directory Structure & File Descriptions
 
-The entire K3s cluster is ready to use immediately after Terraform deployment!
+```
+.
+├── Infrastructure/                        # Terraform code for AWS infrastructure
+│   ├── main.tf                            # Root Terraform config, includes modules
+│   ├── variables.tf                       # Variable definitions for infrastructure
+│   ├── outputs.tf                         # Outputs for VPC, subnets, IPs, etc.
+│   ├── backends.tf                        # S3 backend config for state management
+│   ├── providers.tf                       # AWS provider configuration
+│   ├── .terraform.lock.hcl                # Terraform provider lock file
+│   ├── .terraform/                        # Terraform state and cache (auto-generated)
+│   └── modules/
+│       └── infra/                         # Core AWS resources module
+│           ├── bastion.tf                 # Bastion host EC2 instance
+│           ├── bastion_userdata.sh.tpl    # Bastion host initialization script
+│           ├── node1_userdata.sh.tpl      # K3s master node (server) setup script
+│           ├── node2_userdata.sh.tpl      # K3s worker node (agent) setup script
+│           ├── k3s_nodes.tf               # EC2 instances for K3s nodes
+│           ├── nat_gateway.tf             # NAT gateway for private subnet
+│           ├── outputs.tf                 # Module outputs (VPC info, IPs, etc.)
+│           ├── security_groups.tf         # Security groups for bastion and nodes
+│           ├── security_groups_k3s.tf     # Security groups for K3s-specific ports
+│           ├── security_groups_jenkins.tf # Security group for Jenkins
+│           ├── ssh_keys.tf                # SSH key resources
+│           ├── vpc.tf                     # VPC, subnets, IGW, route tables
+│           └── variables.tf               # Module variable definitions
+├── Setup/                                 # Terraform for initial AWS setup (IAM)
+│   ├── iam.tf                             # IAM role and policies for GitHub Actions
+│   ├── main.tf                            # Terraform backend and provider config
+│   ├── variables.tf                       # Variable definitions for setup
+│   ├── .terraform.lock.hcl                # Terraform provider lock file
+│   └── .terraform/                        # Terraform state and cache (auto-generated)
+├── K3S_Manifests/                         # Kubernetes manifests & Helm values
+│   ├── README.md                          # K3S manifests usage and workflow info
+│   └── Mod3_Task4/
+│       ├── jenkins-values.yaml            # Jenkins Helm chart values (custom config)
+│       ├── commands.txt                   # Useful Helm/K8s commands
+│       └── Prerequisites/                 # Jenkins prerequisites for K8s
+│           ├── prerequisites-jenkins-NS.yaml      # Namespace for Jenkins
+│           ├── prerequisites-jenkins-SC.yaml      # StorageClass for Jenkins PV
+│           ├── prerequisites-jenkins-SA.yaml      # ServiceAccount, ClusterRole, ClusterRoleBinding for Jenkins
+│           ├── prerequisites-jenkins-Ingress.yaml # (Optional) Ingress for Jenkins
+│           └── prerequisites-command.txt          # Helm install commands
+├── .github/
+│   └── workflows/
+│       ├── k3s-deploy.yml                 # Main CI/CD: infra, prerequisites, Jenkins
+│       ├── k3s-manage.yml                 # Cluster management actions (status, logs, etc.)
+│       ├── terraform-plan-create.yml      # Infra provisioning (plan/apply)
+│       └── terraform-destroy.yml          # Infra teardown
+├── .gitignore                             # Git ignore rules
+└── README.md                              # Project documentation (this file)
+```
+
+### File & Directory Descriptions
+- **Infrastructure/**: All Terraform code for AWS (VPC, EC2, security, etc.)
+  - **modules/infra/**: Core AWS resources, user data scripts, security, and outputs
+- **Setup/**: Terraform for IAM roles and initial AWS setup
+- **K3S_Manifests/Mod3_Task4/jenkins-values.yaml**: Jenkins Helm chart configuration (NodePort, plugins, etc.)
+- **K3S_Manifests/Mod3_Task4/Prerequisites/**: Kubernetes YAMLs for Jenkins namespace, storage, RBAC, and ingress
+  - **prerequisites-jenkins-NS.yaml**: Creates the `jenkins` namespace
+  - **prerequisites-jenkins-SC.yaml**: Defines a StorageClass for Jenkins persistent volumes
+  - **prerequisites-jenkins-SA.yaml**: ServiceAccount, ClusterRole, and ClusterRoleBinding for Jenkins
+  - **prerequisites-jenkins-Ingress.yaml**: (Optional) Ingress resource for Jenkins
+  - **prerequisites-command.txt**: Helm install and repo commands
+- **.github/workflows/**: GitHub Actions workflows
+  - **k3s-deploy.yml**: Provisions infra, applies Jenkins prerequisites, installs Jenkins via Helm
+  - **k3s-manage.yml**: Cluster management (get status, logs, restart Jenkins, etc.)
+  - **terraform-plan-create.yml**: Infrastructure provisioning (plan/apply)
+  - **terraform-destroy.yml**: Infrastructure teardown
+
+---
+
+## Quick Usage
+1. Configure your AWS and GitHub secrets/variables as described in the workflow comments.
+2. Push changes to the repository—**GitHub Actions will handle everything** (infra, K3s, Jenkins, prerequisites).
+3. Access Jenkins at `http://<master-node-ip>:30111` (admin password is shown in workflow logs).
 
 ---
 
@@ -27,117 +95,25 @@ The entire K3s cluster is ready to use immediately after Terraform deployment!
 
 ## Setup Instructions
 
-### 1. AWS IAM & S3 State Backend
-- Create an **IAM user** with these policies:
-  - AmazonEC2FullAccess
-  - AmazonRoute53FullAccess
-  - AmazonS3FullAccess
-  - IAMFullAccess
-  - AmazonVPCFullAccess
-  - AmazonSQSFullAccess
-  - AmazonEventBridgeFullAccess
-- Enable MFA for both root and IAM user.
-- Create an **S3 bucket** for Terraform state:
-  ```bash
-  aws s3api create-bucket --bucket <your-terraform-state-bucket> --region <your-region>
-  ```
-- Configure your `backend` in Terraform to use this S3 bucket.
-
-### 2. AWS CLI Configuration
-```bash
-aws configure
-# Enter Access Key, Secret Key, region, and output format
-```
-Test with:
-```bash
-aws ec2 describe-instance-types --instance-types t4g.nano
-```
-
-### 3. GitHub Actions IAM Role (for CI/CD)
+### 1. GitHub Actions IAM Role (for CI/CD)
 - The Terraform code for creating the `GithubActionsRole` IAM role is located in the `Setup` directory of this repository (`Setup/iam.tf`).
 - This role should have the same permissions as the IAM user described above.
 - Set up an OIDC identity provider for GitHub Actions in your AWS account.
 - Configure the trust policy to allow GitHub Actions to assume this role securely.
 
-### 4. GitHub Repository Secrets/Variables
-- `AWS_ACCOUNT_ID` (secret): Your AWS account ID
-- `SSH_PUBLIC_KEY` (secret): Public key for bastion host
-- `SSH_PRIVATE_KEY` (secret): Private key for node communication
-- `GithubActionsRole` (variable): Name of the IAM role for GitHub Actions
-- `vpc_cidr` (variable): CIDR block for VPC
+### 4. GitHub Repository Secrets and Variables
 
----
+For GitHub Actions CI/CD to work, you must set the following in your repository:
 
-## Project Structure
-```
-.
-├── Infrastructure/
-│   ├── .terraform.lock.hcl
-│   ├── backends.tf
-│   ├── main.tf
-│   ├── outputs.tf
-│   ├── terraform.tfvars
-│   ├── variables.tf
-│   ├── providers.tf
-│   ├── modules/
-│   │   └── infra/
-│   │       ├── bastion.tf
-│   │       ├── bastion_userdata.sh.tpl
-│   │       ├── node1_userdata.sh.tpl
-│   │       ├── node2_userdata.sh.tpl
-│   │       ├── k3s_nodes.tf
-│   │       ├── nat_gateway.tf
-│   │       ├── outputs.tf
-│   │       ├── security_groups.tf
-│   │       ├── security_groups_k3s.tf
-│   │       ├── vpc.tf
-│   │       └── variables.tf
-│   └── .terraform/
-├── Setup/
-│   ├── .terraform.lock.hcl
-│   ├── iam.tf
-│   ├── main.tf
-│   ├── terraform.tfvars
-│   ├── variables.tf
-│   └── .terraform/
-├── .github/
-│   └── workflows/
-│       └── terraform-plan-create.yml
-├── .gitignore
-└── README.md
-```
+### **Secrets**
+- `AWS_ACCOUNT_ID`: Your AWS account ID (12 digits)
+- `SSH_PUBLIC_KEY`: Public key for bastion host and nodes
+- `SSH_PRIVATE_KEY`: Private key for node communication
 
-### Directory and File Descriptions
-
-#### **Infrastructure/** - Main Terraform configuration for AWS infrastructure
-- **main.tf**: Root Terraform module with conditional SSH key handling (local file vs GitHub secrets)
-- **variables.tf**: Variable definitions for the infrastructure
-- **outputs.tf**: Outputs from the infrastructure (VPC, subnet info, bastion IP, node IPs)
-- **backends.tf**: S3 backend configuration for state management
-- **terraform.tfvars**: Variable values (public key, VPC CIDR, etc.)
-- **providers.tf**: AWS provider configuration
-
-#### **Infrastructure/modules/infra/** - Core AWS resources module
-- **bastion.tf**: Bastion host EC2 instance with automated kubectl setup and test pod deployment
-- **bastion_userdata.sh.tpl**: Template for bastion host initialization (kubectl install, SSH key setup, cluster access)
-- **node1_userdata.sh.tpl**: Template for K3s master node (node-1) setup with server installation
-- **node2_userdata.sh.tpl**: Template for K3s worker node (node-2) setup with agent installation and cluster joining
-- **k3s_nodes.tf**: EC2 instances for K3s nodes with proper dependencies and user data templates
-- **security_groups.tf**: Security group definitions (bastion, private instances with SSH/ICMP between nodes)
-- **security_groups_k3s.tf**: Security group for K3s nodes (all required K3s ports: 6443, 8472, 10250, etc.)
-- **vpc.tf**: VPC, subnets, internet gateway, and route tables
-- **nat_gateway.tf**: NAT gateway for private subnet internet access
-- **outputs.tf**: Module outputs (VPC info, subnet CIDRs, bastion IP, node IPs)
-- **variables.tf**: Module variables
-
-#### **Setup/** - Initial AWS setup (IAM role for GitHub Actions)
-- **iam.tf**: IAM role and policies for GitHub Actions with OIDC trust
-- **main.tf**: Terraform backend and provider configuration
-- **variables.tf**: Variable definitions for setup
-- **terraform.tfvars**: Variable values for setup
-
-#### **.github/workflows/** - GitHub Actions CI/CD workflows
-- **terraform-plan-create.yml**: Automated workflow for infrastructure provisioning with GitHub secrets integration
+### **Variables**
+- `GithubActionsRole`: Name of the IAM role for GitHub Actions (e.g., `GithubActionsRole`)
+- `vpc_cidr`: CIDR block for your VPC (e.g., `10.0.0.0/16`)
+- `NODE_INSTANCE_PROFILE` (variable): Instance profile 
 
 ---
 
@@ -146,16 +122,12 @@ aws ec2 describe-instance-types --instance-types t4g.nano
 ### **What Gets Deployed Automatically:**
 
 1. **Infrastructure Layer:**
-   - VPC with public/private subnets across 2 AZs
-   - NAT Gateway for private subnet internet access
-   - Bastion host in public subnet for secure access
-   - Security groups with all required K3s ports
+   - VPC with public subnet   
+   - Security groups with all required K3s/Jenkins ports
 
 2. **K3s Cluster Layer:**
    - **node-1**: K3s server (master) with automatic installation
    - **node-2**: K3s agent (worker) with automatic cluster joining
-   - **Bastion**: kubectl configured with cluster access
-   - **Test deployment**: Simple nginx pod deployed automatically
 
 3. **Security Layer:**
    - SSH keys automatically distributed to all nodes
@@ -163,113 +135,59 @@ aws ec2 describe-instance-types --instance-types t4g.nano
    - K3s-specific ports (6443, 8472, 10250, etc.) configured
    - Private subnets for worker nodes
 
-### **Cluster Verification:**
-After deployment, the bastion host automatically:
-- Deploys a test nginx pod
-- Verifies cluster connectivity
-- Shows node and pod status
-
 ---
 
-## GitHub Actions Workflow
+## GitHub Actions Workflows
 
-### **terraform-plan-create.yml**
-- **Triggers**: Push/PR to main, develop, or task_* branches
-- **Features**:
-  - Uses GitHub secrets for SSH keys (`SSH_PRIVATE_KEY`, `SSH_PUBLIC_KEY`)
-  - AWS OIDC authentication via IAM role
-  - Two-stage deployment (plan → apply)
-  - Automatic infrastructure updates
+### terraform-plan-create.yml
+- **Purpose:** Provisions AWS infrastructure using Terraform.
+- **Triggers:** On push/PR to main, develop, or task_* branches.
+- **Features:**
+  - Runs `terraform plan` and `terraform apply` using secrets and OIDC authentication.
+  - Handles infrastructure updates automatically.
+
+### k3s-deploy.yml
+- **Purpose:** Deploys to the K3s cluster after infrastructure is ready.
+- **Features:**
+  - Waits for K3s to be ready.
+  - Applies all Jenkins Kubernetes prerequisites (namespace, StorageClass, RBAC, etc.).
+  - Installs Jenkins via Helm with custom values.
+  - Outputs Jenkins access info and admin password.
+  - Applies any additional manifests in the K3S_Manifests directory.
+
+### k3s-manage.yml
+- **Purpose:** Provides cluster management and troubleshooting actions.
+- **Features:**
+  - Allows you to check cluster status, get logs, restart Jenkins, and apply manifests.
+  - Can be triggered manually from the GitHub Actions UI.
+
+### terraform-destroy.yml
+- **Purpose:** Tears down all provisioned AWS infrastructure.
+- **Features:**
+  - Runs `terraform destroy` safely using the same secrets and OIDC authentication.
+  - Can be triggered manually to clean up all resources.
 
 ---
 
 ## Deployment Steps
 
-### **Option 1: GitHub Actions (Recommended)**
-1. **Set GitHub secrets** (SSH keys, AWS account ID)
-2. **Set GitHub variables** (VPC CIDR, bastion IPs, IAM role name)
-3. **Push to main branch** - infrastructure deploys automatically
-4. **Access bastion host** - K3s cluster is ready to use
+### **Option 1: GitHub Actions**
+1. **Set GitHub secrets**
+2. **Set GitHub variables**
+3. **Push to main branch**
 
 ### **Option 2: Local Deployment**
 1. **Clone the repository**
 2. **Configure AWS credentials**
-3. **Initialize and apply**:
+4. **Set variables locally**
+5. **Initialize and apply**:
    ```bash
    cd Infrastructure
    terraform init
    terraform plan
    terraform apply
    ```
-4. **Access bastion host** - K3s cluster is ready to use
-
----
-
-## 🚀 **Post-Deployment Access**
-
-### **Connect to Bastion Host:**
-```bash
-ssh -i ~/.ssh/bastion_aws_test_rsa ubuntu@<bastion-public-ip>
-```
-
-### **Verify K3s Cluster:**
-```bash
-# Check nodes
-kubectl get nodes
-
-# Check pods
-kubectl get pods
-
-# Check services
-kubectl get services
-```
-
-### **Access Worker Nodes (via bastion):**
-```bash
-ssh ubuntu@<node1-private-ip>  # K3s master
-ssh ubuntu@<node2-private-ip>  # K3s worker
-```
-
----
-
-## 🔧 **Infrastructure Details**
-
-### **Network Architecture:**
-- **VPC**: 10.0.0.0/16
-- **Public Subnet**: 10.0.0.0/24 (bastion host)
-- **Private Subnet 1**: 10.0.10.0/24 (node-1, K3s master)
-- **Private Subnet 2**: 10.0.11.0/24 (node-2, K3s worker)
-
-### **Instance Types:**
-- **Bastion**: t2.micro (Ubuntu 22.04)
-- **K3s Nodes**: t2.medium (Ubuntu 22.04)
-
-### **Security Groups:**
-- **Bastion**: SSH from allowed IPs only
-- **Private**: SSH from bastion + SSH/ICMP between nodes
-- **K3s**: All required K3s ports (6443, 8472, 10250, etc.)
-
----
-
-## 📊 **Terraform Code Statistics**
-- **Total Lines**: 691 lines of Terraform code
-- **Infrastructure Module**: 448 lines (65% of total)
-- **Core Infrastructure**: 562 lines (81% of total)
-- **Setup/IAM**: 129 lines (19% of total)
-
----
-
-## 🎉 **What You Get**
-
-After running this Terraform configuration, you'll have:
-- ✅ **Complete K3s cluster** ready for application deployment
-- ✅ **Secure networking** with proper security groups
-- ✅ **Automated setup** - no manual configuration required
-- ✅ **CI/CD ready** with GitHub Actions integration
-- ✅ **Production-ready** infrastructure as code
-- ✅ **Cost-optimized** setup with NAT gateway in single AZ
-
-**No manual K3s installation or configuration needed!** 🚀
+6. **Access K3S worker host**
 
 ---
 
@@ -282,30 +200,5 @@ After running this Terraform configuration, you'll have:
 
 ## Author
 Edmundas
-
----
-
-## GitHub Repository Secrets and Variables
-
-For GitHub Actions CI/CD to work, you must set the following in your repository:
-
-### **Secrets**
-- `AWS_ACCOUNT_ID`: Your AWS account ID (12 digits)
-- `SSH_PUBLIC_KEY`: Public key for bastion host and nodes
-- `SSH_PRIVATE_KEY`: Private key for node communication
-
-### **Variables**
-- `GithubActionsRole`: Name of the IAM role for GitHub Actions (e.g., `GithubActionsRole`)
-- `vpc_cidr`: CIDR block for your VPC (e.g., `10.0.0.0/16`)
-
-These are referenced in `.github/workflows/terraform-plan-create.yml` and `.github/workflows/terraform-destroy.yml`.
-
----
-
-## K3s Automation Improvements
-- The K3s server (node-1) is now installed with its public IP as a TLS SAN, so the kubeconfig is valid for public access.
-- The kubeconfig (`/etc/rancher/k3s/k3s.yaml`) is copied, patched with the public IP, and uploaded to AWS SSM Parameter Store as a SecureString for easy retrieval.
-- All file operations on `/etc/rancher/k3s/k3s.yaml` use `sudo` for security and compatibility.
-- The automation is robust for IMDSv2 and works on all modern Ubuntu EC2 images.
 
 ---
