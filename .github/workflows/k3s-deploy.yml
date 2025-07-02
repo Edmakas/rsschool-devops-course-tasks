@@ -1,4 +1,4 @@
-name: Deploy to K3s Cluster
+name: Deploy Jenkins
 
 on:
   workflow_dispatch:
