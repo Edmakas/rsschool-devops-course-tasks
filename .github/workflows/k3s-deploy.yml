@@ -98,6 +98,18 @@ jobs:
           # Create namespace if it doesn't exist
           kubectl create namespace jenkins --dry-run=client -o yaml | kubectl apply -f -
           
+          # Apply Jenkins prerequisites before Helm installation
+          echo "Applying Jenkins prerequisites..."
+          kubectl apply -f ../K3S_Manifests/Mod3_Task4/Prerequisites/prerequisites-jenkins-SC.yaml
+          kubectl apply -f ../K3S_Manifests/Mod3_Task4/Prerequisites/prerequisites-jenkins-SA.yaml
+          
+          # Verify prerequisites are applied
+          echo "Verifying prerequisites..."
+          kubectl get storageclass jenkins-pv
+          kubectl get serviceaccount jenkins -n jenkins
+          kubectl get clusterrole jenkins
+          kubectl get clusterrolebinding jenkins
+          
           # Deploy Jenkins using Helm
           helm repo add jenkins https://charts.jenkins.io
           helm repo update
