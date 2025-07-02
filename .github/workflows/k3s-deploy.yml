@@ -125,7 +125,7 @@ jobs:
           kubectl get svc -n jenkins
           
           # Get Jenkins admin password
-          echo "Jenkins admin password:"
+          echo "Jenkins admin password: ( Change it after first login )"
           kubectl exec --namespace jenkins -c jenkins -it statefulset/jenkins -- /bin/cat /run/secrets/additional/chart-admin-password
 
       - name: Deploy Application Manifests
