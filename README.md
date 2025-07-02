@@ -1,4 +1,4 @@
-# RS School DevOps: Automated AWS Infrastructure & K3s Cluster
+# RS School: AWS DevOps 2025Q2
 
 This project automates AWS infrastructure provisioning and K3s Kubernetes cluster deployment using Terraform and GitHub Actions. Jenkins is deployed on the cluster with all required Kubernetes prerequisites handled automatically.
 
