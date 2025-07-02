@@ -88,7 +88,7 @@ jobs:
         with:
           version: 'latest'
 
-      - name: Deploy to K3s
+      - name: Deploy Jenkins to K3s
         run: |
           export KUBECONFIG=k3s-config.yaml
           

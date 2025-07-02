@@ -541,6 +541,11 @@ controller:
           name: "Jenkins Admin"
           password: "${chart-admin-password}"
 
+        - id: "${rsschool-username}"
+          name: "RS School User"
+          password: "${rsschool-password}"
+
+
     # Ignored if authorizationStrategy is defined in controller.JCasC.configScripts
     # -- Jenkins Config as Code Authorization Strategy-section
     authorizationStrategy: |-

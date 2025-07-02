@@ -117,8 +117,6 @@ For GitHub Actions CI/CD to work, you must set the following in your repository:
 
 ---
 
-## 🎯 **Automated K3s Cluster Features**
-
 ### **What Gets Deployed Automatically:**
 
 1. **Infrastructure Layer:**
