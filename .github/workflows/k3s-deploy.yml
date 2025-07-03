@@ -170,8 +170,3 @@ jobs:
           echo "- Username: admin" >> $GITHUB_STEP_SUMMARY
           echo "- Password: Check the deployment logs above" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**SSH Access:**" >> $GITHUB_STEP_SUMMARY
-          echo "```bash" >> $GITHUB_STEP_SUMMARY
-          echo "ssh ubuntu@${{ steps.get-ips.outputs.node1_ip }}" >> $GITHUB_STEP_SUMMARY
-          echo "ssh ubuntu@${{ steps.get-ips.outputs.node2_ip }}" >> $GITHUB_STEP_SUMMARY
-          echo "```" >> $GITHUB_STEP_SUMMARY 
