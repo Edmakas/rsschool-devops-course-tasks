@@ -101,7 +101,7 @@ jobs:
           kubectl apply -f ../K3S_Manifests/Mod3_Task4/Prerequisites/prerequisites-jenkins-NS.yaml
           kubectl apply -f ../K3S_Manifests/Mod3_Task4/Prerequisites/prerequisites-jenkins-SC.yaml
           kubectl apply -f ../K3S_Manifests/Mod3_Task4/Prerequisites/prerequisites-jenkins-SA.yaml
-          kubectl create secret generic jenkins-dev1-secret --from-literal=username=dev1 --from-literal=password="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
+          kubectl create -n jenkins secret generic jenkins-dev1-secret --from-literal=username=dev1 --from-literal=password="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
           
           # Verify prerequisites are applied
           echo "Verifying prerequisites..."
