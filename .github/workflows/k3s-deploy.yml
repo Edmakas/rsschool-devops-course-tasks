@@ -99,8 +99,8 @@ jobs:
           # Apply Jenkins prerequisites before Helm installation
           echo "Applying Jenkins prerequisites..."
           kubectl apply -f ../K3S_Manifests/Mod3_Task4/Prerequisites/prerequisites-jenkins-NS.yaml
-          #kubectl apply -f ../K3S_Manifests/Mod3_Task4/Prerequisites/prerequisites-jenkins-SC.yaml
-          #kubectl apply -f ../K3S_Manifests/Mod3_Task4/Prerequisites/prerequisites-jenkins-SA.yaml
+          kubectl apply -f ../K3S_Manifests/Mod3_Task4/Prerequisites/prerequisites-jenkins-SC.yaml
+          kubectl apply -f ../K3S_Manifests/Mod3_Task4/Prerequisites/prerequisites-jenkins-SA.yaml
           
           # Verify prerequisites are applied
           echo "Verifying prerequisites..."
