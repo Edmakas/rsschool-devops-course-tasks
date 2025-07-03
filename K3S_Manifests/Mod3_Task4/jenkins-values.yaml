@@ -517,7 +517,18 @@ controller:
     configUrls: []
     # - https://acme.org/jenkins.yaml
     # -- List of Jenkins Config as Code scripts
-    configScripts: {}
+    configScripts: 
+    #Ecka
+    #{}
+      main-config: |
+      # The 'jobs' block is a top-level item for the job-dsl plugin
+      jobs:
+        - script: >
+            freeStyleJob('hello-world-freestyle') {
+              steps {
+                shell('echo "Hello world"')
+              }
+          }
     #  welcome-message: |
     #    jenkins:
     #      systemMessage: Welcome to our CI\CD server. This Jenkins is configured and managed 'as code'.
@@ -833,7 +844,7 @@ controller:
     prometheusRuleNamespace: ""
 
     # RelabelConfigs to apply to samples before scraping. Prometheus Operator automatically adds
-    # relabelings for a few standard Kubernetes fields. The original scrape job's name
+    # relabelings for a few standard Kubernetes fields. The original scrape job’s name
     # is available via the __tmp_prometheus_job_name label.
     # More info: https://prometheus.io/docs/prometheus/latest/configuration/configuration/#relabel_config
     relabelings: []
