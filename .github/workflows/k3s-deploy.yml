@@ -127,7 +127,7 @@ jobs:
           # Get Jenkins admin password
           echo "Jenkins admin password: ( Change it after first login )"
           kubectl exec --namespace jenkins -c jenkins -it statefulset/jenkins -- /bin/cat /run/secrets/additional/chart-admin-password
-
+        
       - name: Deploy Application Manifests
         run: |
           export KUBECONFIG=k3s-config.yaml
@@ -171,8 +171,8 @@ jobs:
           echo "- Username: admin" >> $GITHUB_STEP_SUMMARY
           echo "- Password: Check the deployment logs above" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**SSH Access:**" >> $GITHUB_STEP_SUMMARY
-          echo "```bash" >> $GITHUB_STEP_SUMMARY
-          echo "ssh ubuntu@${{ steps.get-ips.outputs.node1_ip }}" >> $GITHUB_STEP_SUMMARY
-          echo "ssh ubuntu@${{ steps.get-ips.outputs.node2_ip }}" >> $GITHUB_STEP_SUMMARY
-          echo "```" >> $GITHUB_STEP_SUMMARY 
+          # echo "**SSH Access:**" >> $GITHUB_STEP_SUMMARY
+          # echo "```bash" >> $GITHUB_STEP_SUMMARY
+          # echo "ssh ubuntu@${{ steps.get-ips.outputs.node1_ip }}" >> $GITHUB_STEP_SUMMARY
+          # echo "ssh ubuntu@${{ steps.get-ips.outputs.node2_ip }}" >> $GITHUB_STEP_SUMMARY
+          # echo "```" >> $GITHUB_STEP_SUMMARY 
