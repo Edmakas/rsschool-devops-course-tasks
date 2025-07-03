@@ -101,6 +101,7 @@ jobs:
           kubectl apply -f ../K3S_Manifests/Mod3_Task4/Prerequisites/prerequisites-jenkins-NS.yaml
           kubectl apply -f ../K3S_Manifests/Mod3_Task4/Prerequisites/prerequisites-jenkins-SC.yaml
           kubectl apply -f ../K3S_Manifests/Mod3_Task4/Prerequisites/prerequisites-jenkins-SA.yaml
+          kubectl create secret generic jenkins-dev1-secret --from-literal=username=dev1 --from-literal=password="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
           
           # Verify prerequisites are applied
           echo "Verifying prerequisites..."
@@ -170,3 +171,8 @@ jobs:
           echo "- Username: admin" >> $GITHUB_STEP_SUMMARY
           echo "- Password: Check the deployment logs above" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**SSH Access:**" >> $GITHUB_STEP_SUMMARY
+          echo "```bash" >> $GITHUB_STEP_SUMMARY
+          echo "ssh ubuntu@${{ steps.get-ips.outputs.node1_ip }}" >> $GITHUB_STEP_SUMMARY
+          echo "ssh ubuntu@${{ steps.get-ips.outputs.node2_ip }}" >> $GITHUB_STEP_SUMMARY
+          echo "```" >> $GITHUB_STEP_SUMMARY 

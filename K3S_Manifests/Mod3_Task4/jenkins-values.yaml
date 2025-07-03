@@ -548,9 +548,9 @@ controller:
         - id: "${chart-admin-username}"
           name: "Jenkins Admin"
           password: "${chart-admin-password}"
-        - id: "ecka"
-          name: "Ecka"
-          password: "ls427wad_?"
+        - id: "${DEV1_USERNAME}"
+          name: "Developer One"
+          password: "${DEV1_PASSWORD}"
 
     # Ignored if authorizationStrategy is defined in controller.JCasC.configScripts
     # -- Jenkins Config as Code Authorization Strategy-section
@@ -625,7 +625,17 @@ controller:
       # -- Environment variable sources for the Jenkins Config as Code auto-reload container
       envFrom: []
       # -- Environment variables for the Jenkins Config as Code auto-reload container
-      env: []
+      env: #[]
+        - name: DEV1_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: jenkins-dev1-secret
+              key: username
+        - name: DEV1_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: jenkins-dev1-secret
+              key: password
       #   - name: REQ_TIMEOUT
       #     value: "30"
 
