@@ -519,14 +519,13 @@ controller:
     # -- List of Jenkins Config as Code scripts
     configScripts: 
       main-config: |
-      # The 'jobs' block is a top-level item for the job-dsl plugin
         jobs:
           - script: >
               freeStyleJob('hello-world-freestyle') {
                 steps {
                   shell('echo "Hello world"')
-                }
               }
+            }
     #  welcome-message: |
     #    jenkins:
     #      systemMessage: Welcome to our CI\CD server. This Jenkins is configured and managed 'as code'.
