@@ -623,11 +623,11 @@ controller:
       sleepTime:
 
       # -- Environment variable sources for the Jenkins Config as Code auto-reload container
-      envFrom: 
-        - name: USER
-          value: "dev1"
-        - name: PASS
-          value: "myPassword123"
+      envFrom: []
+        # - name: USER
+        #   value: "dev1"
+        # - name: PASS
+        #   value: "myPassword123"
       #[]
       # -- Environment variables for the Jenkins Config as Code auto-reload container
       env: #[]
