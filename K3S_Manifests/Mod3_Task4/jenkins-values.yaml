@@ -1,3 +1,4 @@
+namespaceOverride: ""
 controller:
   serviceType: NodePort
   nodePort: 30111
