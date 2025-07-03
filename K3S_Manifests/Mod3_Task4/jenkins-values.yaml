@@ -409,6 +409,7 @@ controller:
     - workflow-aggregator:608.v67378e9d3db_1
     - git:5.7.0
     - configuration-as-code:1971.vf9280461ea_89
+    - job-dsl
 
   # If set to false, Jenkins will download the minimum required version of all dependencies.
   # -- Download the minimum required version or latest version of all dependencies
@@ -516,8 +517,7 @@ controller:
     configUrls: []
     # - https://acme.org/jenkins.yaml
     # -- List of Jenkins Config as Code scripts
-    configScripts: #{}
-    #Ecka
+    configScripts: 
       main-config: |
       # The 'jobs' block is a top-level item for the job-dsl plugin
         jobs:
