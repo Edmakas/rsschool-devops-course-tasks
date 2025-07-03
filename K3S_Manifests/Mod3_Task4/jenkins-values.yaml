@@ -1,9 +1,9 @@
 controller:
   serviceType: NodePort
   nodePort: 30111
-  # serviceAccount:
-  #   create: true
-  #   name: jenkins
+  serviceAccount:
+    create: false
+    name: jenkins
   JCasC:
     securityRealm: |-
       local:
