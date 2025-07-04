@@ -630,7 +630,7 @@ controller:
         #   value: "myPassword123"
       #[]
       # -- Environment variables for the Jenkins Config as Code auto-reload container
-      env: #[]
+      env:
         - name: USER2
           value: "dev1"
         - name: PASS2
