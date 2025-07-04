@@ -2,14 +2,18 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: jenkins-ingress
+  name: jenkins
   namespace: jenkins
   annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: web
-    traefik.ingress.kubernetes.io/router.middlewares: jenkins-strip-prefix@kubernetescrd
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-staging
 spec:
+  tls:
+    - hosts:
+        - jenkins.example.com  # <-- Replace with your real domain
+      secretName: jenkins-tls
   rules:
-    - host: jenkins.local
+    - host: jenkins.example.com  # <-- Replace with your real domain
       http:
         paths:
           - path: /
