@@ -10,12 +10,13 @@ jobs:
       id-token: write
       contents: read
     env:
-      TF_VAR_aws_account_id:    ${{ secrets.AWS_ACCOUNT_ID }}
-      TF_VAR_GithubActionsRole: ${{ vars.GithubActionsRole }}
-      TF_VAR_public_key:        ${{ secrets.SSH_PUBLIC_KEY }}
-      TF_VAR_private_key:       ${{ secrets.SSH_PRIVATE_KEY }}
-      TF_VAR_vpc_cidr:          ${{ vars.vpc_cidr }}
-      TF_VAR_ips_to_bastion:    ${{ vars.IPS_TO_BASTION }}
+      TF_VAR_aws_account_id:     ${{ secrets.AWS_ACCOUNT_ID }}
+      TF_VAR_GithubActionsRole:  ${{ vars.GithubActionsRole }}
+      TF_VAR_public_key:         ${{ secrets.SSH_PUBLIC_KEY }}
+      TF_VAR_private_key:        ${{ secrets.SSH_PRIVATE_KEY }}
+      TF_VAR_vpc_cidr:           ${{ vars.vpc_cidr }}
+      TF_VAR_ips_to_bastion:     ${{ vars.IPS_TO_BASTION }}
+      TF_VAR_CERT_MANAGER_EMAIL: ${{ vars.CERT_MANAGER_EMAIL }}
     defaults:
       run:
         working-directory: Infrastructure
@@ -118,6 +119,7 @@ jobs:
           kubectl apply -f ../K3S_Manifests/Mod3_Task4/Prerequisites/prerequisites-jenkins-SA.yaml
           kubectl apply -f ../K3S_Manifests/Mod3_Task4/Prerequisites/prerequisites-jenkins-Ingress.yaml
           kubectl create -n jenkins secret generic jenkins-dev1-secret --from-literal=username=dev1 --from-literal=password="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
+          kubectl create -f ../K3S_Manifests/Mod3_Task4/Prerequisites/letsencrypt-staging-clusterissuer.yaml
          
           # Verify prerequisites are applied
           echo "Verifying prerequisites..."

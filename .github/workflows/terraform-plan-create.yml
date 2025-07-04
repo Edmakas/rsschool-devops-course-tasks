@@ -23,6 +23,7 @@ jobs:
       TF_VAR_vpc_cidr:          ${{ vars.vpc_cidr }}
       TF_VAR_ips_to_bastion:    ${{ vars.IPS_TO_BASTION }}
       TF_VAR_node_instance_profile: ${{ vars.node_instance_profile }}
+      TF_VAR_CERT_MANAGER_EMAIL: ${{ vars.CERT_MANAGER_EMAIL }}
     defaults:
       run:
         working-directory: Infrastructure
@@ -62,6 +63,7 @@ jobs:
       TF_VAR_vpc_cidr:          ${{ vars.vpc_cidr }}
       TF_VAR_ips_to_bastion:    ${{ vars.IPS_TO_BASTION }}
       TF_VAR_node_instance_profile: ${{ vars.node_instance_profile }}
+      TF_VAR_CERT_MANAGER_EMAIL: ${{ vars.CERT_MANAGER_EMAIL }}
     defaults:
       run:
         working-directory: Infrastructure
