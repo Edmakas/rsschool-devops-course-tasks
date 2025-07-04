@@ -1,4 +1,4 @@
-name: Create AWS, K3S resources
+name: Create AWS infra, K3S
 on:
   workflow_dispatch:
 # on:
