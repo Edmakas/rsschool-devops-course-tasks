@@ -16,17 +16,17 @@ output "node-1_public_ip" {
   value       = module.infra.node-1_public_ip
 }
 
-output "node-2_public_ip" {
-  description = "Public IP address of the node-2 host"
-  value       = module.infra.node-2_public_ip
-}
+# output "node-2_public_ip" {
+#   description = "Public IP address of the node-2 host"
+#   value       = module.infra.node-2_public_ip
+# }
 
 output "node-1_private_ip" {
   description = "Private IP address of the node-1 host"
   value       = module.infra.node-1_private_ip
 }
 
-output "node-2_private_ip" {
-  description = "Private IP address of the node-2 host"
-  value       = module.infra.node-2_private_ip
-}
+# output "node-2_private_ip" {
+#   description = "Private IP address of the node-2 host"
+#   value       = module.infra.node-2_private_ip
+# }

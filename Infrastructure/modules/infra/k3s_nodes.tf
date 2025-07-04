@@ -20,23 +20,23 @@ resource "aws_instance" "node-1" {
 }
 
 #  node-2 EC2 in Public  Subnet 1
-resource "aws_instance" "node-2" {
-  ami                    = "ami-05f991c49d264708f"
-  instance_type          = "t2.medium"
-  subnet_id              = aws_subnet.public[0].id
-  vpc_security_group_ids = [aws_security_group.public_sg.id, aws_security_group.k3s_nodes.id, aws_security_group.jenkins_sg.id]
-  key_name               = aws_key_pair.ssh_public_key.key_name
+# resource "aws_instance" "node-2" {
+#   ami                    = "ami-05f991c49d264708f"
+#   instance_type          = "t2.medium"
+#   subnet_id              = aws_subnet.public[0].id
+#   vpc_security_group_ids = [aws_security_group.public_sg.id, aws_security_group.k3s_nodes.id, aws_security_group.jenkins_sg.id]
+#   key_name               = aws_key_pair.ssh_public_key.key_name
 
-  depends_on = [aws_instance.node-1]
+#   depends_on = [aws_instance.node-1]
 
-  user_data = base64encode(templatefile("${path.module}/node2_userdata.sh.tpl", {
-    master_ip   = aws_instance.node-1.private_ip
-    private_key = var.private_key
-  }))
+#   user_data = base64encode(templatefile("${path.module}/node2_userdata.sh.tpl", {
+#     master_ip   = aws_instance.node-1.private_ip
+#     private_key = var.private_key
+#   }))
 
-  tags = {
-    Name    = "${var.prefix}-node-2"
-    Purpose = "k3s-node"
+#   tags = {
+#     Name    = "${var.prefix}-node-2"
+#     Purpose = "k3s-node"
 
-  }
-}
+#   }
+# }

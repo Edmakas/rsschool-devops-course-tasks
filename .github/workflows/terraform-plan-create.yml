@@ -87,8 +87,8 @@ jobs:
       - name: Output Access Information
         run: |
           NODE1_IP=$(terraform output -raw node-1_public_ip || echo "not available")
-          NODE2_IP=$(terraform output -raw node-2_public_ip || echo "not available")
+          # NODE2_IP=$(terraform output -raw node-2_public_ip || echo "not available")
           echo "## K3s Cluster Node Public IPs" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**K3s Master Node:** $NODE1_IP" >> $GITHUB_STEP_SUMMARY
-          echo "**K3s Worker Node:** $NODE2_IP" >> $GITHUB_STEP_SUMMARY
+          # echo "**K3s Worker Node:** $NODE2_IP" >> $GITHUB_STEP_SUMMARY
