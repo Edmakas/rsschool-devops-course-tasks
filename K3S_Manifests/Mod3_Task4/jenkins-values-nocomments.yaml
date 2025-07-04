@@ -1,0 +1,155 @@
+# (This file is a copy of jenkins-values.yaml with all comments removed)
+# ... actual YAML content from jenkins-values.yaml, but with all comment lines removed ... 
+
+nameOverride:
+fullnameOverride:
+namespaceOverride:
+clusterZone: "cluster.local"
+kubernetesURL: "https://kubernetes.default"
+credentialsId:
+renderHelmLabels: true
+controller:
+  componentName: "jenkins-controller"
+  image:
+    registry: "docker.io"
+    repository: "jenkins/jenkins"
+    tag:
+    tagLabel: jdk21
+    pullPolicy: "Always"
+  imagePullSecretName:
+  lifecycle: {}
+  disableRememberMe: false
+  numExecutors: 0
+  executorMode: "NORMAL"
+  customJenkinsLabels: []
+  hostNetworking: false
+  admin:
+    username: "admin"
+    password:
+    userKey: jenkins-admin-user
+    passwordKey: jenkins-admin-password
+    createSecret: true
+    existingSecret: ""
+  jenkinsAdminEmail:
+  jenkinsHome: "/var/jenkins_home"
+  jenkinsRef: "/usr/share/jenkins/ref"
+  jenkinsWar: "/usr/share/jenkins/jenkins.war"
+  resources:
+    requests:
+      cpu: "50m"
+      memory: "256Mi"
+    limits:
+      cpu: "2000m"
+      memory: "4096Mi"
+  shareProcessNamespace: false
+  enableServiceLinks: false
+  initContainerResources: {}
+  initContainerEnvFrom: []
+  initContainerEnv: []
+  containerEnvFrom: []
+  containerEnv: []
+  javaOpts:
+  jenkinsOpts:
+  jenkinsUrlProtocol:
+  jenkinsUrl:
+  jenkinsUriPrefix:
+  usePodSecurityContext: true
+  runAsUser: 1000
+  fsGroup: 1000
+  securityContextCapabilities: {}
+  podSecurityContextOverride: ~
+  containerSecurityContext:
+    runAsUser: 1000
+    runAsGroup: 1000
+    readOnlyRootFilesystem: true
+    allowPrivilegeEscalation: false
+  serviceEnabled: true
+  serviceType: NodePort
+  clusterIp:
+  servicePort: 8080
+  targetPort: 8080
+  nodePort: 30111
+  serviceExternalTrafficPolicy:
+  publishNotReadyAddresses:
+  serviceAnnotations: {}
+  statefulSetLabels: {}
+  serviceLabels: {}
+  podLabels: {}
+  healthProbes: true
+  probes:
+    startupProbe:
+      failureThreshold: 12
+      httpGet:
+        path: '{{ default "" .Values.controller.jenkinsUriPrefix }}/login'
+        port: http
+      periodSeconds: 10
+      timeoutSeconds: 5
+    livenessProbe:
+      failureThreshold: 5
+      httpGet:
+        path: '{{ default "" .Values.controller.jenkinsUriPrefix }}/login'
+        port: http
+      periodSeconds: 10
+      timeoutSeconds: 5
+      initialDelaySeconds:
+    readinessProbe:
+      failureThreshold: 3
+      httpGet:
+        path: '{{ default "" .Values.controller.jenkinsUriPrefix }}/login'
+        port: http
+      periodSeconds: 10
+      timeoutSeconds: 5
+      initialDelaySeconds:
+  podDisruptionBudget:
+    enabled: false
+    apiVersion: "policy/v1beta1"
+    annotations: {}
+    labels: {}
+    maxUnavailable: "0"
+  agentListenerEnabled: true
+  agentListenerPort: 50000
+  agentListenerHostPort:
+  agentListenerNodePort:
+  agentListenerExternalTrafficPolicy:
+  agentListenerLoadBalancerSourceRanges:
+    - 0.0.0.0/0
+  disabledAgentProtocols:
+    - JNLP-connect
+    - JNLP2-connect
+  csrf:
+    defaultCrumbIssuer:
+      enabled: true
+      proxyCompatability: true
+  agentListenerServiceType: "ClusterIP"
+  agentListenerServiceAnnotations: {}
+  agentListenerLoadBalancerIP:
+  legacyRemotingSecurityEnabled: false
+  loadBalancerSourceRanges:
+    - 0.0.0.0/0
+  loadBalancerIP:
+  jmxPort:
+  extraPorts: []
+  installPlugins:
+    - kubernetes:4358.vcfd9c5a_0a_f51
+    - workflow-aggregator:608.v67378e9d3db_1
+    - git:5.7.0
+    - configuration-as-code:1971.vf9280461ea_89
+    - job-dsl
+  installLatestPlugins: true
+  installLatestSpecifiedPlugins: false
+  additionalPlugins: []
+  initializeOnce: false
+  overwritePlugins: false
+  overwritePluginsFromImage: true
+  projectNamingStrategy: standard
+  enableRawHtmlMarkupFormatter: false
+  markupFormatter: plainText
+  scriptApproval: []
+  initScripts: {}
+  initConfigMap:
+  existingSecret:
+  additionalExistingSecrets: []
+  additionalSecrets: []
+  secretClaims: []
+  cloudName: "kubernetes"
+ 
