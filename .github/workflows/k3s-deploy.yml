@@ -1,4 +1,4 @@
-name: Create Resources in K3S (Ingress, Cert Mngr)
+name: Create K3S Workload
 
 on:
   workflow_dispatch:
@@ -93,7 +93,8 @@ jobs:
           helm repo update
           helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx \
             --namespace ingress-nginx --create-namespace \
-            --set controller.publishService.enabled=true
+            --set controller.publishService.enabled=true \
+            --set controller.hostNetwork=true
 
       - name: Install cert-manager
         run: |
