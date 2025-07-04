@@ -1,4 +1,4 @@
-name: Destroy Deployment
+name: Destroy Resources in K3S
 
 on:
   workflow_dispatch:

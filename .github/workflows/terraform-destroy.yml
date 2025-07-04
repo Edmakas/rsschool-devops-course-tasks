@@ -1,4 +1,4 @@
-name: RsSchool - Destroy  resources
+name: RsSchool - Destroy resources (AWS, K3S)
 
 on:
   workflow_dispatch:

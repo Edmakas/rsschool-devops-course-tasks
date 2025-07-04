@@ -1,4 +1,4 @@
-name: RsSchool - Create  resources
+name: RsSchool - Create resources (AWS, K3S)
 on:
   workflow_dispatch:
 # on:

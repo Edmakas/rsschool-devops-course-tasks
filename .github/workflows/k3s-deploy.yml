@@ -1,4 +1,4 @@
-name: Deploy Jenkins
+name: Create Resources in K3S (Ingress, Cert Mngr)
 
 on:
   workflow_dispatch:
