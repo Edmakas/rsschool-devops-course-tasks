@@ -31,10 +31,9 @@ renderHelmLabels: true
 
 controller:
   env:
-    - name: USER2
-      value: "dev1"
-    - name: PASS2
-      value: "dev2"
+    - name: cif-controller-container
+      value: "cif-controller"
+
   # -- Used for label app.kubernetes.io/component
   componentName: "jenkins-controller"
   image:
@@ -157,9 +156,9 @@ controller:
   containerEnvFrom: []
 
   # -- Environment variables for Jenkins Container
-  containerEnv: []
-  #   - name: http_proxy
-  #     value: "http://192.168.64.1:3128"
+  containerEnv:
+    - name: cif-jenkins-0
+      value: cif-jenkins-0
 
   # Set min/max heap here if needed with "-Xms512m -Xmx512m"
   # -- Append to `JAVA_OPTS` env var
@@ -630,7 +629,9 @@ controller:
       # -- Environment variable sources for the Jenkins Config as Code auto-reload container
       envFrom: []
       # -- Environment variables for the Jenkins Config as Code auto-reload container
-      env: []
+      env: #[]
+        - name: side-container-cif
+          value: "side-container"
 
       # SSH port value can be set to any unused TCP port. The default, 1044, is a non-standard SSH port that has been chosen at random.
       # This is only used to reload JCasC config from the sidecar container running in the Jenkins controller pod.
