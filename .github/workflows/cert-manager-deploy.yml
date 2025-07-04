@@ -1,0 +1,60 @@
+name: Deploy cert-manager
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy-cert-manager:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    env:
+      TF_VAR_aws_account_id:    ${{ secrets.AWS_ACCOUNT_ID }}
+      TF_VAR_GithubActionsRole: ${{ vars.GithubActionsRole }}
+      TF_VAR_public_key:        ${{ secrets.SSH_PUBLIC_KEY }}
+      TF_VAR_private_key:       ${{ secrets.SSH_PRIVATE_KEY }}
+      TF_VAR_vpc_cidr:          ${{ vars.vpc_cidr }}
+      TF_VAR_ips_to_bastion:    ${{ vars.IPS_TO_BASTION }}
+    steps:
+      - name: Checkout repository code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ env.TF_VAR_aws_account_id }}:role/${{ env.TF_VAR_GithubActionsRole }}
+          aws-region: us-east-2
+
+      - name: Get K3s Config
+        run: |
+          aws ssm get-parameter \
+            --name "/rsschool/k3s-yaml" \
+            --with-decryption \
+            --query "Parameter.Value" \
+            --region us-west-2 \
+            --output text > k3s-config.yaml
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+
+      - name: Install cert-manager
+        run: |
+          export KUBECONFIG=k3s-config.yaml
+          kubectl apply --validate=false -f https://github.com/cert-manager/cert-manager/releases/latest/download/cert-manager.yaml
+
+      - name: Wait for cert-manager webhook to be ready
+        run: |
+          export KUBECONFIG=k3s-config.yaml
+          kubectl rollout status deployment/cert-manager-webhook -n cert-manager --timeout=120s
+
+      - name: Apply Let's Encrypt Staging ClusterIssuer
+        env:
+          CERT_MANAGER_EMAIL: ${{ secrets.CERT_MANAGER_EMAIL }}
+        run: |
+          export KUBECONFIG=k3s-config.yaml
+          export CERT_MANAGER_EMAIL
+          envsubst < K3S_Manifests/Mod3_Task4/Prerequisites/letsencrypt-staging-clusterissuer.yaml > letsencrypt-staging-clusterissuer.yaml
+          kubectl apply -f letsencrypt-staging-clusterissuer.yaml 
