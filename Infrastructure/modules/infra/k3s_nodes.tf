@@ -1,8 +1,8 @@
-# node-1 EC2 in Public  Subnet
+# node-1 EC2 in Public Subnet
 
 resource "aws_instance" "node-1" {
   # ami                    = "ami-05f991c49d264708f"
-  ami                    = "ami-0a1b2c3d4e5f67890"
+  ami                    = "ami-05f991c49d264708f"
   instance_type          = "t3.large"
   subnet_id              = aws_subnet.public[0].id
   vpc_security_group_ids = [aws_security_group.public_sg.id, aws_security_group.k3s_nodes.id, aws_security_group.jenkins_sg.id]
