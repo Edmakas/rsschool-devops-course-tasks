@@ -52,7 +52,7 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ steps.get-ips.outputs.node1_ip }} >> ~/.ssh/known_hosts
-          ssh-keyscan -H ${{ steps.get-ips.outputs.node2_ip }} >> ~/.ssh/known_hosts
+          # ssh-keyscan -H ${{ steps.get-ips.outputs.node2_ip }} >> ~/.ssh/known_hosts
 
       - name: Wait for K3s to be ready
         run: |
