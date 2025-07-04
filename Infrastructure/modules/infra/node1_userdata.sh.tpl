@@ -32,8 +32,8 @@ fi
 # Get public IP for TLS SAN
 TOKEN=$(curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 60")
 PUBLIC_IP=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/meta-data/public-ipv4)
-log "Installing K3s server with --tls-san $PUBLIC_IP..."
-curl -sfL https://get.k3s.io | sh -s - server --tls-san $PUBLIC_IP
+log "Installing K3s server with --tls-san $PUBLIC_IP and --disable traefik..."
+curl -sfL https://get.k3s.io | sh -s - server --tls-san $PUBLIC_IP --disable traefik
 
 # Create private key file for SSH access
 log "Setting up SSH key..."
