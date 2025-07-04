@@ -1,0 +1,57 @@
+name: Destroy Jenkins Deployment
+
+on:
+  workflow_dispatch:
+
+jobs:
+  destroy-jenkins:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    env:
+      TF_VAR_aws_account_id:    ${{ secrets.AWS_ACCOUNT_ID }}
+      TF_VAR_GithubActionsRole: ${{ vars.GithubActionsRole }}
+      TF_VAR_public_key:        ${{ secrets.SSH_PUBLIC_KEY }}
+      TF_VAR_private_key:       ${{ secrets.SSH_PRIVATE_KEY }}
+      TF_VAR_vpc_cidr:          ${{ vars.vpc_cidr }}
+      TF_VAR_ips_to_bastion:    ${{ vars.IPS_TO_BASTION }}
+    steps:
+      - name: Checkout repository code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ env.TF_VAR_aws_account_id }}:role/${{ env.TF_VAR_GithubActionsRole }}
+          aws-region: us-east-2
+
+      - name: Get K3s Config
+        run: |
+          aws ssm get-parameter \
+            --name "/rsschool/k3s-yaml" \
+            --with-decryption \
+            --query "Parameter.Value" \
+            --region us-west-2 \
+            --output text > k3s-config.yaml
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+
+      - name: Uninstall Jenkins Helm Release
+        run: |
+          export KUBECONFIG=k3s-config.yaml
+          helm uninstall jenkins -n jenkins || echo "Jenkins release not found or already uninstalled."
+
+      - name: Delete Jenkins Namespace
+        run: |
+          export KUBECONFIG=k3s-config.yaml
+          kubectl delete namespace jenkins --ignore-not-found
+
+      - name: Output Destroy Summary
+        run: |
+          echo "## Jenkins Uninstall Summary" >> $GITHUB_STEP_SUMMARY
+          echo "Jenkins Helm release uninstalled (if it existed)." >> $GITHUB_STEP_SUMMARY
+          echo "Jenkins namespace deleted (if it existed)." >> $GITHUB_STEP_SUMMARY 
