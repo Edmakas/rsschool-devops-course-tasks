@@ -102,6 +102,10 @@ jobs:
           export KUBECONFIG=k3s-config.yaml
           kubectl apply --validate=false -f https://github.com/cert-manager/cert-manager/releases/latest/download/cert-manager.yaml
 
+      - name: Wait for cert-manager webhook to be ready
+        run: |
+          kubectl rollout status deployment/cert-manager-webhook -n cert-manager --timeout=120s
+
       - name: Deploy Jenkins to K3s
         run: |
           export KUBECONFIG=k3s-config.yaml
@@ -164,6 +168,14 @@ jobs:
           # Show deployed resources
           kubectl get all --all-namespaces
 
+      - name: Apply Let's Encrypt Staging ClusterIssuer
+        env:
+            CERT_MANAGER_EMAIL: ${{ secrets.CERT_MANAGER_EMAIL }}
+        run: |
+            export CERT_MANAGER_EMAIL
+            envsubst < K3S_Manifests/Mod3_Task4/Prerequisites/letsencrypt-staging-clusterissuer.yaml > letsencrypt-staging-clusterissuer.yaml
+            kubectl apply -f letsencrypt-staging-clusterissuer.yaml
+  
       - name: Verify Deployment
         run: |
           export KUBECONFIG=k3s-config.yaml
