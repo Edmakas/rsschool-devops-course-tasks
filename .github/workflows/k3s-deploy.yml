@@ -1,4 +1,4 @@
-name: Create K3S Workload
+name: Deploy K3S Workload
 
 on:
   workflow_dispatch:
