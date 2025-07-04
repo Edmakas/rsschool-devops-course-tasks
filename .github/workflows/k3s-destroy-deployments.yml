@@ -1,4 +1,4 @@
-name: Destroy Jenkins Deployment
+name: Destroy Deployment
 
 on:
   workflow_dispatch:
