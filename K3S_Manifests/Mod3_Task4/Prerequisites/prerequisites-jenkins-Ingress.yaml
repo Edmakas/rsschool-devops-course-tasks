@@ -4,16 +4,10 @@ kind: Ingress
 metadata:
   name: jenkins
   namespace: jenkins
-  annotations:
-    # cert-manager.io/cluster-issuer: letsencrypt-staging
 spec:
   ingressClassName: nginx
-  # tls:
-  #   - hosts:
-  #       - jenkins.example.com  # <-- Replace with your real domain
-  #     secretName: jenkins-tls
   rules:
-    - host: jenkins.${DOMAIN_NAME}  # <-- Jenkins domain (will be replaced during deployment)
+    - host: jenkins.${DOMAIN_NAME}
       http:
         paths:
           - path: /

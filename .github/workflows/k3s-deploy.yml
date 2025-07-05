@@ -106,6 +106,27 @@ jobs:
             --set controller.publishService.enabled=true \
             --set controller.hostNetwork=true
 
+      - name: Wait for NGINX Ingress Controller to be ready
+        run: |
+          export KUBECONFIG=k3s-config.yaml
+          echo "Waiting for NGINX Ingress Controller to be fully ready..."
+          
+          # Wait for the ingress-nginx namespace to exist
+          kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=ingress-nginx -n ingress-nginx --timeout=300s
+          
+          # Wait for the admission webhook to be ready
+          echo "Waiting for admission webhook to be ready..."
+          until kubectl get validatingwebhookconfigurations ingress-nginx-admission 2>/dev/null; do
+            echo "Admission webhook not ready yet, waiting..."
+            sleep 10
+          done
+          
+          # Additional wait to ensure webhook is fully functional
+          echo "Waiting additional time for webhook to be fully functional..."
+          sleep 30
+          
+          echo "NGINX Ingress Controller is ready!"
+
       - name: Deploy Jenkins to K3s
         run: |
           export KUBECONFIG=k3s-config.yaml
