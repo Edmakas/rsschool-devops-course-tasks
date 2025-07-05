@@ -36,7 +36,6 @@ This project automates AWS infrastructure provisioning and K3s Kubernetes cluste
 │   ├── main.tf                            # Terraform backend and provider config
 │   └── variables.tf                       # Variable definitions for setup
 ├── K3S_Manifests/                         # Kubernetes manifests & Helm values
-│   ├── README.md                          # K3S manifests usage and workflow info
 │   └── Mod3_Task4/
 │       ├── jenkins-values.yaml            # Jenkins Helm chart values (custom config)
 │       └── Prerequisites/                 # Jenkins prerequisites for K8s
