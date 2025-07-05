@@ -1,13 +1,6 @@
 name: Create AWS infra, K3S
 on:
   workflow_dispatch:
-# on:
-#   push:
-#     branches:
-#       - main
-#       - develop
-#       - task_*
-#   pull_request:
 
 jobs:
   terraform-init-fmt-plan:
@@ -60,10 +53,11 @@ jobs:
       TF_VAR_GithubActionsRole: ${{ vars.GithubActionsRole }}
       TF_VAR_public_key:        ${{ secrets.SSH_PUBLIC_KEY }}
       TF_VAR_private_key:       ${{ secrets.SSH_PRIVATE_KEY }}
+      TF_VAR_CERT_MANAGER_EMAIL: ${{ secrets.CERT_MANAGER_EMAIL }}
       TF_VAR_vpc_cidr:          ${{ vars.vpc_cidr }}
       TF_VAR_ips_to_bastion:    ${{ vars.IPS_TO_BASTION }}
       TF_VAR_node_instance_profile: ${{ vars.node_instance_profile }}
-      TF_VAR_CERT_MANAGER_EMAIL: ${{ vars.CERT_MANAGER_EMAIL }}
+
     defaults:
       run:
         working-directory: Infrastructure
@@ -87,6 +81,7 @@ jobs:
         run: terraform init && terraform fmt && terraform apply -auto-approve
 
       - name: Output Access Information
+        id: terraform-apply
         run: |
           NODE1_IP=$(terraform output -raw node-1_public_ip || echo "not available")
           # NODE2_IP=$(terraform output -raw node-2_public_ip || echo "not available")
@@ -94,3 +89,31 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**K3s Master Node:** $NODE1_IP" >> $GITHUB_STEP_SUMMARY
           # echo "**K3s Worker Node:** $NODE2_IP" >> $GITHUB_STEP_SUMMARY
+          
+          # Store the IP for the next workflow
+          echo "node1_ip=$NODE1_IP" >> $GITHUB_OUTPUT
+          
+      - name: Trigger K3S Deployment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'k3s-deploy.yml',
+              ref: context.ref,
+            });
+
+      - name: Trigger Route53 Update
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'route53-update.yml',
+              ref: context.ref,
+              inputs: {
+                jenkins_ip: '${{ steps.terraform-apply.outputs.node1_ip }}'
+              }
+            });

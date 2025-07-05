@@ -5,12 +5,17 @@ on:
     inputs:
       jenkins_ip:
         description: 'Jenkins Server IP Address'
-        required: true
+        required: false
         type: string
+  workflow_run:
+    workflows: ["Create AWS infra, K3S"]
+    types:
+      - completed
 
 jobs:
   update-dns:
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     permissions:
       id-token: write
       contents: read
@@ -44,16 +49,27 @@ jobs:
           terraform_version: ~> 1.12.0
 
       - name: Update Route53 Records
+        id: update-dns
         run: |
           terraform init
           
+          # Get the Jenkins IP address - either from input or from Terraform output
+          if [ -n "${{ github.event.inputs.jenkins_ip }}" ]; then
+            JENKINS_IP="${{ github.event.inputs.jenkins_ip }}"
+            echo "Using provided Jenkins IP: $JENKINS_IP"
+          else
+            JENKINS_IP=$(terraform output -raw node-1_public_ip)
+            echo "Using Jenkins IP from Terraform output: $JENKINS_IP"
+          fi
+          
           # Update the Jenkins IP address in the Route53 module
           terraform apply -auto-approve \
-            -var="jenkins_ip_address=${{ github.event.inputs.jenkins_ip }}"
+            -var="jenkins_ip_address=$JENKINS_IP"
           
           # Get the DNS information
           JENKINS_DNS=$(terraform output -raw jenkins_dns_fqdn)
           echo "jenkins_dns=$JENKINS_DNS" >> $GITHUB_OUTPUT
+          echo "jenkins_ip=$JENKINS_IP" >> $GITHUB_OUTPUT
           echo "Jenkins DNS updated: $JENKINS_DNS"
 
       - name: Output DNS Information
@@ -62,8 +78,8 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Jenkins DNS Record Updated:**" >> $GITHUB_STEP_SUMMARY
           echo "- Domain: ${{ steps.update-dns.outputs.jenkins_dns }}" >> $GITHUB_STEP_SUMMARY
-          echo "- IP Address: ${{ github.event.inputs.jenkins_ip }}" >> $GITHUB_STEP_SUMMARY
+          echo "- IP Address: ${{ steps.update-dns.outputs.jenkins_ip }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Access URLs:**" >> $GITHUB_STEP_SUMMARY
           echo "- Jenkins: http://${{ steps.update-dns.outputs.jenkins_dns }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Direct IP: http://${{ github.event.inputs.jenkins_ip }}:30111" >> $GITHUB_STEP_SUMMARY 
+          echo "- Direct IP: http://${{ steps.update-dns.outputs.jenkins_ip }}:30111" >> $GITHUB_STEP_SUMMARY 

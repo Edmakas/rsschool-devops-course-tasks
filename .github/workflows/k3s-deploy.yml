@@ -2,10 +2,15 @@ name: Deploy K3S Workload
 
 on:
   workflow_dispatch:
+  workflow_run:
+    workflows: ["Create AWS infra, K3S"]
+    types:
+      - completed
 
 jobs:
   deploy-to-k3s:
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     permissions:
       id-token: write
       contents: read

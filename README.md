@@ -155,13 +155,15 @@ For GitHub Actions CI/CD to work, you must set the following in your repository:
 
 ### terraform-plan-create.yml
 - **Purpose:** Provisions AWS infrastructure using Terraform.
-- **Triggers:** On push/PR to main, develop, or task_* branches.
+- **Triggers:** Manual workflow dispatch.
 - **Features:**
   - Runs `terraform plan` and `terraform apply` using secrets and OIDC authentication.
   - Handles infrastructure updates automatically.
+  - **Automatically triggers** `k3s-deploy.yml` and `route53-update.yml` workflows upon successful completion.
 
 ### k3s-deploy.yml
 - **Purpose:** Deploys to the K3s cluster after infrastructure is ready.
+- **Triggers:** Manual workflow dispatch OR automatically triggered by successful `terraform-plan-create.yml` completion.
 - **Features:**
   - Waits for K3s to be ready.
   - Applies all Jenkins Kubernetes prerequisites (namespace, StorageClass, RBAC, etc.).
@@ -183,9 +185,11 @@ For GitHub Actions CI/CD to work, you must set the following in your repository:
   - Can be triggered manually to clean up all resources.
 
 ### route53-update.yml
-- **Purpose:** Manually update Route53 DNS records for Jenkins.
+- **Purpose:** Update Route53 DNS records for Jenkins.
+- **Triggers:** Manual workflow dispatch OR automatically triggered by successful `terraform-plan-create.yml` completion.
 - **Features:**
   - Allows manual DNS record updates with a new IP address.
+  - Automatically gets IP address from Terraform outputs when triggered by infrastructure deployment.
   - Can be triggered manually from GitHub Actions UI.
   - Useful when IP addresses change outside of normal deployment.
 
