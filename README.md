@@ -14,16 +14,11 @@ This project automates AWS infrastructure provisioning and K3s Kubernetes cluste
 │   ├── outputs.tf                         # Outputs for VPC, subnets, IPs, etc.
 │   ├── backends.tf                        # S3 backend config for state management
 │   ├── providers.tf                       # AWS provider configuration
-│   ├── .terraform.lock.hcl                # Terraform provider lock file
-│   ├── .terraform/                        # Terraform state and cache (auto-generated)
 │   └── modules/
 │       ├── infra/                         # Core AWS resources module
-│       │   ├── bastion.tf                 # Bastion host EC2 instance
-│       │   ├── bastion_userdata.sh.tpl    # Bastion host initialization script
-│       │   ├── node1_userdata.sh.tpl      # K3s master node (server) setup script
-│       │   ├── node2_userdata.sh.tpl      # K3s worker node (agent) setup script
 │       │   ├── k3s_nodes.tf               # EC2 instances for K3s nodes
-│       │   ├── nat_gateway.tf             # NAT gateway for private subnet
+│       │   ├── node1_userdata.sh.tpl      # K3s master node (server) setup script
+│       │   ├── node2_userdata.sh.tpl      # K3s worker node (agent) setup script ( not used in the current version)
 │       │   ├── outputs.tf                 # Module outputs (VPC info, IPs, etc.)
 │       │   ├── security_groups.tf         # Security groups for bastion and nodes
 │       │   ├── security_groups_k3s.tf     # Security groups for K3s-specific ports
@@ -39,20 +34,17 @@ This project automates AWS infrastructure provisioning and K3s Kubernetes cluste
 ├── Setup/                                 # Terraform for initial AWS setup (IAM)
 │   ├── iam.tf                             # IAM role and policies for GitHub Actions
 │   ├── main.tf                            # Terraform backend and provider config
-│   ├── variables.tf                       # Variable definitions for setup
-│   ├── .terraform.lock.hcl                # Terraform provider lock file
-│   └── .terraform/                        # Terraform state and cache (auto-generated)
+│   └── variables.tf                       # Variable definitions for setup
 ├── K3S_Manifests/                         # Kubernetes manifests & Helm values
 │   ├── README.md                          # K3S manifests usage and workflow info
 │   └── Mod3_Task4/
 │       ├── jenkins-values.yaml            # Jenkins Helm chart values (custom config)
-│       ├── commands.txt                   # Useful Helm/K8s commands
 │       └── Prerequisites/                 # Jenkins prerequisites for K8s
 │           ├── prerequisites-jenkins-NS.yaml      # Namespace for Jenkins
 │           ├── prerequisites-jenkins-SC.yaml      # StorageClass for Jenkins PV
 │           ├── prerequisites-jenkins-SA.yaml      # ServiceAccount, ClusterRole, ClusterRoleBinding for Jenkins
-│           ├── prerequisites-jenkins-Ingress.yaml # (Optional) Ingress for Jenkins
-│           └── prerequisites-command.txt          # Helm install commands
+│           ├── prerequisites-jenkins-Ingress.yaml # Ingress for Jenkins with dynamic domain
+│           └── letsencrypt-staging-clusterissuer.yaml # Let's Encrypt staging cluster issuer
 ├── .github/
 │   └── workflows/
 │       ├── k3s-deploy.yml                 # Main CI/CD: infra, prerequisites, Jenkins, DNS
@@ -60,30 +52,31 @@ This project automates AWS infrastructure provisioning and K3s Kubernetes cluste
 │       ├── terraform-plan-create.yml      # Infra provisioning (plan/apply)
 │       ├── terraform-destroy.yml          # Infra teardown
 │       ├── k3s-destroy-deployments.yml    # K3S workload destruction
-│       └── route53-update.yml             # Manual Route53 DNS record updates
-├── .gitignore                             # Git ignore rules
+│       ├── route53-update.yml             # Manual Route53 DNS record updates
+│       └── cert-manager-deploy.yml        # Cert-Manager deployment workflow
 └── README.md                              # Project documentation (this file)
 ```
 
 ### File & Directory Descriptions
 - **Infrastructure/**: All Terraform code for AWS (VPC, EC2, security, Route53, etc.)
-  - **modules/infra/**: Core AWS resources, user data scripts, security, and outputs
+  - **modules/infra/**: Core AWS resources, user data scripts, security groups, and outputs
   - **modules/route53/**: Route53 DNS management for Jenkins domain records
 - **Setup/**: Terraform for IAM roles and initial AWS setup
 - **K3S_Manifests/Mod3_Task4/jenkins-values.yaml**: Jenkins Helm chart configuration (NodePort, plugins, etc.)
-- **K3S_Manifests/Mod3_Task4/Prerequisites/**: Kubernetes YAMLs for Jenkins namespace, storage, RBAC, and ingress
+- **K3S_Manifests/Mod3_Task4/Prerequisites/**: Kubernetes YAMLs for Jenkins namespace, storage, RBAC, ingress, and SSL
   - **prerequisites-jenkins-NS.yaml**: Creates the `jenkins` namespace
   - **prerequisites-jenkins-SC.yaml**: Defines a StorageClass for Jenkins persistent volumes
   - **prerequisites-jenkins-SA.yaml**: ServiceAccount, ClusterRole, and ClusterRoleBinding for Jenkins
   - **prerequisites-jenkins-Ingress.yaml**: Ingress resource for Jenkins with dynamic domain configuration
-  - **prerequisites-command.txt**: (Optional) Helm install and repo commands
+  - **letsencrypt-staging-clusterissuer.yaml**: Let's Encrypt staging cluster issuer for SSL certificates
 - **.github/workflows/**: GitHub Actions workflows
-  - **k3s-deploy.yml**: Provisions infra, applies Jenkins prerequisites, installs Jenkins via Helm, manages DNS
+  - **k3s-deploy.yml**: Main CI/CD workflow - deploys infra, applies Jenkins prerequisites, installs Jenkins via Helm, manages DNS
   - **k3s-manage.yml**: Cluster management (get status, logs, restart Jenkins, etc.)
   - **terraform-plan-create.yml**: Infrastructure provisioning (plan/apply)
   - **terraform-destroy.yml**: Infrastructure teardown with Route53 cleanup
   - **k3s-destroy-deployments.yml**: K3S workload and Jenkins destruction
   - **route53-update.yml**: Manual Route53 DNS record updates
+  - **cert-manager-deploy.yml**: Cert-Manager deployment for SSL certificate management
 
 ---
 
