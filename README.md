@@ -131,17 +131,109 @@ This project automates AWS infrastructure provisioning and K3s Kubernetes cluste
 
 For GitHub Actions CI/CD to work, you must set the following in your repository:
 
-### **Secrets**
-- `AWS_ACCOUNT_ID`: Your AWS account ID (12 digits)
-- `SSH_PUBLIC_KEY`: Public key for bastion host and nodes
-- `SSH_PRIVATE_KEY`: Private key for node communication
+### **Required Secrets**
+These are sensitive values that should be stored as GitHub repository secrets:
 
-### **Variables**
-- `GithubActionsRole`: Name of the IAM role for GitHub Actions (e.g., `GithubActionsRole`)
-- `vpc_cidr`: CIDR block for your VPC (e.g., `10.0.0.0/16`)
-- `node_instance_profile`: Instance profile for K3s nodes
-- `domain_name`: Your domain name for Route53 DNS management (e.g., `tuselis.lt`)
-- `IPS_TO_BASTION`: IP addresses allowed to access bastion host 
+| Secret Name | Description | Example |
+|-------------|-------------|---------|
+| `AWS_ACCOUNT_ID` | Your AWS account ID (12 digits) | `123456789012` |
+| `SSH_PUBLIC_KEY` | Public SSH key for bastion host and nodes | `ssh-rsa AAAAB3NzaC1yc2E...` |
+| `SSH_PRIVATE_KEY` | Private SSH key for node communication | `-----BEGIN OPENSSH PRIVATE KEY-----...` |
+| `CERT_MANAGER_EMAIL` | Email address for Let's Encrypt certificates (if using SSL) | `admin@yourdomain.com` |
+
+### **Required Variables**
+These are non-sensitive values that can be stored as GitHub repository variables:
+
+| Variable Name | Description | Example | Required |
+|---------------|-------------|---------|----------|
+| `GithubActionsRole` | Name of the IAM role for GitHub Actions | `GithubActionsRole` | ✅ Yes |
+| `vpc_cidr` | CIDR block for your VPC | `10.0.0.0/16` | ✅ Yes |
+| `node_instance_profile` | Instance profile for K3s nodes | `k3s-node-instance-profile` | ✅ Yes |
+| `domain_name` | Your domain name for Route53 DNS management | `tuselis.lt` | ✅ Yes |
+| `IPS_TO_BASTION` | IP addresses allowed to access bastion host (comma-separated) | `192.168.1.100/32,10.0.0.0/8` | ✅ Yes |
+
+### **How to Set Up Secrets and Variables:**
+
+#### **1. Go to Repository Settings:**
+- Navigate to your GitHub repository
+- Click on **Settings** tab
+- In the left sidebar, click **Secrets and variables** → **Actions**
+
+#### **2. Add Secrets:**
+- Click **New repository secret**
+- Enter the secret name and value
+- Click **Add secret**
+
+#### **3. Add Variables:**
+- Click **Variables** tab
+- Click **New repository variable**
+- Enter the variable name and value
+- Click **Add variable**
+
+### **Important Notes:**
+- **Secrets are encrypted** and cannot be viewed after creation
+- **Variables are visible** to anyone with repository access
+- **Never commit secrets** to your repository
+- **Use environment-specific values** for different deployment environments
+
+### **How to Generate Required Values:**
+
+#### **Generate SSH Key Pair:**
+```bash
+# Generate a new SSH key pair
+ssh-keygen -t rsa -b 4096 -C "your-email@example.com" -f ~/.ssh/github-actions
+
+# View the public key (add to SSH_PUBLIC_KEY secret)
+cat ~/.ssh/github-actions.pub
+
+# View the private key (add to SSH_PRIVATE_KEY secret)
+cat ~/.ssh/github-actions
+```
+
+#### **Get AWS Account ID:**
+```bash
+# Using AWS CLI
+aws sts get-caller-identity --query Account --output text
+
+# Or find it in AWS Console → Support → Account ID
+```
+
+#### **Find Your Domain Name:**
+- Use your existing domain (e.g., `tuselis.lt`)
+- Ensure you have a Route53 hosted zone for this domain
+- The workflow will create `jenkins.yourdomain.com` automatically
+
+#### **Set VPC CIDR:**
+- Choose a private IP range that doesn't conflict with your network
+- Common choices: `10.0.0.0/16`, `172.16.0.0/16`, `192.168.0.0/16`
+- This defines the IP range for your AWS VPC
+
+### **Troubleshooting Common Issues:**
+
+#### **"Secret not found" Error:**
+- Ensure all required secrets are set in repository settings
+- Check secret names match exactly (case-sensitive)
+- Verify secrets are set in the correct repository
+
+#### **"Variable not found" Error:**
+- Ensure all required variables are set in repository settings
+- Check variable names match exactly (case-sensitive)
+- Verify variables are set in the correct repository
+
+#### **SSH Connection Issues:**
+- Ensure SSH keys are properly formatted (no extra spaces)
+- Verify the private key includes the header and footer lines
+- Check that the public key starts with `ssh-rsa`
+
+#### **AWS Permission Issues:**
+- Verify the `GithubActionsRole` exists in your AWS account
+- Ensure the role has the necessary permissions for EC2, VPC, Route53, etc.
+- Check that the AWS account ID is correct
+
+#### **Route53 Issues:**
+- Ensure you have a hosted zone for your domain
+- Verify the domain name variable is set correctly
+- Check that your AWS account has Route53 permissions 
 
 ---
 

@@ -62,7 +62,9 @@ jobs:
             echo "Using Jenkins IP from Terraform output: $JENKINS_IP"
           fi
           
-          # Update the Jenkins IP address in the Route53 module
+          echo "Updating Route53 record with IP: $JENKINS_IP"
+          
+          # Apply Terraform to update the Route53 record
           terraform apply -auto-approve \
             -var="jenkins_ip_address=$JENKINS_IP"
           

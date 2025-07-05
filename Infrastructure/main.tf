@@ -14,5 +14,5 @@ module "infra" {
 module "route53" {
   source            = "./modules/route53"
   domain_name       = var.domain_name
-  jenkins_ip_address = module.infra.node-1_public_ip
+  jenkins_ip_address = var.jenkins_ip_address != null ? var.jenkins_ip_address : module.infra.node-1_public_ip
 }

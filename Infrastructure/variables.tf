@@ -43,3 +43,9 @@ variable "domain_name" {
   type        = string
   default     = "tuselis.lt"
 }
+
+variable "jenkins_ip_address" {
+  description = "The public IP address of the Jenkins server (optional, defaults to node-1 public IP)"
+  type        = string
+  default     = null
+}
