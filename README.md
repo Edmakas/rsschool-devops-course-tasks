@@ -292,7 +292,7 @@ aws sts get-caller-identity --query Account --output text
 - **Triggers:** Manual workflow dispatch OR automatically triggered by successful `k3s-destroy-deployments.yml` completion.
 - **Features:**
   - Runs `terraform destroy` safely using the same secrets and OIDC authentication.
-  - Cleans up Route53 DNS records before destroying infrastructure.
+  - Automatically removes Route53 DNS records during infrastructure destruction.
   - Can be triggered manually to clean up all resources.
 
 ### route53-update.yml
@@ -340,8 +340,7 @@ aws sts get-caller-identity --query Account --output text
 3. **Click "Run workflow"** button
 4. **Wait for completion** - the workflow will automatically:
    - Uninstall Jenkins
-   - Clean up DNS records
-   - Destroy AWS infrastructure
+   - Destroy AWS infrastructure (including Route53 DNS records)
 
 ### **Option 2: Local Deployment**
 1. **Clone the repository**
@@ -381,11 +380,11 @@ Manual Trigger: "Destroy K3S Workload"
     ┌─────────────────┐
     │                 │
     ▼                 ▼
-Clean up Jenkins   Clean up Route53
+Clean up Jenkins   Destroy Infrastructure
     │                 │
     └─────────────────┘
         ↓
-   Destroy Infrastructure
+   Complete Cleanup
 ```
 
 ### **Key Benefits:**
