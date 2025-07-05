@@ -153,21 +153,6 @@ These are non-sensitive values that can be stored as GitHub repository variables
 | `IPS_TO_BASTION` | IP addresses allowed to access bastion host (comma-separated) | `192.168.1.100/32,10.0.0.0/8` | ✅ Yes |
 
 ---
-## GitHub Actions Workflows
-
-### terraform-plan-create.yml
-- **Purpose:** Provisions AWS infrastructure using Terraform.
-### k3s-deploy.yml
-- **Purpose:** Deploys to the K3s cluster after infrastructure is ready.
-### k3s-manage.yml
-- **Purpose:** Provides cluster management and troubleshooting actions.
-### terraform-destroy.yml
-- **Purpose:** Tears down all provisioned AWS infrastructure.
-### route53-update.yml
-- **Purpose:** Update Route53 DNS records for Jenkins.
-### k3s-destroy-deployments.yml
-- **Purpose:** Destroys K3S workloads and Jenkins deployments.
----
 
 ## Workflow Automation
 
