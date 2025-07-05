@@ -1,4 +1,4 @@
-name: Destroy AWS infra, K3S
+name: Destroy AWS, K3S infra, 
 
 on:
   workflow_dispatch:
