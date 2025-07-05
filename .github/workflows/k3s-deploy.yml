@@ -53,8 +53,10 @@ jobs:
           #NODE2_IP=$(terraform output -raw node-2_public_ip)
           echo "node1_ip=$NODE1_IP" >> $GITHUB_OUTPUT
           #echo "node2_ip=$NODE2_IP" >> $GITHUB_OUTPUT
+          echo "jenkins_dns=jenkins.${{ vars.domain_name }}" >> $GITHUB_OUTPUT
           echo "K3s Master IP: $NODE1_IP"
           #echo "K3s Worker IP: $NODE2_IP"
+          echo "Jenkins DNS: jenkins.${{ vars.domain_name }}"
 
       - name: Setup SSH Key
         run: |
