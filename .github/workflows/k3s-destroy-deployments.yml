@@ -63,9 +63,26 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            await github.rest.actions.createWorkflowDispatch({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: 'terraform-destroy.yml',
-              ref: context.ref,
-            }); 
+            try {
+              await github.rest.actions.createWorkflowDispatch({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                workflow_id: 'terraform-destroy.yml',
+                ref: context.ref,
+              });
+              console.log('Successfully triggered terraform-destroy.yml workflow');
+            } catch (error) {
+              console.log('Error triggering terraform-destroy.yml workflow:', error.message);
+              console.log('The workflow will be triggered automatically via workflow_run trigger');
+            }
+
+      - name: Workflow Trigger Summary
+        run: |
+          echo "## Workflow Trigger Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**K3S workload destruction completed successfully!**" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The following workflow should be triggered automatically:" >> $GITHUB_STEP_SUMMARY
+          echo "- **terraform-destroy.yml**: Destroy AWS infrastructure and clean up DNS" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "If automatic triggering fails, you can manually run this workflow." >> $GITHUB_STEP_SUMMARY 

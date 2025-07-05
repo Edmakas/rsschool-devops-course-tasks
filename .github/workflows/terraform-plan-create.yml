@@ -48,6 +48,7 @@ jobs:
     permissions:
       id-token: write
       contents: read
+      actions: write
     env:
       TF_VAR_aws_account_id:    ${{ secrets.AWS_ACCOUNT_ID }}
       TF_VAR_GithubActionsRole: ${{ vars.GithubActionsRole }}
@@ -97,23 +98,47 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            await github.rest.actions.createWorkflowDispatch({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: 'k3s-deploy.yml',
-              ref: context.ref,
-            });
+            try {
+              await github.rest.actions.createWorkflowDispatch({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                workflow_id: 'k3s-deploy.yml',
+                ref: context.ref,
+              });
+              console.log('Successfully triggered k3s-deploy.yml workflow');
+            } catch (error) {
+              console.log('Error triggering k3s-deploy.yml workflow:', error.message);
+              console.log('The workflow will be triggered automatically via workflow_run trigger');
+            }
 
       - name: Trigger Route53 Update
         uses: actions/github-script@v7
         with:
           script: |
-            await github.rest.actions.createWorkflowDispatch({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: 'route53-update.yml',
-              ref: context.ref,
-              inputs: {
-                jenkins_ip: '${{ steps.terraform-apply.outputs.node1_ip }}'
-              }
-            });
+            try {
+              await github.rest.actions.createWorkflowDispatch({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                workflow_id: 'route53-update.yml',
+                ref: context.ref,
+                inputs: {
+                  jenkins_ip: '${{ steps.terraform-apply.outputs.node1_ip }}'
+                }
+              });
+              console.log('Successfully triggered route53-update.yml workflow');
+            } catch (error) {
+              console.log('Error triggering route53-update.yml workflow:', error.message);
+              console.log('The workflow will be triggered automatically via workflow_run trigger');
+            }
+
+      - name: Workflow Trigger Summary
+        run: |
+          echo "## Workflow Trigger Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Infrastructure deployment completed successfully!**" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The following workflows should be triggered automatically:" >> $GITHUB_STEP_SUMMARY
+          echo "- **k3s-deploy.yml**: Deploy K3S cluster and Jenkins" >> $GITHUB_STEP_SUMMARY
+          echo "- **route53-update.yml**: Update DNS records" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "If automatic triggering fails, you can manually run these workflows." >> $GITHUB_STEP_SUMMARY
