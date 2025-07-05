@@ -59,6 +59,7 @@ This project automates AWS infrastructure provisioning and K3s Kubernetes cluste
 │       ├── k3s-manage.yml                 # Cluster management actions (status, logs, etc.)
 │       ├── terraform-plan-create.yml      # Infra provisioning (plan/apply)
 │       ├── terraform-destroy.yml          # Infra teardown
+│       ├── k3s-destroy-deployments.yml    # K3S workload destruction
 │       └── route53-update.yml             # Manual Route53 DNS record updates
 ├── .gitignore                             # Git ignore rules
 └── README.md                              # Project documentation (this file)
@@ -80,7 +81,8 @@ This project automates AWS infrastructure provisioning and K3s Kubernetes cluste
   - **k3s-deploy.yml**: Provisions infra, applies Jenkins prerequisites, installs Jenkins via Helm, manages DNS
   - **k3s-manage.yml**: Cluster management (get status, logs, restart Jenkins, etc.)
   - **terraform-plan-create.yml**: Infrastructure provisioning (plan/apply)
-  - **terraform-destroy.yml**: Infrastructure teardown
+  - **terraform-destroy.yml**: Infrastructure teardown with Route53 cleanup
+  - **k3s-destroy-deployments.yml**: K3S workload and Jenkins destruction
   - **route53-update.yml**: Manual Route53 DNS record updates
 
 ---
@@ -180,8 +182,10 @@ For GitHub Actions CI/CD to work, you must set the following in your repository:
 
 ### terraform-destroy.yml
 - **Purpose:** Tears down all provisioned AWS infrastructure.
+- **Triggers:** Manual workflow dispatch OR automatically triggered by successful `k3s-destroy-deployments.yml` completion.
 - **Features:**
   - Runs `terraform destroy` safely using the same secrets and OIDC authentication.
+  - Cleans up Route53 DNS records before destroying infrastructure.
   - Can be triggered manually to clean up all resources.
 
 ### route53-update.yml
@@ -192,6 +196,14 @@ For GitHub Actions CI/CD to work, you must set the following in your repository:
   - Automatically gets IP address from Terraform outputs when triggered by infrastructure deployment.
   - Can be triggered manually from GitHub Actions UI.
   - Useful when IP addresses change outside of normal deployment.
+
+### k3s-destroy-deployments.yml
+- **Purpose:** Destroys K3S workloads and Jenkins deployments.
+- **Triggers:** Manual workflow dispatch.
+- **Features:**
+  - Uninstalls Jenkins Helm release and deletes namespace.
+  - **Automatically triggers** `terraform-destroy.yml` workflow upon successful completion.
+  - Safely cleans up Kubernetes resources before infrastructure destruction.
 
 ---
 

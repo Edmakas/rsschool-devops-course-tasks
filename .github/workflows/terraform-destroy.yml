@@ -2,10 +2,15 @@ name: Destroy AWS infra, K3S
 
 on:
   workflow_dispatch:
+  workflow_run:
+    workflows: ["Destroy K3S Workload"]
+    types:
+      - completed
 
 jobs:
   terraform-destroy:
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     permissions:
       id-token: write
       contents: read
@@ -17,7 +22,7 @@ jobs:
       TF_VAR_vpc_cidr:          ${{ vars.vpc_cidr }}
       TF_VAR_ips_to_bastion:    ${{ vars.IPS_TO_BASTION }}
       TF_VAR_CERT_MANAGER_EMAIL: ${{ secrets.CERT_MANAGER_EMAIL }}
-      TF_VAR_NODE_INSTANCE_PROFILE: ${{ vars.node_instance_profile}}
+      TF_VAR_domain_name:       ${{ vars.domain_name }}
     defaults:
       run:
         working-directory: Infrastructure
@@ -37,5 +42,43 @@ jobs:
         with:
           terraform_version: ~> 1.12.0
 
-      - name: Terraform init-destory
+      - name: Clean up Route53 Records
+        run: |
+          # Get the domain name from variables
+          DOMAIN_NAME="${{ vars.domain_name }}"
+          echo "Cleaning up Route53 records for domain: $DOMAIN_NAME"
+          
+          # Get the hosted zone ID
+          ZONE_ID=$(aws route53 list-hosted-zones --query "HostedZones[?Name=='${DOMAIN_NAME}.'].Id" --output text)
+          
+          if [ -n "$ZONE_ID" ]; then
+            echo "Found hosted zone: $ZONE_ID"
+            
+            # Get the jenkins record
+            RECORD_SET=$(aws route53 list-resource-record-sets \
+              --hosted-zone-id "$ZONE_ID" \
+              --query "ResourceRecordSets[?Name=='jenkins.${DOMAIN_NAME}.']" \
+              --output json)
+            
+            if [ "$(echo "$RECORD_SET" | jq 'length')" -gt 0 ]; then
+              echo "Deleting jenkins.${DOMAIN_NAME} record..."
+              
+              # Create change batch for deletion
+              RECORD_DATA=$(echo "$RECORD_SET" | jq '.[0]')
+              CHANGE_BATCH="{\"Changes\":[{\"Action\":\"DELETE\",\"ResourceRecordSet\":$RECORD_DATA}]}"
+              
+              # Delete the record
+              aws route53 change-resource-record-sets \
+                --hosted-zone-id "$ZONE_ID" \
+                --change-batch "$CHANGE_BATCH"
+              
+              echo "Route53 record deleted successfully"
+            else
+              echo "No jenkins.${DOMAIN_NAME} record found to delete"
+            fi
+          else
+            echo "No hosted zone found for domain: $DOMAIN_NAME"
+          fi
+
+      - name: Terraform init-destroy
         run: terraform init && terraform destroy -auto-approve

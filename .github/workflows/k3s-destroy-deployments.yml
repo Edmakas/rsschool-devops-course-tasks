@@ -9,6 +9,7 @@ jobs:
     permissions:
       id-token: write
       contents: read
+      actions: write
     env:
       TF_VAR_aws_account_id:    ${{ secrets.AWS_ACCOUNT_ID }}
       TF_VAR_GithubActionsRole: ${{ vars.GithubActionsRole }}
@@ -56,4 +57,15 @@ jobs:
         run: |
           echo "## Jenkins Uninstall Summary" >> $GITHUB_STEP_SUMMARY
           echo "Jenkins Helm release uninstalled (if it existed)." >> $GITHUB_STEP_SUMMARY
-          echo "Jenkins namespace deleted (if it existed)." >> $GITHUB_STEP_SUMMARY 
+          echo "Jenkins namespace deleted (if it existed)." >> $GITHUB_STEP_SUMMARY
+
+      - name: Trigger Infrastructure Destroy
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'terraform-destroy.yml',
+              ref: context.ref,
+            }); 
