@@ -17,6 +17,7 @@ jobs:
       TF_VAR_vpc_cidr:           ${{ vars.vpc_cidr }}
       TF_VAR_ips_to_bastion:     ${{ vars.IPS_TO_BASTION }}
       TF_VAR_CERT_MANAGER_EMAIL: ${{ vars.CERT_MANAGER_EMAIL }}
+      TF_VAR_domain_name:        ${{ vars.domain_name }}
     defaults:
       run:
         working-directory: Infrastructure
@@ -36,7 +37,7 @@ jobs:
         with:
           terraform_version: ~> 1.12.0
 
-      - name: Get K3s Node IPs
+      - name: Get K3s Node IPs and Deploy Route53
         id: get-ips
         run: |
           terraform init
@@ -46,6 +47,14 @@ jobs:
           #echo "node2_ip=$NODE2_IP" >> $GITHUB_OUTPUT
           echo "K3s Master IP: $NODE1_IP"
           #echo "K3s Worker IP: $NODE2_IP"
+          
+          # Deploy Route53 changes
+          terraform apply -auto-approve
+          
+          # Get DNS information
+          JENKINS_DNS=$(terraform output -raw jenkins_dns_fqdn)
+          echo "jenkins_dns=$JENKINS_DNS" >> $GITHUB_OUTPUT
+          echo "Jenkins DNS: $JENKINS_DNS"
 
       - name: Setup SSH Key
         run: |
@@ -112,7 +121,12 @@ jobs:
           kubectl apply -f ../K3S_Manifests/Mod3_Task4/Prerequisites/prerequisites-jenkins-NS.yaml
           kubectl apply -f ../K3S_Manifests/Mod3_Task4/Prerequisites/prerequisites-jenkins-SC.yaml
           kubectl apply -f ../K3S_Manifests/Mod3_Task4/Prerequisites/prerequisites-jenkins-SA.yaml
-          kubectl apply -f ../K3S_Manifests/Mod3_Task4/Prerequisites/prerequisites-jenkins-Ingress.yaml
+          
+          # Process and apply Jenkins Ingress with dynamic domain
+          echo "Processing Jenkins Ingress with domain: ${{ vars.domain_name }}"
+          export DOMAIN_NAME=${{ vars.domain_name }}
+          envsubst < ../K3S_Manifests/Mod3_Task4/Prerequisites/prerequisites-jenkins-Ingress.yaml | kubectl apply -f -
+          
           kubectl create -n jenkins secret generic jenkins-dev1-secret --from-literal=username=dev1 --from-literal=password="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
           # kubectl create -f ../K3S_Manifests/Mod3_Task4/Prerequisites/letsencrypt-staging-clusterissuer.yaml
          
@@ -181,8 +195,13 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Jenkins Access:**" >> $GITHUB_STEP_SUMMARY
           echo "- URL: http://${{ steps.get-ips.outputs.node1_ip }}:30111" >> $GITHUB_STEP_SUMMARY
+          echo "- Domain: http://${{ steps.get-ips.outputs.jenkins_dns }}" >> $GITHUB_STEP_SUMMARY
           echo "- Username: admin" >> $GITHUB_STEP_SUMMARY
           echo "- Password: Check the deployment logs above" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**DNS Information:**" >> $GITHUB_STEP_SUMMARY
+          echo "- Jenkins Domain: ${{ steps.get-ips.outputs.jenkins_dns }}" >> $GITHUB_STEP_SUMMARY
+          echo "- IP Address: ${{ steps.get-ips.outputs.node1_ip }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           # echo "**SSH Access:**" >> $GITHUB_STEP_SUMMARY
           # echo "```bash" >> $GITHUB_STEP_SUMMARY

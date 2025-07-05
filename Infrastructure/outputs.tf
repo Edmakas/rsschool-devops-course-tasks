@@ -30,3 +30,14 @@ output "node-1_private_ip" {
 #   description = "Private IP address of the node-2 host"
 #   value       = module.infra.node-2_private_ip
 # }
+
+# Route53 outputs
+output "jenkins_dns_name" {
+  description = "The DNS name for Jenkins"
+  value       = module.route53.jenkins_dns_name
+}
+
+output "jenkins_dns_fqdn" {
+  description = "The fully qualified domain name for Jenkins"
+  value       = module.route53.jenkins_dns_fqdn
+}

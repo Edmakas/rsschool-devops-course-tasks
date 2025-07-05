@@ -13,7 +13,7 @@ spec:
   #       - jenkins.example.com  # <-- Replace with your real domain
   #     secretName: jenkins-tls
   rules:
-    - host: jenkins.example.com  # <-- Replace with your real domain
+    - host: jenkins.${DOMAIN_NAME}  # <-- Jenkins domain (will be replaced during deployment)
       http:
         paths:
           - path: /

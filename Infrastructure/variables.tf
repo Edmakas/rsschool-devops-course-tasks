@@ -37,3 +37,9 @@ variable "node_instance_profile" {
   type        = string
   #default     = "cif-k3s-node-instance-profile"
 }
+
+variable "domain_name" {
+  description = "The domain name for Route53 hosted zone (e.g., tuselis.lt)"
+  type        = string
+  default     = "tuselis.lt"
+}
