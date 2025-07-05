@@ -152,61 +152,7 @@ These are non-sensitive values that can be stored as GitHub repository variables
 | `domain_name` | Your domain name for Route53 DNS management | `tuselis.lt` | ✅ Yes |
 | `IPS_TO_BASTION` | IP addresses allowed to access bastion host (comma-separated) | `192.168.1.100/32,10.0.0.0/8` | ✅ Yes |
 
-### **How to Set Up Secrets and Variables:**
 
-#### **1. Go to Repository Settings:**
-- Navigate to your GitHub repository
-- Click on **Settings** tab
-- In the left sidebar, click **Secrets and variables** → **Actions**
-
-#### **2. Add Secrets:**
-- Click **New repository secret**
-- Enter the secret name and value
-- Click **Add secret**
-
-#### **3. Add Variables:**
-- Click **Variables** tab
-- Click **New repository variable**
-- Enter the variable name and value
-- Click **Add variable**
-
-### **Important Notes:**
-- **Secrets are encrypted** and cannot be viewed after creation
-- **Variables are visible** to anyone with repository access
-- **Never commit secrets** to your repository
-- **Use environment-specific values** for different deployment environments
-
-### **How to Generate Required Values:**
-
-#### **Generate SSH Key Pair:**
-```bash
-# Generate a new SSH key pair
-ssh-keygen -t rsa -b 4096 -C "your-email@example.com" -f ~/.ssh/github-actions
-
-# View the public key (add to SSH_PUBLIC_KEY secret)
-cat ~/.ssh/github-actions.pub
-
-# View the private key (add to SSH_PRIVATE_KEY secret)
-cat ~/.ssh/github-actions
-```
-
-#### **Get AWS Account ID:**
-```bash
-# Using AWS CLI
-aws sts get-caller-identity --query Account --output text
-
-# Or find it in AWS Console → Support → Account ID
-```
-
-#### **Find Your Domain Name:**
-- Use your existing domain (e.g., `tuselis.lt`)
-- Ensure you have a Route53 hosted zone for this domain
-- The workflow will create `jenkins.yourdomain.com` automatically
-
-#### **Set VPC CIDR:**
-- Choose a private IP range that doesn't conflict with your network
-- Common choices: `10.0.0.0/16`, `172.16.0.0/16`, `192.168.0.0/16`
-- This defines the IP range for your AWS VPC
 
 ### **Troubleshooting Common Issues:**
 
