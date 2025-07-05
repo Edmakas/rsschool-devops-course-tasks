@@ -1,7 +1,7 @@
 name: Deploy K3S Workload
 
 on:
-  #workflow_dispatch:
+  workflow_dispatch:
   workflow_run:
     workflows: ["Create AWS infra, K3S"]
     types:
