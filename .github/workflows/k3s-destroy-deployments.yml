@@ -18,7 +18,6 @@ jobs:
       TF_VAR_vpc_cidr:          ${{ vars.vpc_cidr }}
       TF_VAR_ips_to_bastion:    ${{ vars.IPS_TO_BASTION }}
       TF_VAR_CERT_MANAGER_EMAIL: ${{ secrets.CERT_MANAGER_EMAIL }}
-      TF_VAR_NODE_INSTANCE_PROFILE: ${{ vars.node_instance_profile}}
     steps:
       - name: Checkout repository code
         uses: actions/checkout@v4

@@ -28,7 +28,6 @@ jobs:
       TF_VAR_ips_to_bastion:     ${{ vars.IPS_TO_BASTION }}
       TF_VAR_CERT_MANAGER_EMAIL: ${{ secrets.CERT_MANAGER_EMAIL }}
       TF_VAR_domain_name:        ${{ vars.domain_name }}
-      TF_VAR_NODE_INSTANCE_PROFILE: ${{ vars.node_instance_profile}}
     defaults:
       run:
         working-directory: Infrastructure
