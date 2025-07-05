@@ -79,7 +79,30 @@ jobs:
           terraform_version: ~> 1.12.0
 
       - name: Terraform Init-Fmt-Apply
-        run: terraform init && terraform fmt && terraform apply -auto-approve
+        run: |
+          terraform init
+          terraform fmt
+          
+          # Apply with retry logic for state lock
+          echo "Applying infrastructure changes..."
+          MAX_RETRIES=3
+          RETRY_COUNT=0
+          
+          while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+            if terraform apply -auto-approve -lock-timeout=5m; then
+              echo "Infrastructure changes applied successfully"
+              break
+            else
+              RETRY_COUNT=$((RETRY_COUNT + 1))
+              echo "Attempt $RETRY_COUNT failed. Waiting 30 seconds before retry..."
+              sleep 30
+            fi
+          done
+          
+          if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
+            echo "Failed to apply infrastructure changes after $MAX_RETRIES attempts"
+            exit 1
+          fi
 
       - name: Output Access Information
         id: terraform-apply

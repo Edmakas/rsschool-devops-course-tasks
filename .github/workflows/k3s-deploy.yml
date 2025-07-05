@@ -43,24 +43,18 @@ jobs:
         with:
           terraform_version: ~> 1.12.0
 
-      - name: Get K3s Node IPs and Deploy Route53
+      - name: Get K3s Node IPs
         id: get-ips
         run: |
           terraform init
+          
+          # Get the current IP without applying changes
           NODE1_IP=$(terraform output -raw node-1_public_ip)
           #NODE2_IP=$(terraform output -raw node-2_public_ip)
           echo "node1_ip=$NODE1_IP" >> $GITHUB_OUTPUT
           #echo "node2_ip=$NODE2_IP" >> $GITHUB_OUTPUT
           echo "K3s Master IP: $NODE1_IP"
           #echo "K3s Worker IP: $NODE2_IP"
-          
-          # Deploy Route53 changes
-          terraform apply -auto-approve
-          
-          # Get DNS information
-          JENKINS_DNS=$(terraform output -raw jenkins_dns_fqdn)
-          echo "jenkins_dns=$JENKINS_DNS" >> $GITHUB_OUTPUT
-          echo "Jenkins DNS: $JENKINS_DNS"
 
       - name: Setup SSH Key
         run: |

@@ -8,14 +8,14 @@ on:
         required: false
         type: string
   workflow_run:
-    workflows: ["Create AWS infra, K3S"]
+    workflows: ["Deploy K3S Workload"]
     types:
       - completed
 
 jobs:
   update-dns:
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') }}
     permissions:
       id-token: write
       contents: read
