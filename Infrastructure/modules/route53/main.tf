@@ -11,6 +11,6 @@ resource "aws_route53_record" "jenkins" {
   zone_id = data.aws_route53_zone.main.zone_id
   name    = "jenkins"
   type    = "A"
-  ttl     = "300"
+  ttl     = "60"
   records = [var.jenkins_ip_address]
 } 
