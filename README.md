@@ -158,38 +158,7 @@ These are non-sensitive values that can be stored as GitHub repository variables
 
 ---
 
-### **What Gets Deployed Automatically:**
 
-1. **Infrastructure Layer:**
-   - VPC with public and private subnets
-   - Bastion host for secure access
-   - EC2 instances for K3s cluster
-   - Security groups with all required K3s/Jenkins ports
-   - NAT Gateway for private subnet internet access
-
-2. **K3s Cluster Layer:**
-   - **node-1**: K3s server (master) with automatic installation
-   - **node-2**: K3s agent (worker) with automatic cluster joining
-   - NGINX Ingress Controller with admission webhook validation
-   - Jenkins deployment with Helm
-
-3. **DNS Management Layer:**
-   - Route53 A record for `jenkins.<your-domain>` pointing to K3s master node
-   - Automatic DNS updates during infrastructure deployment
-   - Support for manual DNS updates via GitHub Actions workflow
-
-4. **Security Layer:**
-   - SSH keys automatically distributed to all nodes
-   - Security groups allowing SSH/ICMP between nodes
-   - K3s-specific ports (6443, 8472, 10250, etc.) configured
-   - Private subnets for worker nodes
-   - IAM roles and policies for secure access
-
-5. **Application Layer:**
-   - Jenkins namespace and RBAC configuration
-   - Jenkins persistent storage configuration
-   - Jenkins Ingress with dynamic domain configuration
-   - Jenkins deployment with custom Helm values
 
 ---
 
@@ -247,46 +216,7 @@ These are non-sensitive values that can be stored as GitHub repository variables
 
 ---
 
-## Deployment Steps
 
-### **Option 1: GitHub Actions (Recommended) - One-Click Deployment**
-
-#### **Prerequisites:**
-1. **Set GitHub secrets** (AWS credentials, SSH keys)
-2. **Set GitHub variables** (domain_name, vpc_cidr, etc.)
-3. **Ensure Route53 hosted zone exists** for your domain
-
-#### **Deploy Infrastructure:**
-1. **Navigate to GitHub Actions** in your repository
-2. **Click on "Create AWS infra, K3S"** workflow
-3. **Click "Run workflow"** button
-4. **Wait for completion** - the workflow will automatically:
-   - Create AWS infrastructure
-   - Deploy K3S cluster
-   - Install Jenkins
-   - Update DNS records
-   - Provide access information
-
-#### **Destroy Infrastructure:**
-1. **Navigate to GitHub Actions** in your repository
-2. **Click on "Destroy K3S Workload"** workflow
-3. **Click "Run workflow"** button
-4. **Wait for completion** - the workflow will automatically:
-   - Uninstall Jenkins
-   - Destroy AWS infrastructure (including Route53 DNS records)
-
-### **Option 2: Local Deployment**
-1. **Clone the repository**
-2. **Configure AWS credentials**
-3. **Set variables locally** (including domain_name)
-4. **Initialize and apply**:
-   ```bash
-   cd Infrastructure
-   terraform init
-   terraform plan
-   terraform apply
-   ```
-5. **Access Jenkins** at `http://jenkins.<your-domain>` or `http://<master-node-ip>:30111`
 
 ---
 
@@ -329,38 +259,11 @@ Clean up Jenkins   Destroy Infrastructure
 
 ---
 
-## DNS Management and Domain Configuration
 
-### **Route53 Integration**
-This project includes automatic DNS management using AWS Route53:
-
-- **Automatic DNS Creation**: Creates `jenkins.<your-domain>` A record pointing to the K3s master node
-- **Dynamic Domain Support**: Uses GitHub Actions variable `domain_name` for flexible domain configuration
-- **Automatic Updates**: DNS records are updated automatically during infrastructure deployment
-- **Manual Updates**: Use the `route53-update.yml` workflow for manual DNS record updates
-
-### **Domain Setup Requirements**
-1. **Route53 Hosted Zone**: Must exist for your domain (e.g., `tuselis.lt`)
-2. **GitHub Actions Variable**: Set `domain_name` variable (e.g., `tuselis.lt`)
-3. **AWS Permissions**: GitHub Actions role needs Route53 permissions
-
-### **Access URLs**
-After deployment, Jenkins is accessible via:
-- **Domain (Recommended)**: `http://jenkins.<your-domain>` (e.g., `http://jenkins.tuselis.lt`)
-- **Direct IP**: `http://<master-node-ip>:30111` (fallback option)
-
-### **DNS Troubleshooting**
-- **Manual DNS Update**: Use the `route53-update.yml` workflow if IP addresses change
-- **Check DNS Propagation**: DNS changes may take a few minutes to propagate
-- **Verify Hosted Zone**: Ensure your Route53 hosted zone is properly configured
 
 ---
 
-## References
-- [RS School Task 2 Description](https://github.com/rolling-scopes-school/tasks/blob/master/devops/modules/1_basic-configuration/task_2.md)
-- [AWS CLI Docs](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
-- [Terraform Docs](https://developer.hashicorp.com/terraform/docs)
-- [AWS Route53 Docs](https://docs.aws.amazon.com/route53/)
+
 
 ---
 
