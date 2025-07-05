@@ -152,72 +152,21 @@ These are non-sensitive values that can be stored as GitHub repository variables
 | `domain_name` | Your domain name for Route53 DNS management | `tuselis.lt` | ✅ Yes |
 | `IPS_TO_BASTION` | IP addresses allowed to access bastion host (comma-separated) | `192.168.1.100/32,10.0.0.0/8` | ✅ Yes |
 
-
-
- 
-
 ---
-
-
-
----
-
 ## GitHub Actions Workflows
 
 ### terraform-plan-create.yml
 - **Purpose:** Provisions AWS infrastructure using Terraform.
-- **Triggers:** Manual workflow dispatch.
-- **Features:**
-  - Runs `terraform plan` and `terraform apply` using secrets and OIDC authentication.
-  - Handles infrastructure updates automatically.
-  - **Automatically triggers** `k3s-deploy.yml` and `route53-update.yml` workflows upon successful completion.
-
 ### k3s-deploy.yml
 - **Purpose:** Deploys to the K3s cluster after infrastructure is ready.
-- **Triggers:** Manual workflow dispatch OR automatically triggered by successful `terraform-plan-create.yml` completion.
-- **Features:**
-  - Waits for K3s to be ready.
-  - Applies all Jenkins Kubernetes prerequisites (namespace, StorageClass, RBAC, etc.).
-  - Installs Jenkins via Helm with custom values.
-  - Creates/updates Route53 DNS records for Jenkins domain.
-  - Outputs Jenkins access info and admin password.
-  - Applies any additional manifests in the K3S_Manifests directory.
-
 ### k3s-manage.yml
 - **Purpose:** Provides cluster management and troubleshooting actions.
-- **Features:**
-  - Allows you to check cluster status, get logs, restart Jenkins, and apply manifests.
-  - Can be triggered manually from the GitHub Actions UI.
-
 ### terraform-destroy.yml
 - **Purpose:** Tears down all provisioned AWS infrastructure.
-- **Triggers:** Manual workflow dispatch OR automatically triggered by successful `k3s-destroy-deployments.yml` completion.
-- **Features:**
-  - Runs `terraform destroy` safely using the same secrets and OIDC authentication.
-  - Automatically removes Route53 DNS records during infrastructure destruction.
-  - Can be triggered manually to clean up all resources.
-
 ### route53-update.yml
 - **Purpose:** Update Route53 DNS records for Jenkins.
-- **Triggers:** Manual workflow dispatch OR automatically triggered by successful `terraform-plan-create.yml` completion.
-- **Features:**
-  - Allows manual DNS record updates with a new IP address.
-  - Automatically gets IP address from Terraform outputs when triggered by infrastructure deployment.
-  - Can be triggered manually from GitHub Actions UI.
-  - Useful when IP addresses change outside of normal deployment.
-
 ### k3s-destroy-deployments.yml
 - **Purpose:** Destroys K3S workloads and Jenkins deployments.
-- **Triggers:** Manual workflow dispatch.
-- **Features:**
-  - Uninstalls Jenkins Helm release and deletes namespace.
-  - **Automatically triggers** `terraform-destroy.yml` workflow upon successful completion.
-  - Safely cleans up Kubernetes resources before infrastructure destruction.
-
----
-
-
-
 ---
 
 ## Workflow Automation
@@ -249,23 +198,6 @@ Clean up Jenkins   Destroy Infrastructure
         ↓
    Complete Cleanup
 ```
-
-### **Key Benefits:**
-- **One-click deployment**: Just run "Create AWS infra, K3S" workflow
-- **One-click destruction**: Just run "Destroy K3S Workload" workflow
-- **Automatic chaining**: Workflows trigger each other automatically
-- **Complete cleanup**: Everything gets removed in the correct order
-- **Error handling**: Robust error handling with fallback mechanisms
-
----
-
-
-
----
-
-
-
----
 
 ## Author
 Edmundas
