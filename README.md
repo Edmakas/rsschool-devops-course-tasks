@@ -88,10 +88,25 @@ This project automates AWS infrastructure provisioning and K3s Kubernetes cluste
 ---
 
 ## Quick Usage
+
+### **Creating Infrastructure:**
 1. Configure your AWS and GitHub secrets/variables as described in the workflow comments.
 2. Set up your Route53 hosted zone and GitHub Actions `domain_name` variable.
-3. Push changes to the repository—**GitHub Actions will handle everything** (infra, K3s, Jenkins, prerequisites, DNS).
-4. Access Jenkins at `http://jenkins.<your-domain>` or `http://<master-node-ip>:30111` (admin password is shown in workflow logs).
+3. **Go to GitHub Actions** → **"Create AWS infra, K3S"** workflow → **"Run workflow"**
+4. **Sit back and watch** - everything happens automatically:
+   - ✅ Creates AWS infrastructure (VPC, EC2 instances, security groups)
+   - ✅ Deploys K3S cluster and Jenkins
+   - ✅ Updates Route53 DNS records
+   - ✅ Provides access information
+5. Access Jenkins at `http://jenkins.<your-domain>` or `http://<master-node-ip>:30111` (admin password is shown in workflow logs).
+
+### **Destroying Infrastructure:**
+1. **Go to GitHub Actions** → **"Destroy K3S Workload"** workflow → **"Run workflow"**
+2. **Sit back and watch** - everything gets cleaned up automatically:
+   - ✅ Uninstalls Jenkins and deletes namespace
+   - ✅ Cleans up Route53 DNS records
+   - ✅ Destroys AWS infrastructure
+   - ✅ Provides cleanup summary
 
 ---
 
@@ -209,11 +224,32 @@ For GitHub Actions CI/CD to work, you must set the following in your repository:
 
 ## Deployment Steps
 
-### **Option 1: GitHub Actions (Recommended)**
+### **Option 1: GitHub Actions (Recommended) - One-Click Deployment**
+
+#### **Prerequisites:**
 1. **Set GitHub secrets** (AWS credentials, SSH keys)
 2. **Set GitHub variables** (domain_name, vpc_cidr, etc.)
 3. **Ensure Route53 hosted zone exists** for your domain
-4. **Push to main branch** - GitHub Actions handles everything automatically
+
+#### **Deploy Infrastructure:**
+1. **Navigate to GitHub Actions** in your repository
+2. **Click on "Create AWS infra, K3S"** workflow
+3. **Click "Run workflow"** button
+4. **Wait for completion** - the workflow will automatically:
+   - Create AWS infrastructure
+   - Deploy K3S cluster
+   - Install Jenkins
+   - Update DNS records
+   - Provide access information
+
+#### **Destroy Infrastructure:**
+1. **Navigate to GitHub Actions** in your repository
+2. **Click on "Destroy K3S Workload"** workflow
+3. **Click "Run workflow"** button
+4. **Wait for completion** - the workflow will automatically:
+   - Uninstall Jenkins
+   - Clean up DNS records
+   - Destroy AWS infrastructure
 
 ### **Option 2: Local Deployment**
 1. **Clone the repository**
@@ -227,6 +263,45 @@ For GitHub Actions CI/CD to work, you must set the following in your repository:
    terraform apply
    ```
 5. **Access Jenkins** at `http://jenkins.<your-domain>` or `http://<master-node-ip>:30111`
+
+---
+
+## Workflow Automation
+
+### **Deploy Chain (One-Click Creation):**
+```
+Manual Trigger: "Create AWS infra, K3S"
+        ↓ (on success)
+    ┌─────────────────┐
+    │                 │
+    ▼                 ▼
+k3s-deploy.yml   route53-update.yml
+    │                 │
+    └─────────────────┘
+        ↓
+   Complete Deployment
+```
+
+### **Destroy Chain (One-Click Cleanup):**
+```
+Manual Trigger: "Destroy K3S Workload"
+        ↓ (on success)
+    ┌─────────────────┐
+    │                 │
+    ▼                 ▼
+Clean up Jenkins   Clean up Route53
+    │                 │
+    └─────────────────┘
+        ↓
+   Destroy Infrastructure
+```
+
+### **Key Benefits:**
+- **One-click deployment**: Just run "Create AWS infra, K3S" workflow
+- **One-click destruction**: Just run "Destroy K3S Workload" workflow
+- **Automatic chaining**: Workflows trigger each other automatically
+- **Complete cleanup**: Everything gets removed in the correct order
+- **Error handling**: Robust error handling with fallback mechanisms
 
 ---
 
