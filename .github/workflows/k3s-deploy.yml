@@ -114,7 +114,7 @@ jobs:
           kubectl apply -f ../K3S_Manifests/Mod3_Task4/Prerequisites/prerequisites-jenkins-SA.yaml
           kubectl apply -f ../K3S_Manifests/Mod3_Task4/Prerequisites/prerequisites-jenkins-Ingress.yaml
           kubectl create -n jenkins secret generic jenkins-dev1-secret --from-literal=username=dev1 --from-literal=password="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
-          kubectl create -f ../K3S_Manifests/Mod3_Task4/Prerequisites/letsencrypt-staging-clusterissuer.yaml
+          # kubectl create -f ../K3S_Manifests/Mod3_Task4/Prerequisites/letsencrypt-staging-clusterissuer.yaml
          
           # Verify prerequisites are applied
           echo "Verifying prerequisites..."
