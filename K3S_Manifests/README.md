@@ -2,13 +2,6 @@
 
 This directory contains the configuration and workflows for managing your K3s cluster on EC2 through GitHub Actions.
 
-## Overview
-
-Your K3s cluster consists of:
-- **Master Node (node-1)**: Runs the K3s server and control plane
-- **Worker Node (node-2)**: Runs workloads and applications
-- **Jenkins**: Deployed on the cluster for CI/CD operations
-
 ## GitHub Actions Workflows
 
 ### 1. Deploy to K3s Cluster (`k3s-deploy.yml`)

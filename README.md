@@ -154,44 +154,24 @@ These are non-sensitive values that can be stored as GitHub repository variables
 
 
 
-### **Troubleshooting Common Issues:**
-
-#### **"Secret not found" Error:**
-- Ensure all required secrets are set in repository settings
-- Check secret names match exactly (case-sensitive)
-- Verify secrets are set in the correct repository
-
-#### **"Variable not found" Error:**
-- Ensure all required variables are set in repository settings
-- Check variable names match exactly (case-sensitive)
-- Verify variables are set in the correct repository
-
-#### **SSH Connection Issues:**
-- Ensure SSH keys are properly formatted (no extra spaces)
-- Verify the private key includes the header and footer lines
-- Check that the public key starts with `ssh-rsa`
-
-#### **AWS Permission Issues:**
-- Verify the `GithubActionsRole` exists in your AWS account
-- Ensure the role has the necessary permissions for EC2, VPC, Route53, etc.
-- Check that the AWS account ID is correct
-
-#### **Route53 Issues:**
-- Ensure you have a hosted zone for your domain
-- Verify the domain name variable is set correctly
-- Check that your AWS account has Route53 permissions 
+ 
 
 ---
 
 ### **What Gets Deployed Automatically:**
 
 1. **Infrastructure Layer:**
-   - VPC with public subnet   
+   - VPC with public and private subnets
+   - Bastion host for secure access
+   - EC2 instances for K3s cluster
    - Security groups with all required K3s/Jenkins ports
+   - NAT Gateway for private subnet internet access
 
 2. **K3s Cluster Layer:**
    - **node-1**: K3s server (master) with automatic installation
    - **node-2**: K3s agent (worker) with automatic cluster joining
+   - NGINX Ingress Controller with admission webhook validation
+   - Jenkins deployment with Helm
 
 3. **DNS Management Layer:**
    - Route53 A record for `jenkins.<your-domain>` pointing to K3s master node
@@ -203,6 +183,13 @@ These are non-sensitive values that can be stored as GitHub repository variables
    - Security groups allowing SSH/ICMP between nodes
    - K3s-specific ports (6443, 8472, 10250, etc.) configured
    - Private subnets for worker nodes
+   - IAM roles and policies for secure access
+
+5. **Application Layer:**
+   - Jenkins namespace and RBAC configuration
+   - Jenkins persistent storage configuration
+   - Jenkins Ingress with dynamic domain configuration
+   - Jenkins deployment with custom Helm values
 
 ---
 
@@ -359,8 +346,8 @@ This project includes automatic DNS management using AWS Route53:
 
 ### **Access URLs**
 After deployment, Jenkins is accessible via:
-- **Domain**: `http://jenkins.<your-domain>` (e.g., `http://jenkins.tuselis.lt`)
-- **Direct IP**: `http://<master-node-ip>:30111`
+- **Domain (Recommended)**: `http://jenkins.<your-domain>` (e.g., `http://jenkins.tuselis.lt`)
+- **Direct IP**: `http://<master-node-ip>:30111` (fallback option)
 
 ### **DNS Troubleshooting**
 - **Manual DNS Update**: Use the `route53-update.yml` workflow if IP addresses change
