@@ -1,0 +1,72 @@
+name: Manage Flask App Helm Chart
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Which Helm action to run'
+        required: true
+        default: 'install'
+        type: choice
+        options:
+          - install
+          - upgrade
+          - remove
+
+jobs:
+  install:
+    if: ${{ github.event.inputs.action == 'install' }}
+    name: Install Helm Chart
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+      - name: Set up Kubeconfig
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: 'latest'
+      - name: Install Helm Chart
+        run: |
+          helm upgrade --install flask-app flask_app_HelmChart/
+
+  upgrade:
+    if: ${{ github.event.inputs.action == 'upgrade' }}
+    name: Upgrade Helm Chart
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+      - name: Set up Kubeconfig
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: 'latest'
+      - name: Upgrade Helm Chart
+        run: |
+          helm upgrade flask-app flask_app_HelmChart/
+
+  remove:
+    if: ${{ github.event.inputs.action == 'remove' }}
+    name: Remove Helm Chart
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+      - name: Set up Kubeconfig
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: 'latest'
+      - name: Uninstall Helm Chart
+        run: |
+          helm uninstall flask-app 
