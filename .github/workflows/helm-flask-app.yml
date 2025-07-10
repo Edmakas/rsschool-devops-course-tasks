@@ -20,6 +20,7 @@ permissions:
 env:
   TF_VAR_aws_account_id: ${{ secrets.AWS_ACCOUNT_ID }}
   TF_VAR_GithubActionsRole: ${{ vars.GithubActionsRole }}
+  TF_VAR_domain_name:        ${{ vars.domain_name }}
 
 jobs:
   install:
@@ -60,6 +61,12 @@ jobs:
         run: |
           export KUBECONFIG=../../../k3s-config.yaml
           helm upgrade --install flask-app .
+        working-directory: K3S_Manifests/Mod3_Task5/flask_app_HelmChart
+      - name: Apply Flask App Ingress
+        run: |
+          export KUBECONFIG=../../../k3s-config.yaml
+          export DOMAIN_NAME=${{ vars.domain_name }}
+          envsubst < ../../Prerequisites/prerequisites-flaskApp-Ingress.yaml | kubectl apply -f -
         working-directory: K3S_Manifests/Mod3_Task5/flask_app_HelmChart
 
   upgrade:
