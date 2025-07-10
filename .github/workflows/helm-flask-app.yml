@@ -13,6 +13,10 @@ on:
           - upgrade
           - remove
 
+env:
+  TF_VAR_aws_account_id: ${{ secrets.AWS_ACCOUNT_ID }}
+  TF_VAR_GithubActionsRole: ${{ vars.GithubActionsRole }}
+
 jobs:
   install:
     if: ${{ github.event.inputs.action == 'install' }}
@@ -21,7 +25,26 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ env.TF_VAR_aws_account_id }}:role/${{ env.TF_VAR_GithubActionsRole }}
+          aws-region: us-east-2
+      - name: Get K3s Config from SSM
+        run: |
+          aws ssm get-parameter \
+            --name "/rsschool/k3s-yaml" \
+            --with-decryption \
+            --query "Parameter.Value" \
+            --region us-west-2 \
+            --output text > k3s-config.yaml
       - name: Set up Kubeconfig
+        run: |
+          if grep -q "127.0.0.1\|localhost" k3s-config.yaml; then
+            sed -i "s/127.0.0.1/${{ secrets.K3S_NODE_IP }}/g" k3s-config.yaml
+            sed -i "s/localhost/${{ secrets.K3S_NODE_IP }}/g" k3s-config.yaml
+          fi
+      - name: Set up kubectl
         uses: azure/setup-kubectl@v3
         with:
           version: 'latest'
@@ -31,6 +54,7 @@ jobs:
           version: 'latest'
       - name: Install Helm Chart
         run: |
+          export KUBECONFIG=k3s-config.yaml
           helm upgrade --install flask-app flask_app_HelmChart/
 
   upgrade:
@@ -40,7 +64,26 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ env.TF_VAR_aws_account_id }}:role/${{ env.TF_VAR_GithubActionsRole }}
+          aws-region: us-east-2
+      - name: Get K3s Config from SSM
+        run: |
+          aws ssm get-parameter \
+            --name "/rsschool/k3s-yaml" \
+            --with-decryption \
+            --query "Parameter.Value" \
+            --region us-west-2 \
+            --output text > k3s-config.yaml
       - name: Set up Kubeconfig
+        run: |
+          if grep -q "127.0.0.1\|localhost" k3s-config.yaml; then
+            sed -i "s/127.0.0.1/${{ secrets.K3S_NODE_IP }}/g" k3s-config.yaml
+            sed -i "s/localhost/${{ secrets.K3S_NODE_IP }}/g" k3s-config.yaml
+          fi
+      - name: Set up kubectl
         uses: azure/setup-kubectl@v3
         with:
           version: 'latest'
@@ -50,6 +93,7 @@ jobs:
           version: 'latest'
       - name: Upgrade Helm Chart
         run: |
+          export KUBECONFIG=k3s-config.yaml
           helm upgrade flask-app flask_app_HelmChart/
 
   remove:
@@ -59,7 +103,26 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ env.TF_VAR_aws_account_id }}:role/${{ env.TF_VAR_GithubActionsRole }}
+          aws-region: us-east-2
+      - name: Get K3s Config from SSM
+        run: |
+          aws ssm get-parameter \
+            --name "/rsschool/k3s-yaml" \
+            --with-decryption \
+            --query "Parameter.Value" \
+            --region us-west-2 \
+            --output text > k3s-config.yaml
       - name: Set up Kubeconfig
+        run: |
+          if grep -q "127.0.0.1\|localhost" k3s-config.yaml; then
+            sed -i "s/127.0.0.1/${{ secrets.K3S_NODE_IP }}/g" k3s-config.yaml
+            sed -i "s/localhost/${{ secrets.K3S_NODE_IP }}/g" k3s-config.yaml
+          fi
+      - name: Set up kubectl
         uses: azure/setup-kubectl@v3
         with:
           version: 'latest'
@@ -69,4 +132,5 @@ jobs:
           version: 'latest'
       - name: Uninstall Helm Chart
         run: |
+          export KUBECONFIG=k3s-config.yaml
           helm uninstall flask-app 
