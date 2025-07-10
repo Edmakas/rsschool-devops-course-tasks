@@ -12,7 +12,12 @@ module "infra" {
 
 # Route53 module for DNS management
 module "route53" {
-  source            = "./modules/route53"
-  domain_name       = var.domain_name
+  source             = "./modules/route53"
+  domain_name        = var.domain_name
   jenkins_ip_address = var.jenkins_ip_address != null ? var.jenkins_ip_address : module.infra.node-1_public_ip
+}
+
+module "ecr" {
+  source       = "./modules/ecr"
+  aws_ecr_name = "rsschool_app"
 }

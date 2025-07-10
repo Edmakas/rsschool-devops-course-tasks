@@ -150,22 +150,22 @@ jobs:
           export DOMAIN_NAME=${{ vars.domain_name }}
           envsubst < ../K3S_Manifests/Mod3_Task4/Prerequisites/prerequisites-jenkins-Ingress.yaml | kubectl apply -f -
           
-          kubectl create -n jenkins secret generic jenkins-dev1-secret --from-literal=username=dev1 --from-literal=password="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
+          #kubectl create -n jenkins secret generic jenkins-dev1-secret --from-literal=username=dev1 --from-literal=password="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
           # kubectl create -f ../K3S_Manifests/Mod3_Task4/Prerequisites/letsencrypt-staging-clusterissuer.yaml
          
           # Verify prerequisites are applied
           echo "Verifying prerequisites..."
-          kubectl get storageclass jenkins-pv
+          kubectl get storageclass jenkins-rsschool
           kubectl get serviceaccount jenkins -n jenkins
           kubectl get clusterrole jenkins
           kubectl get clusterrolebinding jenkins
           
           # Deploy Jenkins using Helm
-          helm repo add jenkins https://charts.jenkins.io
+          helm repo add jenkinsci https://charts.jenkins.io
           helm repo update
-          
+
           # Deploy Jenkins with your custom values
-          helm upgrade --install jenkins jenkins/jenkins \
+          helm upgrade --install jenkins jenkinsci/jenkins \
             --namespace jenkins \
             --values ../K3S_Manifests/Mod3_Task4/jenkins-values.yaml \
             --wait \

@@ -41,3 +41,8 @@ output "jenkins_dns_fqdn" {
   description = "The fully qualified domain name for Jenkins"
   value       = module.route53.jenkins_dns_fqdn
 }
+
+output "ecr_repository_url" {
+  description = "The URL of the ECR repository."
+  value       = module.ecr.repository_url
+}

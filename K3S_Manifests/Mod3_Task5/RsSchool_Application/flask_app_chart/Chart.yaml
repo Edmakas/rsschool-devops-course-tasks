@@ -1,0 +1,8 @@
+apiVersion: v2
+name: rsschool-flask-app
+version: 0.1.0
+description: A simple Helm chart for the RS School Flask application 
+
+image:
+  repository: 033534701841.dkr.ecr.us-west-2.amazonaws.com/rsschool_app
+  tag: latest
