@@ -58,9 +58,9 @@ jobs:
           version: 'latest'
       - name: Install Helm Chart
         run: |
-          export KUBECONFIG=../../k3s-config.yaml
+          export KUBECONFIG=../../../k3s-config.yaml
           helm upgrade --install flask-app .
-        working-directory: K3S_Manifests/Mod3_Task5/HelmChart
+        working-directory: K3S_Manifests/Mod3_Task5/flask_app_HelmChart
 
   upgrade:
     if: ${{ github.event.inputs.action == 'upgrade' }}
@@ -98,8 +98,9 @@ jobs:
           version: 'latest'
       - name: Upgrade Helm Chart
         run: |
-          export KUBECONFIG=k3s-config.yaml
-          helm upgrade flask-app K3S_Manifests/Mod3_Task5/HelmChart
+          export KUBECONFIG=../../../k3s-config.yaml
+          helm upgrade flask-app .
+        working-directory: K3S_Manifests/Mod3_Task5/flask_app_HelmChart
 
   remove:
     if: ${{ github.event.inputs.action == 'remove' }}
@@ -137,5 +138,6 @@ jobs:
           version: 'latest'
       - name: Uninstall Helm Chart
         run: |
-          export KUBECONFIG=k3s-config.yaml
-          helm uninstall flask-app 
+          export KUBECONFIG=../../../k3s-config.yaml
+          helm uninstall flask-app
+        working-directory: K3S_Manifests/Mod3_Task5/flask_app_HelmChart 
