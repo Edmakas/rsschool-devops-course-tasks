@@ -164,7 +164,8 @@ jobs:
           kubectl create secret docker-registry ecr-creds \
            --docker-server=033534701841.dkr.ecr.us-west-2.amazonaws.com \
           --docker-username=AWS \
-          --docker-password="$(aws ecr get-login-password --region us-west-2)"
+          --docker-password="$(aws ecr get-login-password --region us-west-2)" \
+          -n jenkins
 
           # Deploy Jenkins using Helm
           helm repo add jenkinsci https://charts.jenkins.io
