@@ -1,0 +1,10 @@
+replicaCount: 1
+
+image:
+  repository: 033534701841.dkr.ecr.us-west-2.amazonaws.com/rsschool_flask_app
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8080 

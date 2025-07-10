@@ -90,3 +90,42 @@ aws ssm put-parameter \
   --region ${region}
 
 log "=== Node-1 Setup Completed Successfully ===" 
+
+# --- ECR Secret Refresh Logic ---
+log "Setting up periodic ECR secret refresh via systemd timer..."
+
+cat <<'EOF' | sudo tee /usr/local/bin/refresh-ecr-secret.sh > /dev/null
+#!/bin/bash
+kubectl create secret docker-registry ecr-creds \
+  --docker-server=033534701841.dkr.ecr.us-west-2.amazonaws.com \
+  --docker-username=AWS \
+  --docker-password="$(aws ecr get-login-password --region us-west-2)" \
+  --dry-run=client -o yaml | kubectl apply -f -
+EOF
+
+sudo chmod +x /usr/local/bin/refresh-ecr-secret.sh
+
+cat <<'EOF' | sudo tee /etc/systemd/system/refresh-ecr-secret.service > /dev/null
+[Unit]
+Description=Refresh AWS ECR Kubernetes Secret
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/refresh-ecr-secret.sh
+EOF
+
+cat <<'EOF' | sudo tee /etc/systemd/system/refresh-ecr-secret.timer > /dev/null
+[Unit]
+Description=Run refresh-ecr-secret every 6 hours
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=6h
+
+[Install]
+WantedBy=timers.target
+EOF
+
+sudo systemctl daemon-reload
+sudo systemctl enable --now refresh-ecr-secret.timer
+log "ECR secret refresh systemd timer enabled." 
