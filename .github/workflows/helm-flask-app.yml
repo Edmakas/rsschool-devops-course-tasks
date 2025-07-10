@@ -13,6 +13,10 @@ on:
           - upgrade
           - remove
 
+permissions:
+  id-token: write
+  contents: read
+
 env:
   TF_VAR_aws_account_id: ${{ secrets.AWS_ACCOUNT_ID }}
   TF_VAR_GithubActionsRole: ${{ vars.GithubActionsRole }}
