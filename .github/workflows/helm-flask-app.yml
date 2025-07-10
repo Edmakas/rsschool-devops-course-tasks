@@ -62,12 +62,6 @@ jobs:
           export KUBECONFIG=../../../k3s-config.yaml
           helm upgrade --install flask-app .
         working-directory: K3S_Manifests/Mod3_Task5/flask_app_HelmChart
-      - name: Apply Flask App Ingress
-        run: |
-          export KUBECONFIG=../../../k3s-config.yaml
-          export DOMAIN_NAME=${{ vars.domain_name }}
-          envsubst < ../Prerequisites/prerequisites-flaskApp-Ingress.yaml | kubectl apply -f -
-        working-directory: K3S_Manifests/Mod3_Task5/flask_app_HelmChart
 
   upgrade:
     if: ${{ github.event.inputs.action == 'upgrade' }}

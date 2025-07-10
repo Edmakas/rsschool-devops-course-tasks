@@ -8,6 +8,10 @@ image:
 imagePullSecrets:
   - name: ecr-creds
 
+ingress:
+  enabled: true
+  host: flask-app.${DOMAIN_NAME}
+
 service:
   type: ClusterIP
   port: 8080 
