@@ -99,7 +99,7 @@ jobs:
       - name: Upgrade Helm Chart
         run: |
           export KUBECONFIG=../../../k3s-config.yaml
-          helm upgrade flask-app .
+          helm upgrade --install flask-app .
         working-directory: K3S_Manifests/Mod3_Task5/flask_app_HelmChart
 
   remove:
