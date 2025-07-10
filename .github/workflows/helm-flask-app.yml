@@ -59,7 +59,7 @@ jobs:
       - name: Install Helm Chart
         run: |
           export KUBECONFIG=k3s-config.yaml
-          helm upgrade --install flask-app flask_app_HelmChart/
+          helm upgrade --install flask-app K3S_Manifests/Mod3_Task5/HelmChart
 
   upgrade:
     if: ${{ github.event.inputs.action == 'upgrade' }}
@@ -98,7 +98,7 @@ jobs:
       - name: Upgrade Helm Chart
         run: |
           export KUBECONFIG=k3s-config.yaml
-          helm upgrade flask-app flask_app_HelmChart/
+          helm upgrade flask-app K3S_Manifests/Mod3_Task5/HelmChart
 
   remove:
     if: ${{ github.event.inputs.action == 'remove' }}
