@@ -21,16 +21,15 @@ if ! command -v unzip &> /dev/null; then
 fi
 
 # Install AWS CLI v2 if not present
-if ! command -v aws &> /dev/null; then
+
   log "Installing AWS CLI v2..."
   curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"
   unzip -q /tmp/awscliv2.zip -d /tmp
   sudo /tmp/aws/install
   rm -rf /tmp/aws /tmp/awscliv2.zip
-fi
 
 # Install Docker if not present
-if ! command -v docker &> /dev/null; then
+ command -v docker &> /dev/null; 
   log "Installing Docker..."
   sudo apt-get update -y
   sudo apt-get install -y \
@@ -48,7 +47,7 @@ if ! command -v docker &> /dev/null; then
   
   sudo usermod -aG docker ubuntu
   log "Docker installed successfully."
-fi
+
 
 # Get public IP for TLS SAN
 TOKEN=$(curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 60")
