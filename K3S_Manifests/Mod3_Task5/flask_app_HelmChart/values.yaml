@@ -7,8 +7,7 @@ image:
 
 ingress:
   enabled: true
-  # host: flask-app.${DOMAIN_NAME}
-  host: flask-app.tuselis.lt
+  host: ""
 
 service:
   type: ClusterIP

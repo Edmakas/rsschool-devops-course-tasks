@@ -60,7 +60,8 @@ jobs:
       - name: Install Helm Chart
         run: |
           export KUBECONFIG=../../../k3s-config.yaml
-          helm upgrade --install flask-app .
+          helm upgrade --install flask-app . \
+            --set ingress.host=flask-app.${{ vars.DOMAIN_NAME }} 
         working-directory: K3S_Manifests/Mod3_Task5/flask_app_HelmChart
 
   upgrade:
@@ -100,7 +101,8 @@ jobs:
       - name: Upgrade Helm Chart
         run: |
           export KUBECONFIG=../../../k3s-config.yaml
-          helm upgrade --install flask-app .
+          helm upgrade --install flask-app . \
+            --set ingress.host=flask-app.${{ vars.DOMAIN_NAME }} 
         working-directory: K3S_Manifests/Mod3_Task5/flask_app_HelmChart
 
   remove:
