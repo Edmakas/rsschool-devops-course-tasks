@@ -86,6 +86,7 @@ jobs:
       - name: Get K3s Config
         run: |
           # Get k3s.yaml from AWS Parameter Store
+          sleep 30
           aws ssm get-parameter \
             --name "/rsschool/k3s-yaml" \
             --with-decryption \
