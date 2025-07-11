@@ -29,11 +29,33 @@ if ! command -v aws &> /dev/null; then
   rm -rf /tmp/aws /tmp/awscliv2.zip
 fi
 
+# Install Docker if not present
+if ! command -v docker &> /dev/null; then
+  log "Installing Docker..."
+  sudo apt-get update -y
+  sudo apt-get install -y \
+    ca-certificates \
+    curl \
+    gnupg \
+    lsb-release
+  sudo mkdir -p /etc/apt/keyrings
+  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+  echo \
+    "deb [arch=\$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+    $(lsb_release -cs) stable" | \
+    sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+  sudo apt-get update -y
+  sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+  sudo usermod -aG docker ubuntu
+  log "Docker installed successfully."
+fi
+
 # Get public IP for TLS SAN
 TOKEN=$(curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 60")
 PUBLIC_IP=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/meta-data/public-ipv4)
 log "Installing K3s server with --tls-san $PUBLIC_IP and --disable traefik..."
-curl -sfL https://get.k3s.io | sh -s - server --tls-san $PUBLIC_IP --disable traefik --disable servicelb
+curl -sfL https://get.k3s.io | sh -s - server --tls-san $PUBLIC_IP --docker --disable traefik --disable servicelb
+
 
 # Create private key file for SSH access
 log "Setting up SSH key..."
