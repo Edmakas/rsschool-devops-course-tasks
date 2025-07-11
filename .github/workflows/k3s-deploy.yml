@@ -36,7 +36,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::${{ env.TF_VAR_aws_account_id }}:role/${{ env.TF_VAR_GithubActionsRole }}
-          aws-region: us-east-2
+          aws-region: us-west-2
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -163,8 +163,8 @@ jobs:
           # Add getting of AWS ECR token
           kubectl create secret docker-registry ecr-creds \
            --docker-server=033534701841.dkr.ecr.us-west-2.amazonaws.com \
-          --docker-username=AWS \
-          --docker-password="$(aws ecr get-login-password --region us-west-2)"
+           --docker-username=AWS \
+           --docker-password="$(aws ecr get-login-password --region us-west-2)"
 
           # Deploy Jenkins using Helm
           helm repo add jenkinsci https://charts.jenkins.io
