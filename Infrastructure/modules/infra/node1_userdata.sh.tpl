@@ -89,6 +89,24 @@ aws ssm put-parameter \
   --overwrite \
   --region ${region}
 
+# --- Add custom registries.yaml for ECR mirror and auth ---
+log "Creating /etc/rancher/k3s/registries.yaml for ECR mirror and auth..."
+sudo tee /etc/rancher/k3s/registries.yaml > /dev/null <<EOF
+mirrors:
+  "033534701841.dkr.ecr.us-west-2.amazonaws.com":
+    endpoint:
+      - "https://033534701841.dkr.ecr.us-west-2.amazonaws.com"
+
+configs:
+  "033534701841.dkr.ecr.us-west-2.amazonaws.com":
+    auth:
+      username: AWS
+      password: "$(aws ecr get-login-password --region us-west-2)"
+EOF
+
+log "Restarting k3s to apply new registry configuration..."
+sudo systemctl restart k3s
+
 log "=== Node-1 Setup Completed Successfully ===" 
 
 # --- ECR Secret Refresh Logic ---
