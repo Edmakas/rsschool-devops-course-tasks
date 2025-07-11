@@ -90,60 +90,60 @@ aws ssm put-parameter \
   --region ${region}
 
 # --- Add custom registries.yaml for ECR mirror and auth ---
-log "Creating /etc/rancher/k3s/registries.yaml for ECR mirror and auth..."
-sudo tee /etc/rancher/k3s/registries.yaml > /dev/null <<EOF
-mirrors:
-  "033534701841.dkr.ecr.us-west-2.amazonaws.com":
-    endpoint:
-      - "https://033534701841.dkr.ecr.us-west-2.amazonaws.com"
+# log "Creating /etc/rancher/k3s/registries.yaml for ECR mirror and auth..."
+# sudo tee /etc/rancher/k3s/registries.yaml > /dev/null <<EOF
+# mirrors:
+#   "033534701841.dkr.ecr.us-west-2.amazonaws.com":
+#     endpoint:
+#       - "https://033534701841.dkr.ecr.us-west-2.amazonaws.com"
 
-configs:
-  "033534701841.dkr.ecr.us-west-2.amazonaws.com":
-    auth:
-      username: AWS
-      password: "$(aws ecr get-login-password --region us-west-2)"
-EOF
+# configs:
+#   "033534701841.dkr.ecr.us-west-2.amazonaws.com":
+#     auth:
+#       username: AWS
+#       password: "$(aws ecr get-login-password --region us-west-2)"
+# EOF
 
-log "Restarting k3s to apply new registry configuration..."
-sudo systemctl restart k3s
+# log "Restarting k3s to apply new registry configuration..."
+# sudo systemctl restart k3s
 
-log "=== Node-1 Setup Completed Successfully ===" 
+# log "=== Node-1 Setup Completed Successfully ===" 
 
-# --- ECR Secret Refresh Logic ---
-log "Setting up periodic ECR secret refresh via systemd timer..."
+# # --- ECR Secret Refresh Logic ---
+# log "Setting up periodic ECR secret refresh via systemd timer..."
 
-cat <<'EOF' | sudo tee /usr/local/bin/refresh-ecr-secret.sh > /dev/null
-#!/bin/bash
-kubectl create secret docker-registry ecr-creds \
-  --docker-server=033534701841.dkr.ecr.us-west-2.amazonaws.com \
-  --docker-username=AWS \
-  --docker-password="$(aws ecr get-login-password --region us-west-2)" \
-  --dry-run=client -o yaml | kubectl apply -f -
-EOF
+# cat <<'EOF' | sudo tee /usr/local/bin/refresh-ecr-secret.sh > /dev/null
+# #!/bin/bash
+# kubectl create secret docker-registry ecr-creds \
+#   --docker-server=033534701841.dkr.ecr.us-west-2.amazonaws.com \
+#   --docker-username=AWS \
+#   --docker-password="$(aws ecr get-login-password --region us-west-2)" \
+#   --dry-run=client -o yaml | kubectl apply -f -
+# EOF
 
-sudo chmod +x /usr/local/bin/refresh-ecr-secret.sh
+# sudo chmod +x /usr/local/bin/refresh-ecr-secret.sh
 
-cat <<'EOF' | sudo tee /etc/systemd/system/refresh-ecr-secret.service > /dev/null
-[Unit]
-Description=Refresh AWS ECR Kubernetes Secret
+# cat <<'EOF' | sudo tee /etc/systemd/system/refresh-ecr-secret.service > /dev/null
+# [Unit]
+# Description=Refresh AWS ECR Kubernetes Secret
 
-[Service]
-Type=oneshot
-ExecStart=/usr/local/bin/refresh-ecr-secret.sh
-EOF
+# [Service]
+# Type=oneshot
+# ExecStart=/usr/local/bin/refresh-ecr-secret.sh
+# EOF
 
-cat <<'EOF' | sudo tee /etc/systemd/system/refresh-ecr-secret.timer > /dev/null
-[Unit]
-Description=Run refresh-ecr-secret every 6 hours
+# cat <<'EOF' | sudo tee /etc/systemd/system/refresh-ecr-secret.timer > /dev/null
+# [Unit]
+# Description=Run refresh-ecr-secret every 6 hours
 
-[Timer]
-OnBootSec=5min
-OnUnitActiveSec=6h
+# [Timer]
+# OnBootSec=5min
+# OnUnitActiveSec=6h
 
-[Install]
-WantedBy=timers.target
-EOF
+# [Install]
+# WantedBy=timers.target
+# EOF
 
-sudo systemctl daemon-reload
-sudo systemctl enable --now refresh-ecr-secret.timer
-log "ECR secret refresh systemd timer enabled." 
+# sudo systemctl daemon-reload
+# sudo systemctl enable --now refresh-ecr-secret.timer
+# log "ECR secret refresh systemd timer enabled." 
