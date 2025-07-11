@@ -21,15 +21,16 @@ if ! command -v unzip &> /dev/null; then
 fi
 
 # Install AWS CLI v2 if not present
-
+if ! command -v aws &> /dev/null; then
   log "Installing AWS CLI v2..."
   curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"
   unzip -q /tmp/awscliv2.zip -d /tmp
   sudo /tmp/aws/install
   rm -rf /tmp/aws /tmp/awscliv2.zip
+fi
 
 # Install Docker if not present
- command -v docker &> /dev/null; 
+if ! command -v docker &> /dev/null; then
   log "Installing Docker..."
   sudo apt-get update -y
   sudo apt-get install -y \
@@ -40,13 +41,13 @@ fi
   sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
   sudo chmod a+r /etc/apt/keyrings/docker.asc
 
-  UBUNTU_CODENAME=$(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}")
+  UBUNTU_CODENAME=$(. /etc/os-release && echo "$${UBUNTU_CODENAME:-$${VERSION_CODENAME}}")
   echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $UBUNTU_CODENAME stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
   sudo apt-get update -y
   sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-  
   sudo usermod -aG docker ubuntu
   log "Docker installed successfully."
+fi
 
 
 # Get public IP for TLS SAN
@@ -122,7 +123,7 @@ aws ssm put-parameter \
 #   "033534701841.dkr.ecr.us-west-2.amazonaws.com":
 #     auth:
 #       username: AWS
-#       password: "$(aws ecr get-login-password --region us-west-2)"
+#       password: "$$(aws ecr get-login-password --region us-west-2)"
 # EOF
 
 # log "Restarting k3s to apply new registry configuration..."
