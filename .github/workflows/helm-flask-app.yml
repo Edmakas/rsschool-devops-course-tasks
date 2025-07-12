@@ -70,13 +70,13 @@ jobs:
           #echo "Looking for EC2 instance with tag Name=rsschool-node-1"
           echo "Looking for EC2 instance with tag Name=${{ vars.prefix }}-node-1"
           IP=$(aws ec2 describe-instances \
-            --filters "Name=tag:Name,Values=rsschool-node-1" \
-            #--filters "Name=tag:Name,Values=${{ vars.prefix }}-node-1" \
+            #--filters "Name=tag:Name,Values=rsschool-node-1" \
+            --filters "Name=tag:Name,Values=${{ vars.prefix }}-node-1" \
             --query "Reservations[0].Instances[0].PublicIpAddress" \
             --output text)
           if [ "$IP" = "None" ] || [ -z "$IP" ]; then
-            echo "Warning: Could not find IP for instance with tag rsschool-node-1"
-            #echo "Warning: Could not find IP for instance with tag ${{ vars.prefix }}-node-1"
+            #echo "Warning: Could not find IP for instance with tag rsschool-node-1"
+            echo "Warning: Could not find IP for instance with tag ${{ vars.prefix }}-node-1"
             echo "external_ip=Not available" >> $GITHUB_OUTPUT
           else
             echo "Found IP: $IP"
