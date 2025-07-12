@@ -49,10 +49,13 @@ jobs:
           pwd
           ls
           cat k3s-config.yaml
+          echo "---------------------------"
           if grep -q "127.0.0.1\|localhost" k3s-config.yaml; then
             sed -i "s/127.0.0.1/${{ secrets.K3S_NODE_IP }}/g" k3s-config.yaml
             sed -i "s/localhost/${{ secrets.K3S_NODE_IP }}/g" k3s-config.yaml
           fi
+          echo "---------------------------"
+          cat k3s-config.yaml
       - name: Set up kubectl
         uses: azure/setup-kubectl@v3
         with:
@@ -73,12 +76,10 @@ jobs:
           #echo "Looking for EC2 instance with tag Name=rsschool-node-1"
           echo "Looking for EC2 instance with tag Name=${{ vars.prefix }}-node-1"
           IP=$(aws ec2 describe-instances \
-            #--filters "Name=tag:Name,Values=rsschool-node-1" \
             --filters "Name=tag:Name,Values=${{ vars.prefix }}-node-1" \
             --query "Reservations[0].Instances[0].PublicIpAddress" \
             --output text)
           if [ "$IP" = "None" ] || [ -z "$IP" ]; then
-            #echo "Warning: Could not find IP for instance with tag rsschool-node-1"
             echo "Warning: Could not find IP for instance with tag ${{ vars.prefix }}-node-1"
             echo "external_ip=Not available" >> $GITHUB_OUTPUT
           else
