@@ -1,4 +1,4 @@
-# RS School: AWS DevOps 2025Q2 (modules/3_ci-configuration/task_4.md)
+# RS School: AWS DevOps 2025Q2 (modules/3_ci-configuration/task_5.md)
 
 This project automates AWS infrastructure provisioning and K3s Kubernetes cluster deployment using Terraform and GitHub Actions. Jenkins is deployed on the cluster with all required Kubernetes prerequisites handled automatically.
 
@@ -134,7 +134,7 @@ These are non-sensitive values that can be stored as GitHub repository variables
 | `PREFIX` | Prefix for fifferent resources | `rsschool` | ✅ Yes |
 
 ---
-### **Creating Infrastructure:**
+### **Creating Infrastructure and installing Flask APP:**
 1. Configure your AWS and GitHub secrets/variables as described in **Required Secrets** and **Required Variables**
 2. Set up your Route53 hosted zone and GitHub Actions `domain_name` variable.
 3. **Go to GitHub Actions** → **"Create AWS, K3S infra "** → **"Run workflow"** -> **"Manage Flask App Helm Chart"** → **"Run workflow"**
