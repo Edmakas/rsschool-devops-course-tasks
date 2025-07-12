@@ -1,4 +1,4 @@
-# RS School: AWS DevOps 2025Q2 (modules/3_ci-configuration/task_5.md)
+# RS School: AWS DevOps 2025Q2 – Task 5 (modules/3_ci-configuration/task_5.md)
 
 This project automates AWS infrastructure provisioning and K3s Kubernetes cluster deployment using Terraform and GitHub Actions. Jenkins is deployed on the cluster with all required Kubernetes prerequisites handled automatically.
 
@@ -31,7 +31,7 @@ These are sensitive values that should be stored as GitHub repository secrets:
 |-------------|-------------|---------|
 | `AWS_ACCOUNT_ID` | Your AWS account ID (12 digits) | `123456789012` |
 | `SSH_PUBLIC_KEY` | Public SSH key for bastion host and nodes | `ssh-rsa AAAAB3NzaC1yc2E...` |
-| `SSH_PRIVATE_KEY` | Private SSH key for node communication | `-----BEGIN OPENSSH PRIVATE KEY-----...` |
+| `SSH_PRIVATE_KEY` | Private SSH key for connecting to the nodes | `-----BEGIN OPENSSH PRIVATE KEY-----...` |
 | `CERT_MANAGER_EMAIL` | Email address for Let's Encrypt certificates (if using SSL) | `admin@yourdomain.com` |
 
 
@@ -49,13 +49,13 @@ These are non-sensitive values that can be stored as GitHub repository variables
 
 ---
 
-### 4. **Creating Infrastructure and installing Flask APP:**
+### 4. **Creating the infrastructure and installing the Flask app**
 1. Configure your AWS and GitHub secrets/variables as described in **Required Secrets** and **Required Variables**
 2. Set up your Route53 hosted zone and GitHub Actions `DOMAIN_NAME` variable.
 3. **Go to GitHub Actions** → **"Create AWS, K3S infra "** → **"Run workflow"** -> **"Manage Flask App Helm Chart"** → **"Run workflow"**
 4. **Sit back and watch** - everything happens automatically:
    - ✅ Creates AWS infrastructure (VPC, EC2 instances, security groups)
-   - ✅ Deploys K3S cluster and Jenkins, Flask App 
+   - ✅ Deploys K3S cluster, Jenkins, and the Flask app
    - ✅ Updates Route53 DNS records
    - ✅ Provides access information
 5. Access to Jenkins and the Flask app is shown in the workflow summary logs
@@ -64,7 +64,7 @@ These are non-sensitive values that can be stored as GitHub repository variables
 
 ### 5. **Destroying Infrastructure:**
 1. **Go to GitHub Actions** → **"Destroy K3S Workload"** workflow → **"Run workflow"**
-2. **Sit back and watch** - everything gets cleaned up automatically
+2. **Sit back and watch** - everything is cleaned up automatically
 
 ---
 
