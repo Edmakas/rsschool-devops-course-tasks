@@ -14,3 +14,11 @@ resource "aws_route53_record" "jenkins" {
   ttl     = "60"
   records = [var.jenkins_ip_address]
 } 
+
+resource "aws_route53_record" "flaskapp" {
+  zone_id = data.aws_route53_zone.main.zone_id
+  name    = "flask-app"
+  type    = "A"
+  ttl     = "60"
+  records = [var.jenkins_ip_address]
+} 
