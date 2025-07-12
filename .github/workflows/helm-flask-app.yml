@@ -46,6 +46,9 @@ jobs:
             --output text > k3s-config.yaml
       - name: Set up Kubeconfig
         run: |
+          pwd
+          ls
+          cat k3s-config.yaml
           if grep -q "127.0.0.1\|localhost" k3s-config.yaml; then
             sed -i "s/127.0.0.1/${{ secrets.K3S_NODE_IP }}/g" k3s-config.yaml
             sed -i "s/localhost/${{ secrets.K3S_NODE_IP }}/g" k3s-config.yaml
@@ -173,28 +176,6 @@ jobs:
             --output text)
           echo "external_ip=$IP" >> $GITHUB_OUTPUT
 
-      # - name: Update Route53 Record
-      #   run: |
-      #     cat > change-batch.json <<EOF
-      #     {
-      #       "Comment": "Update flask-app record",
-      #       "Changes": [{
-      #         "Action": "UPSERT",
-      #         "ResourceRecordSet": {
-      #           "Name": "flask-app.${{ vars.DOMAIN_NAME }}",
-      #           "Type": "A",
-      #           "TTL": 300,
-      #           "ResourceRecords": [{ "Value": "${{ steps.get_ec2_ip.outputs.external_ip }}" }]
-      #         }
-      #       }]
-      #     }
-      #     EOF
-
-      #     aws route53 change-resource-record-sets \
-      #       --hosted-zone-id ${{ secrets.ROUTE53_ZONE_ID }} \
-      #       --change-batch file://change-batch.json
-      #   env:
-      #     AWS_REGION: us-west-2
 
       - name: Output Access Information
         run: |
