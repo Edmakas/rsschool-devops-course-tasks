@@ -95,6 +95,24 @@ jobs:
       #   env:
       #     AWS_REGION: us-west-2
 
+      - name: Output Access Information
+        run: |
+          echo "## Flask App Access Information" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Flask Application has been successfully installed!**" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Access Information:**" >> $GITHUB_STEP_SUMMARY
+          echo "- Domain: http://flask-app.${{ vars.DOMAIN_NAME }}" >> $GITHUB_STEP_SUMMARY
+          echo "- IP Address: ${{ steps.get_ec2_ip.outputs.external_ip }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Application Status:**" >> $GITHUB_STEP_SUMMARY
+          echo "- Check if the application is ready by visiting the domain above" >> $GITHUB_STEP_SUMMARY
+          echo "- If using Route53, DNS propagation may take a few minutes" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Troubleshooting:**" >> $GITHUB_STEP_SUMMARY
+          echo "- If the domain doesn't work, try accessing via IP: http://${{ steps.get_ec2_ip.outputs.external_ip }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Check pod status: kubectl get pods -n default" >> $GITHUB_STEP_SUMMARY
+
   upgrade:
     if: ${{ github.event.inputs.action == 'upgrade' }}
     name: Upgrade Helm Chart
@@ -166,6 +184,24 @@ jobs:
       #       --change-batch file://change-batch.json
       #   env:
       #     AWS_REGION: us-west-2
+
+      - name: Output Access Information
+        run: |
+          echo "## Flask App Access Information" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Flask Application has been successfully upgraded!**" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Access Information:**" >> $GITHUB_STEP_SUMMARY
+          echo "- Domain: http://flask-app.${{ vars.DOMAIN_NAME }}" >> $GITHUB_STEP_SUMMARY
+          echo "- IP Address: ${{ steps.get_ec2_ip.outputs.external_ip }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Application Status:**" >> $GITHUB_STEP_SUMMARY
+          echo "- The application has been updated with the latest changes" >> $GITHUB_STEP_SUMMARY
+          echo "- Check if the application is ready by visiting the domain above" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Troubleshooting:**" >> $GITHUB_STEP_SUMMARY
+          echo "- If the domain doesn't work, try accessing via IP: http://${{ steps.get_ec2_ip.outputs.external_ip }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Check pod status: kubectl get pods -n default" >> $GITHUB_STEP_SUMMARY
 
   remove:
     if: ${{ github.event.inputs.action == 'remove' }}
