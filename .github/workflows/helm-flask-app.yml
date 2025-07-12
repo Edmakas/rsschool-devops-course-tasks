@@ -112,12 +112,6 @@ jobs:
             --query "Parameter.Value" \
             --region us-west-2 \
             --output text > k3s-config.yaml
-      - name: Set up Kubeconfig
-        run: |
-          if grep -q "127.0.0.1\|localhost" k3s-config.yaml; then
-            sed -i "s/127.0.0.1/${{ secrets.K3S_NODE_IP }}/g" k3s-config.yaml
-            sed -i "s/localhost/${{ secrets.K3S_NODE_IP }}/g" k3s-config.yaml
-          fi
       - name: Set up kubectl
         uses: azure/setup-kubectl@v3
         with:
@@ -141,7 +135,6 @@ jobs:
             --output text)
           echo "external_ip=$IP" >> $GITHUB_OUTPUT
 
-
       - name: Output Access Information
         run: |
           echo "## Flask App Access Information" >> $GITHUB_STEP_SUMMARY
@@ -152,13 +145,6 @@ jobs:
           echo "- Domain: http://flask-app.${{ vars.DOMAIN_NAME }}" >> $GITHUB_STEP_SUMMARY
           echo "- IP Address: ${{ steps.get_ec2_ip.outputs.external_ip }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Application Status:**" >> $GITHUB_STEP_SUMMARY
-          echo "- The application has been updated with the latest changes" >> $GITHUB_STEP_SUMMARY
-          echo "- Check if the application is ready by visiting the domain above" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Troubleshooting:**" >> $GITHUB_STEP_SUMMARY
-          echo "- If the domain doesn't work, try accessing via IP: http://${{ steps.get_ec2_ip.outputs.external_ip }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Check pod status: kubectl get pods -n default" >> $GITHUB_STEP_SUMMARY
 
   remove:
     if: ${{ github.event.inputs.action == 'remove' }}
@@ -180,12 +166,6 @@ jobs:
             --query "Parameter.Value" \
             --region us-west-2 \
             --output text > k3s-config.yaml
-      - name: Set up Kubeconfig
-        run: |
-          if grep -q "127.0.0.1\|localhost" k3s-config.yaml; then
-            sed -i "s/127.0.0.1/${{ secrets.K3S_NODE_IP }}/g" k3s-config.yaml
-            sed -i "s/localhost/${{ secrets.K3S_NODE_IP }}/g" k3s-config.yaml
-          fi
       - name: Set up kubectl
         uses: azure/setup-kubectl@v3
         with:
