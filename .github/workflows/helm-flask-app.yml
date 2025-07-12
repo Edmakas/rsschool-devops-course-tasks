@@ -20,7 +20,8 @@ permissions:
 env:
   TF_VAR_aws_account_id:    ${{ secrets.AWS_ACCOUNT_ID }}
   TF_VAR_GithubActionsRole: ${{ vars.GithubActionsRole }}
-  TF_VAR_DOMAIN_NAMEe:      ${{ vars.DOMAIN_NAME }}
+  TF_VAR_DOMAIN_NAME:       ${{ vars.DOMAIN_NAME }}
+  TF_VAR_prefix:            ${{ vars.PREFIX }}
 
 jobs:
   install:
@@ -66,11 +67,21 @@ jobs:
       - name: Get EC2 Public IP
         id: get_ec2_ip
         run: |
+          #echo "Looking for EC2 instance with tag Name=rsschool-node-1"
+          echo "Looking for EC2 instance with tag Name=${{ vars.prefix }}-node-1"
           IP=$(aws ec2 describe-instances \
-            --filters "Name=tag:Name,Values=${{ vars.prefix }}-node-1" \
+            --filters "Name=tag:Name,Values=rsschool-node-1" \
+            #--filters "Name=tag:Name,Values=${{ vars.prefix }}-node-1" \
             --query "Reservations[0].Instances[0].PublicIpAddress" \
             --output text)
-          echo "external_ip=$IP" >> $GITHUB_OUTPUT
+          if [ "$IP" = "None" ] || [ -z "$IP" ]; then
+            echo "Warning: Could not find IP for instance with tag rsschool-node-1"
+            #echo "Warning: Could not find IP for instance with tag ${{ vars.prefix }}-node-1"
+            echo "external_ip=Not available" >> $GITHUB_OUTPUT
+          else
+            echo "Found IP: $IP"
+            echo "external_ip=$IP" >> $GITHUB_OUTPUT
+          fi
 
       # - name: Update Route53 Record
       #   run: |
@@ -241,4 +252,6 @@ jobs:
         run: |
           export KUBECONFIG=../../../k3s-config.yaml
           helm uninstall flask-app
-        working-directory: K3S_Manifests/Mod3_Task5/flask_app_HelmChart 
+        working-directory: K3S_Manifests/Mod3_Task5/flask_app_HelmChart
+
+ 
