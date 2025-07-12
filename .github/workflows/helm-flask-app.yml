@@ -44,18 +44,13 @@ jobs:
             --query "Parameter.Value" \
             --region us-west-2 \
             --output text > k3s-config.yaml
-      - name: Set up Kubeconfig
-        run: |
-          pwd
-          ls
-          cat k3s-config.yaml
-          echo "---------------------------"
-          if grep -q "127.0.0.1\|localhost" k3s-config.yaml; then
-            sed -i "s/127.0.0.1/${{ secrets.K3S_NODE_IP }}/g" k3s-config.yaml
-            sed -i "s/localhost/${{ secrets.K3S_NODE_IP }}/g" k3s-config.yaml
-          fi
-          echo "---------------------------"
-          cat k3s-config.yaml
+      # It is not needed at the moment as k3s-config.yaml is adjusted in node1_userdata.sh.tpl
+      # - name: Set up Kubeconfig
+      #   run: |
+      #     if grep -q "127.0.0.1\|localhost" k3s-config.yaml; then
+      #       sed -i "s/127.0.0.1/${{ secrets.K3S_NODE_IP }}/g" k3s-config.yaml
+      #       sed -i "s/localhost/${{ secrets.K3S_NODE_IP }}/g" k3s-config.yaml
+      #     fi
       - name: Set up kubectl
         uses: azure/setup-kubectl@v3
         with:
@@ -73,7 +68,6 @@ jobs:
       - name: Get EC2 Public IP
         id: get_ec2_ip
         run: |
-          #echo "Looking for EC2 instance with tag Name=rsschool-node-1"
           echo "Looking for EC2 instance with tag Name=${{ vars.prefix }}-node-1"
           IP=$(aws ec2 describe-instances \
             --filters "Name=tag:Name,Values=${{ vars.prefix }}-node-1" \
@@ -87,29 +81,6 @@ jobs:
             echo "external_ip=$IP" >> $GITHUB_OUTPUT
           fi
 
-      # - name: Update Route53 Record
-      #   run: |
-      #     cat > change-batch.json <<EOF
-      #     {
-      #       "Comment": "Update flask-app record",
-      #       "Changes": [{
-      #         "Action": "UPSERT",
-      #         "ResourceRecordSet": {
-      #           "Name": "flask-app.${{ vars.DOMAIN_NAME }}",
-      #           "Type": "A",
-      #           "TTL": 300,
-      #           "ResourceRecords": [{ "Value": "${{ steps.get_ec2_ip.outputs.external_ip }}" }]
-      #         }
-      #       }]
-      #     }
-      #     EOF
-
-      #     aws route53 change-resource-record-sets \
-      #       --hosted-zone-id ${{ secrets.ROUTE53_ZONE_ID }} \
-      #       --change-batch file://change-batch.json
-      #   env:
-      #     AWS_REGION: us-west-2
-
       - name: Output Access Information
         run: |
           echo "## Flask App Access Information" >> $GITHUB_STEP_SUMMARY
@@ -120,13 +91,6 @@ jobs:
           echo "- Domain: http://flask-app.${{ vars.DOMAIN_NAME }}" >> $GITHUB_STEP_SUMMARY
           echo "- IP Address: ${{ steps.get_ec2_ip.outputs.external_ip }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Application Status:**" >> $GITHUB_STEP_SUMMARY
-          echo "- Check if the application is ready by visiting the domain above" >> $GITHUB_STEP_SUMMARY
-          echo "- If using Route53, DNS propagation may take a few minutes" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Troubleshooting:**" >> $GITHUB_STEP_SUMMARY
-          echo "- If the domain doesn't work, try accessing via IP: http://${{ steps.get_ec2_ip.outputs.external_ip }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Check pod status: kubectl get pods -n default" >> $GITHUB_STEP_SUMMARY
 
   upgrade:
     if: ${{ github.event.inputs.action == 'upgrade' }}
