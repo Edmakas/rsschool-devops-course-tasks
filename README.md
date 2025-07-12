@@ -36,14 +36,22 @@ This project automates AWS infrastructure provisioning and K3s Kubernetes cluste
 │   ├── main.tf                            # Terraform backend and provider config
 │   └── variables.tf                       # Variable definitions for setup
 ├── K3S_Manifests/                         # Kubernetes manifests & Helm values
-│   └── Mod3_Task4/
-│       ├── jenkins-values.yaml            # Jenkins Helm chart values (custom config)
-│       └── Prerequisites/                 # Jenkins prerequisites for K8s
-│           ├── prerequisites-jenkins-NS.yaml      # Namespace for Jenkins
-│           ├── prerequisites-jenkins-SC.yaml      # StorageClass for Jenkins PV
-│           ├── prerequisites-jenkins-SA.yaml      # ServiceAccount, ClusterRole, ClusterRoleBinding for Jenkins
-│           ├── prerequisites-jenkins-Ingress.yaml # Ingress for Jenkins with dynamic domain
-│           └── letsencrypt-staging-clusterissuer.yaml # Let's Encrypt staging cluster issuer
+│   ├── Mod3_Task4/
+│   │   ├── jenkins-values.yaml            # Jenkins Helm chart values (custom config)
+│   │   └── Prerequisites/                 # Jenkins prerequisites for K8s
+│   │       ├── prerequisites-jenkins-NS.yaml      # Namespace for Jenkins
+│   │       ├── prerequisites-jenkins-SC.yaml      # StorageClass for Jenkins PV
+│   │       ├── prerequisites-jenkins-SA.yaml      # ServiceAccount, ClusterRole, ClusterRoleBinding for Jenkins
+│   │       ├── prerequisites-jenkins-Ingress.yaml # Ingress for Jenkins with dynamic domain
+│   │       └── letsencrypt-staging-clusterissuer.yaml # Let's Encrypt staging cluster issuer
+│   └── Mod3_Task5/
+│       └── flask_app_HelmChart/           # Flask application Helm chart
+│           ├── Chart.yaml                 # Helm chart metadata
+│           ├── values.yaml                # Default values for Flask app
+│           └── templates/                 # Kubernetes templates
+│               ├── deployment.yaml        # Flask app deployment
+│               ├── service.yaml           # Flask app service
+│               └── ingress.yaml           # Flask app ingress
 ├── .github/
 │   └── workflows/
 │       ├── k3s-deploy.yml                 # Main CI/CD: infra, prerequisites, Jenkins, DNS
@@ -52,7 +60,8 @@ This project automates AWS infrastructure provisioning and K3s Kubernetes cluste
 │       ├── terraform-destroy.yml          # Infra teardown
 │       ├── k3s-destroy-deployments.yml    # K3S workload destruction
 │       ├── route53-update.yml             # Manual Route53 DNS record updates
-│       └── cert-manager-deploy.yml        # Cert-Manager deployment workflow
+│       ├── cert-manager-deploy.yml        # Cert-Manager deployment workflow
+│       └── helm-flask-app.yml             # Flask app Helm chart management (install/upgrade/remove)
 └── README.md                              # Project documentation (this file)
 ```
 
@@ -68,6 +77,7 @@ This project automates AWS infrastructure provisioning and K3s Kubernetes cluste
   - **prerequisites-jenkins-SA.yaml**: ServiceAccount, ClusterRole, and ClusterRoleBinding for Jenkins
   - **prerequisites-jenkins-Ingress.yaml**: Ingress resource for Jenkins with dynamic domain configuration
   - **letsencrypt-staging-clusterissuer.yaml**: Let's Encrypt staging cluster issuer for SSL certificates
+- **K3S_Manifests/Mod3_Task5/flask_app_HelmChart/**: Flask application Helm chart with deployment, service, and ingress templates
 - **.github/workflows/**: GitHub Actions workflows
   - **k3s-deploy.yml**: Main CI/CD workflow - deploys infra, applies Jenkins prerequisites, installs Jenkins via Helm, manages DNS
   - **k3s-manage.yml**: Cluster management (get status, logs, restart Jenkins, etc.)
@@ -76,6 +86,7 @@ This project automates AWS infrastructure provisioning and K3s Kubernetes cluste
   - **k3s-destroy-deployments.yml**: K3S workload and Jenkins destruction
   - **route53-update.yml**: Manual Route53 DNS record updates
   - **cert-manager-deploy.yml**: Cert-Manager deployment for SSL certificate management
+  - **helm-flask-app.yml**: Flask application Helm chart management (install, upgrade, remove) with access information
 
 ---
 
@@ -133,6 +144,7 @@ These are sensitive values that should be stored as GitHub repository secrets:
 | `SSH_PRIVATE_KEY` | Private SSH key for node communication | `-----BEGIN OPENSSH PRIVATE KEY-----...` |
 | `CERT_MANAGER_EMAIL` | Email address for Let's Encrypt certificates (if using SSL) | `admin@yourdomain.com` |
 
+
 ### **Required Variables**
 These are non-sensitive values that can be stored as GitHub repository variables:
 
@@ -143,6 +155,7 @@ These are non-sensitive values that can be stored as GitHub repository variables
 | `node_instance_profile` | Instance profile for K3s nodes | `k3s-node-instance-profile` | ✅ Yes |
 | `domain_name` | Your domain name for Route53 DNS management | `tuselis.lt` | ✅ Yes |
 | `IPS_TO_BASTION` | IP addresses allowed to access bastion host (comma-separated) | `192.168.1.100/32,10.0.0.0/8` | ✅ Yes |
+| `PREFIX` | Prefix for fifferent resources | `rsschool` | ✅ Yes |
 
 ---
 
