@@ -90,29 +90,6 @@ This project automates AWS infrastructure provisioning and K3s Kubernetes cluste
 
 ---
 
-## Quick Usage
-
-### **Creating Infrastructure:**
-1. Configure your AWS and GitHub secrets/variables as described in the workflow comments.
-2. Set up your Route53 hosted zone and GitHub Actions `domain_name` variable.
-3. **Go to GitHub Actions** → **"Create AWS infra, K3S"** workflow → **"Run workflow"**
-4. **Sit back and watch** - everything happens automatically:
-   - ✅ Creates AWS infrastructure (VPC, EC2 instances, security groups)
-   - ✅ Deploys K3S cluster and Jenkins
-   - ✅ Updates Route53 DNS records
-   - ✅ Provides access information
-5. Access Jenkins at `http://jenkins.<your-domain>` or `http://<master-node-ip>:30111` (admin password is shown in workflow logs).
-
-### **Destroying Infrastructure:**
-1. **Go to GitHub Actions** → **"Destroy K3S Workload"** workflow → **"Run workflow"**
-2. **Sit back and watch** - everything gets cleaned up automatically:
-   - ✅ Uninstalls Jenkins and deletes namespace
-   - ✅ Cleans up Route53 DNS records
-   - ✅ Destroys AWS infrastructure
-   - ✅ Provides cleanup summary
-
----
-
 ## Prerequisites
 - AWS Account
 - GitHub Account
@@ -126,10 +103,9 @@ This project automates AWS infrastructure provisioning and K3s Kubernetes cluste
 
 ### 1. GitHub Actions IAM Role (for CI/CD)
 - The Terraform code for creating the `GithubActionsRole` IAM role is located in the `Setup` directory of this repository (`Setup/iam.tf`).
-- This role should have the same permissions as the IAM user described above.
 - Set up an OIDC identity provider for GitHub Actions in your AWS account.
 - Configure the trust policy to allow GitHub Actions to assume this role securely.
-
+---
 ### 4. GitHub Repository Secrets and Variables
 
 For GitHub Actions CI/CD to work, you must set the following in your repository:
@@ -150,46 +126,30 @@ These are non-sensitive values that can be stored as GitHub repository variables
 
 | Variable Name | Description | Example | Required |
 |---------------|-------------|---------|----------|
-| `GithubActionsRole` | Name of the IAM role for GitHub Actions | `GithubActionsRole` | ✅ Yes |
-| `vpc_cidr` | CIDR block for your VPC | `10.0.0.0/16` | ✅ Yes |
-| `node_instance_profile` | Instance profile for K3s nodes | `k3s-node-instance-profile` | ✅ Yes |
-| `domain_name` | Your domain name for Route53 DNS management | `tuselis.lt` | ✅ Yes |
+| `GITHUBACTIONSROLE` | Name of the IAM role for GitHub Actions | `GithubActionsRole` | ✅ Yes |
+| `VPC_CIDR` | CIDR block for your VPC | `10.0.0.0/16` | ✅ Yes |
+| `NODE_INSTANCE_PROFILE` | Instance profile for K3s nodes | `k3s-node-instance-profile` | ✅ Yes |
+| `DOMAIN_NAME` | Your domain name for Route53 DNS management | `tuselis.lt` | ✅ Yes |
 | `IPS_TO_BASTION` | IP addresses allowed to access bastion host (comma-separated) | `192.168.1.100/32,10.0.0.0/8` | ✅ Yes |
 | `PREFIX` | Prefix for fifferent resources | `rsschool` | ✅ Yes |
 
 ---
+### **Creating Infrastructure:**
+1. Configure your AWS and GitHub secrets/variables as described in **Required Secrets** and **Required Variables**
+2. Set up your Route53 hosted zone and GitHub Actions `domain_name` variable.
+3. **Go to GitHub Actions** → **"Create AWS, K3S infra "** → **"Run workflow"** -> **"Manage Flask App Helm Chart"** → **"Run workflow"**
+4. **Sit back and watch** - everything happens automatically:
+   - ✅ Creates AWS infrastructure (VPC, EC2 instances, security groups)
+   - ✅ Deploys K3S cluster and Jenkins, Flask App 
+   - ✅ Updates Route53 DNS records
+   - ✅ Provides access information
+5. Access to Jenkins and the Flask app is shown in the workflow summary logs
 
-## Workflow Automation
+### **Destroying Infrastructure:**
+1. **Go to GitHub Actions** → **"Destroy K3S Workload"** workflow → **"Run workflow"**
+2. **Sit back and watch** - everything gets cleaned up automatically
 
-### **Deploy Chain (One-Click Creation):**
-```
-Manual Trigger: "Create AWS infra, K3S"
-        ↓ (on success)
-    ┌─────────────────┐
-    │                 │
-    ▼                 ▼
-k3s-deploy.yml   route53-update.yml
-    │                 │
-    └─────────────────┘
-        ↓
-   Complete Deployment
-```
-
-### **Destroy Chain (One-Click Cleanup):**
-```
-Manual Trigger: "Destroy K3S Workload"
-        ↓ (on success)
-    ┌─────────────────┐
-    │                 │
-    ▼                 ▼
-Clean up Jenkins   Destroy Infrastructure
-    │                 │
-    └─────────────────┘
-        ↓
-   Complete Cleanup
-```
+---
 
 ## Author
 Edmundas
-
----
