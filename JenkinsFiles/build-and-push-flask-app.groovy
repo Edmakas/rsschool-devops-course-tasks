@@ -32,6 +32,20 @@ spec:
                 checkout scm
             }
         }
+
+        stage('Run Unit Tests') {
+            steps {
+                container('docker') {
+                    dir('K3S_Manifests/Mod3_Task5/flask_app') {
+                        sh '''
+                          docker run --rm -v "$PWD":/app -w /app python:3.11 \
+                          sh -c "pip install flask && python test_main.py"
+                        '''
+                    }
+                }
+            }
+        }
+
         stage('Build Docker Image') {
             steps {
                 container('docker') {
@@ -41,6 +55,7 @@ spec:
                 }
             }
         }
+
         stage('Docker Login') {
             steps {
                 container('docker') {
@@ -50,6 +65,7 @@ spec:
                 }
             }
         }
+
         stage('Push Docker Image') {
             steps {
                 container('docker') {

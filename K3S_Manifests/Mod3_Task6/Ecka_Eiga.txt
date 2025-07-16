@@ -1,0 +1,39 @@
+pipeline {
+    agent {
+        kubernetes {
+            yaml """
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+  - name: docker
+    image: docker:24.0.6-cli
+    command:
+    - cat
+    tty: true
+    volumeMounts:
+    - name: dockersock
+      mountPath: /var/run/docker.sock
+  volumes:
+  - name: dockersock
+    hostPath:
+      path: /var/run/docker.sock
+"""
+        }
+    }
+    stages {
+        stage('Run Docker') {
+            steps {
+                container('docker') {
+                    sh 'docker version'
+                    sh 'docker pull python:latest'
+                    sh 'ls -la'
+                }
+            }
+        }
+    }
+}
+
+
+
+http://jenkins.tuselis.lt/manage/credentials/store/system/domain/_/
