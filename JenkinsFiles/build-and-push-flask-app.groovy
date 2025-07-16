@@ -42,8 +42,15 @@ spec:
                           echo "Current directory: $(pwd)"
                           echo "Files:"
                           ls -la
-                          docker run --rm -v "$PWD":/app -w /app python:3.11 \
-                          sh -c "pip install flask && python test_main.py"
+
+                          # Use absolute path to ensure Docker sees the correct mounted directory
+                          MOUNT_DIR=$(pwd)
+
+                          docker run --rm \
+                            -v "$MOUNT_DIR":/app \
+                            -w /app \
+                            python:3.11 \
+                            sh -c "pip install flask && python test_main.py"
                         '''
                     }
                 }
