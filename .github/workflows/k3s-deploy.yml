@@ -143,7 +143,7 @@ jobs:
           export KUBECONFIG=k3s-config.yaml
           
           # Test connection
-          kubectl get nodes
+          kubectl get nodesA
           
           # Create namespace if it doesn't exist
           kubectl create namespace jenkins --dry-run=client -o yaml | kubectl apply -f -
@@ -193,6 +193,29 @@ jobs:
           echo "Jenkins admin password: ( Change it after first login )"
           kubectl exec --namespace jenkins -c jenkins -it statefulset/jenkins -- /bin/cat /run/secrets/additional/chart-admin-password
         
+      - name: Deploy SonarQube to K3s
+        run: |
+          export KUBECONFIG=k3s-config.yaml
+          # Create namespace if it doesn't exist
+          kubectl create namespace sonarqube --dry-run=client -o yaml | kubectl apply -f -
+          # Add SonarQube Helm repo and update
+          helm repo add sonarqube https://SonarSource.github.io/helm-chart-sonarqube
+          helm repo update
+          # Install SonarQube with default values
+          helm upgrade --install sonarqube sonarqube/sonarqube \
+            --namespace sonarqube \
+            --set persistence.enabled=true \
+            --wait \
+            --timeout 10m
+          # Get SonarQube service info
+          kubectl get svc -n sonarqube
+
+      - name: Create SonarQube Ingress
+        run: |
+          export DOMAIN_NAME=${{ vars.domain_name }}
+          export KUBECONFIG=k3s-config.yaml
+          envsubst < ../../K3S_Manifests/Mod3_Task5/Prerequisites/prerequisites-sonarqube-Ingress.yaml | kubectl apply -f -
+
       - name: Deploy Application Manifests
         run: |
           export KUBECONFIG=k3s-config.yaml

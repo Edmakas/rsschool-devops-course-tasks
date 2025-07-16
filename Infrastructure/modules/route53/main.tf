@@ -13,7 +13,7 @@ resource "aws_route53_record" "jenkins" {
   type    = "A"
   ttl     = "60"
   records = [var.jenkins_ip_address]
-} 
+}
 
 resource "aws_route53_record" "flaskapp" {
   zone_id = data.aws_route53_zone.main.zone_id
@@ -21,4 +21,12 @@ resource "aws_route53_record" "flaskapp" {
   type    = "A"
   ttl     = "60"
   records = [var.jenkins_ip_address]
-} 
+}
+
+resource "aws_route53_record" "sonar" {
+  zone_id = data.aws_route53_zone.main.zone_id
+  name    = "sonar"
+  type    = "A"
+  ttl     = "60"
+  records = [var.jenkins_ip_address]
+}
