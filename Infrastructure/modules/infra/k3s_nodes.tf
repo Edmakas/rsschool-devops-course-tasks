@@ -9,6 +9,10 @@ resource "aws_instance" "node-1" {
   key_name               = aws_key_pair.ssh_public_key.key_name
   iam_instance_profile   = "cif-k3s-node-instance-profile"
 
+  root_block_device {
+    volume_size = 20
+  }
+
   user_data = base64encode(templatefile("${path.module}/node1_userdata.sh.tpl", {
     private_key = var.private_key,
     prefix      = var.prefix,
