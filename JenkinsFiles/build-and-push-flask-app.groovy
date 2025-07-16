@@ -49,8 +49,9 @@ spec:
                           docker run --rm \
                             -v "$MOUNT_DIR":/app \
                             -w /app \
+                            ls -al
                             python:3.11 \
-                            sh -c "pip install flask && python test_main.py"
+                            sh -c "pwd && ls -al && pip install flask && python test_main.py"
                         '''
                     }
                 }
