@@ -38,6 +38,10 @@ spec:
                 container('docker') {
                     dir('K3S_Manifests/Mod3_Task5/flask_app') {
                         sh '''
+                          echo "Running unit tests..."
+                          echo "Current directory: $(pwd)"
+                          echo "Files:"
+                          ls -la
                           docker run --rm -v "$PWD":/app -w /app python:3.11 \
                           sh -c "pip install flask && python test_main.py"
                         '''
