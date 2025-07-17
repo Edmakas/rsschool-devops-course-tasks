@@ -75,7 +75,7 @@ spec:
                                 -Dsonar.projectBaseDir=/tmp/flask-app  \
                                 -Dsonar.sources=. \
                                 -Dsonar.verbose=true \
-                                -Dsonar.python.version=3"
+                                -Dsonar.python.version=3" \
                                 -Dsonar.language=py \
                                 -Dsonar.inclusions=**/*.py
                             '''
