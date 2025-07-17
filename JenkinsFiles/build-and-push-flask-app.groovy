@@ -62,6 +62,8 @@ spec:
                             'SONAR_TOKEN=sqp_17bffb63df48806e9d1feb669e678c293bc60244'
                         ]) {
                             sh '''
+                            pwd
+                            ls -la
                             docker run --rm \
                               -e SONAR_HOST_URL=$SONAR_HOST_URL \
                               -e SONAR_TOKEN=$SONAR_TOKEN \
