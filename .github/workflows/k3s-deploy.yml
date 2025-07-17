@@ -218,7 +218,7 @@ jobs:
         run: |
           export DOMAIN_NAME=${{ vars.domain_name }}
           export KUBECONFIG=k3s-config.yaml
-          envsubst < ../../K3S_Manifests/Mod3_Task5/Prerequisites/prerequisites-sonarqube-Ingress.yaml | kubectl apply -f -
+          envsubst < ../K3S_Manifests/Mod3_Task5/Prerequisites/prerequisites-sonarqube-Ingress.yaml | kubectl apply -f -
 
       - name: Deploy Application Manifests
         run: |
