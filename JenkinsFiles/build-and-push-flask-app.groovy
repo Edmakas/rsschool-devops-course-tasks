@@ -59,7 +59,7 @@ spec:
                     dir('K3S_Manifests/Mod3_Task5/flask_app') {
                         withEnv([
                             'SONAR_HOST_URL=http://sonar.tuselis.lt',
-                            'SONAR_TOKEN=sqp_17bffb63df48806e9d1feb669e678c293bc60244'
+                            'SONAR_TOKEN=sqp_96458357bb0b9ca5588f68a7d3fbb4e28fe4b3fc'
                         ]) {
                             sh '''
                             pwd
