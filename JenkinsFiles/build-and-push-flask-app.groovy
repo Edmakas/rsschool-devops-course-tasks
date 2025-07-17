@@ -68,7 +68,7 @@ spec:
                               -v $(pwd):/usr/src \
                               sonarsource/sonar-scanner-cli \
                               sonar-scanner \
-                                -Dsonar.projectKey=flask_app \
+                                -Dsonar.projectKey=Flask-APP \
                                 -Dsonar.sources=. \
                                 -Dsonar.projectBaseDir=/usr/src \
                                 -Dsonar.python.version=3
