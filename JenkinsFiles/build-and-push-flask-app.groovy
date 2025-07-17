@@ -58,7 +58,7 @@ spec:
                 container('docker') {
                     dir('K3S_Manifests/Mod3_Task5/flask_app') {
                         withEnv([
-                            'SONAR_HOST_URL=https://sonar.tuselis.lt',
+                            'SONAR_HOST_URL=http://sonar.tuselis.lt',
                             'SONAR_TOKEN=sqp_fc3035bc8308a90faa1fbdd24b8556a76cbc1d8b'
                         ]) {
                             sh '''
