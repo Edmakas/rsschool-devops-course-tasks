@@ -143,7 +143,7 @@ jobs:
           export KUBECONFIG=k3s-config.yaml
           
           # Test connection
-          kubectl get nodesA
+          kubectl get nodes
           
           # Create namespace if it doesn't exist
           kubectl create namespace jenkins --dry-run=client -o yaml | kubectl apply -f -
