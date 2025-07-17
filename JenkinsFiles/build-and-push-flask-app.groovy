@@ -74,6 +74,7 @@ spec:
                                 -Dsonar.sources=. \
                                 -Dsonar.projectBaseDir=/usr/src \
                                 -Dsonar.inclusions=**/*.py \
+                                -Dsonar.verbose=true \
                                 -Dsonar.python.version=3
                             '''
                         }
