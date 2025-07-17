@@ -68,11 +68,11 @@ spec:
                               --user $(id -u):$(id -g) \
                               -e SONAR_HOST_URL=$SONAR_HOST_URL \
                               -e SONAR_TOKEN=$SONAR_TOKEN \
-                              -v $(pwd):/usr/src \
+                              -v $(pwd):/tmp/flask-app \
                               sonarsource/sonar-scanner-cli \
                                sh -c "ls -al && pwd && sonar-scanner \
                                 -Dsonar.projectKey=Flask-APP \
-                                -Dsonar.sources=. \
+                                -Dsonar.sources=/tmp/flask-app  \
                                 -Dsonar.projectBaseDir=/usr/src \
                                 -Dsonar.inclusions=**/*.py \
                                 -Dsonar.verbose=true \
