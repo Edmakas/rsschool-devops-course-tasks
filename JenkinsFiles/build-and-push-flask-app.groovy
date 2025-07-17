@@ -75,6 +75,7 @@ spec:
                                 -Dsonar.projectBaseDir=/usr/src \
                                 -Dsonar.inclusions=**/*.py \
                                 -Dsonar.verbose=true \
+                                -Dsonar.scm.provider=git \
                                 -Dsonar.python.version=3
                             '''
                         }
