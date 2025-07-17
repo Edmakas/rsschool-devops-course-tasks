@@ -69,14 +69,14 @@ spec:
                               -e SONAR_TOKEN=$SONAR_TOKEN \
                               -v $(pwd):/usr/src \
                               sonarsource/sonar-scanner-cli \
-                              sonar-scanner \
+                               sh -c "ls -la /usr/src && pwd && sonar-scanner \
                                 -Dsonar.projectKey=Flask-APP \
                                 -Dsonar.sources=/usr/src \
                                 -Dsonar.projectBaseDir=/usr/src \
                                 -Dsonar.inclusions=**/*.py \
                                 -Dsonar.verbose=true \
                                 -Dsonar.scm.provider=git \
-                                -Dsonar.python.version=3
+                                -Dsonar.python.version=3"
                             '''
                         }
                     }
