@@ -70,7 +70,7 @@ spec:
                               -e SONAR_TOKEN=$SONAR_TOKEN \
                               -v $(pwd):/tmp/flask-app \
                               sonarsource/sonar-scanner-cli \
-                               sh -c "ls -al && pwd && sonar-scanner \
+                               sh -c "ls -alR /tmp && pwd && sonar-scanner \
                                 -Dsonar.projectKey=Flask-APP \
                                 -Dsonar.sources=/tmp/flask-app  \
                                 -Dsonar.projectBaseDir=/usr/src \
