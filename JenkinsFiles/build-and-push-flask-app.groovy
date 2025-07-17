@@ -71,6 +71,7 @@ spec:
                                 -Dsonar.projectKey=Flask-APP \
                                 -Dsonar.sources=. \
                                 -Dsonar.projectBaseDir=/usr/src \
+                                -Dsonar.inclusions=**/*.py \
                                 -Dsonar.python.version=3
                             '''
                         }
