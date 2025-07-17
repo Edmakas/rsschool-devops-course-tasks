@@ -19,6 +19,7 @@ jobs:
       TF_VAR_GithubActionsRole:  ${{ vars.GithubActionsRole }}
       TF_VAR_public_key:         ${{ secrets.SSH_PUBLIC_KEY }}
       TF_VAR_private_key:        ${{ secrets.SSH_PRIVATE_KEY }}
+      TF_VAR_SONARQUBE_MONITORING_PASSCODE: ${{ secrets.SONARQUBE_MONITORING_PASSCODE }}
       TF_VAR_vpc_cidr:           ${{ vars.vpc_cidr }}
       TF_VAR_ips_to_bastion:     ${{ vars.IPS_TO_BASTION }}
       TF_VAR_CERT_MANAGER_EMAIL: ${{ secrets.CERT_MANAGER_EMAIL }}
@@ -201,11 +202,12 @@ jobs:
           # Add SonarQube Helm repo and update
           helm repo add sonarqube https://SonarSource.github.io/helm-chart-sonarqube
           helm repo update
-          # Install SonarQube with default values
+          # Install SonarQube with required monitoringPasscode
           helm upgrade --install sonarqube sonarqube/sonarqube \
             --namespace sonarqube \
             --set persistence.enabled=true \
             --set prometheusMonitoring.enabled=false \
+            --set monitoringPasscode="${{ secrets.SONARQUBE_MONITORING_PASSCODE }}" \
             --wait \
             --timeout 10m
           # Get SonarQube service info
