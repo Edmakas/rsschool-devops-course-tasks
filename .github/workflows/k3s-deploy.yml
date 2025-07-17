@@ -205,7 +205,7 @@ jobs:
           helm upgrade --install sonarqube sonarqube/sonarqube \
             --namespace sonarqube \
             --set persistence.enabled=true \
-            --set monitoring.enabled=false \
+            --set prometheusMonitoring.enabled=false \
             --wait \
             --timeout 10m
           # Get SonarQube service info
