@@ -65,6 +65,7 @@ spec:
                             pwd
                             ls -la
                             docker run --rm \
+                              --user $(id -u):$(id -g) \
                               -e SONAR_HOST_URL=$SONAR_HOST_URL \
                               -e SONAR_TOKEN=$SONAR_TOKEN \
                               -v $(pwd):/usr/src \
