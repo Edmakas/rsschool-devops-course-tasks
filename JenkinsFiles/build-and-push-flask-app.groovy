@@ -59,7 +59,7 @@ spec:
                     dir('K3S_Manifests/Mod3_Task5/flask_app') {
                         withEnv([
                             'SONAR_HOST_URL=http://sonar.tuselis.lt',
-                            'SONAR_TOKEN=sqp_fc3035bc8308a90faa1fbdd24b8556a76cbc1d8b'
+                            'SONAR_TOKEN=sqp_17bffb63df48806e9d1feb669e678c293bc60244'
                         ]) {
                             sh '''
                             docker run --rm \
