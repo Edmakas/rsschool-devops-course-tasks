@@ -53,6 +53,32 @@ spec:
             }
         }
 
+        stage('SonarQube Scan') {
+            steps {
+                container('docker') {
+                    dir('K3S_Manifests/Mod3_Task5/flask_app') {
+                        withEnv([
+                            'SONAR_HOST_URL=https://sonar.tuselis.lt',
+                            'SONAR_TOKEN=sqp_fc3035bc8308a90faa1fbdd24b8556a76cbc1d8b'
+                        ]) {
+                            sh '''
+                            docker run --rm \
+                              -e SONAR_HOST_URL=$SONAR_HOST_URL \
+                              -e SONAR_TOKEN=$SONAR_TOKEN \
+                              -v $(pwd):/usr/src \
+                              sonarsource/sonar-scanner-cli \
+                              sonar-scanner \
+                                -Dsonar.projectKey=flask_app \
+                                -Dsonar.sources=. \
+                                -Dsonar.projectBaseDir=/usr/src \
+                                -Dsonar.python.version=3
+                            '''
+                        }
+                    }
+                }
+            }
+        }
+
         stage('Docker Login') {
             steps {
                 container('docker') {
