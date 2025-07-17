@@ -208,6 +208,7 @@ jobs:
             --set persistence.enabled=true \
             --set prometheusMonitoring.enabled=false \
             --set monitoringPasscode="${{ secrets.SONARQUBE_MONITORING_PASSCODE }}" \
+            --set community.enabled=true \
             --wait \
             --timeout 10m
           # Get SonarQube service info
