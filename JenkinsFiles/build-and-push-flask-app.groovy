@@ -71,7 +71,7 @@ spec:
                               sonarsource/sonar-scanner-cli \
                               sonar-scanner \
                                 -Dsonar.projectKey=Flask-APP \
-                                -Dsonar.sources=. \
+                                -Dsonar.sources=/usr/src \
                                 -Dsonar.projectBaseDir=/usr/src \
                                 -Dsonar.inclusions=**/*.py \
                                 -Dsonar.verbose=true \
