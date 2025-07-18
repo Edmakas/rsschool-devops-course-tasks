@@ -62,14 +62,19 @@ spec:
                             'SONAR_TOKEN=sqp_bb537af4a7bf56e1ec5cac6d855ade31e747cb36'
                         ]) {
                             sh '''
-                            docker run --rm \
+			                 docker run --rm \
                               --user $(id -u):$(id -g) \
                               -e SONAR_HOST_URL=$SONAR_HOST_URL \
                               -e SONAR_TOKEN=$SONAR_TOKEN \
                               -v $(pwd):/usr/src \
-                              -w /usr/src \
                               sonarsource/sonar-scanner-cli \
-                               -Dproject.settings=sonar-project.properties
+                               sh -c "ls -al && pwd && sonar-scanner \
+                                -Dsonar.projectKey=Flask-APP \
+                                -Dsonar.sources=. \
+                                -Dsonar.projectBaseDir=/usr/src \
+                                -Dsonar.inclusions=**/*.py \
+                                -Dsonar.verbose=true \
+                                -Dsonar.python.version=3"
                             '''
                         }
                     }
