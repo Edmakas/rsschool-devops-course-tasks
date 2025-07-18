@@ -77,13 +77,19 @@ spec:
                             mv sonar-scanner-$SONAR_SCANNER_VERSION-linux /opt/sonar-scanner
                             export PATH=$PATH:/opt/sonar-scanner/bin
 
+                            // sonar-scanner \
+                            //   -Dsonar.projectKey=Flask-App \
+                            //   -Dsonar.sources=. \
+                            //   -Dsonar.projectBaseDir=$(pwd) \
+                            //   -Dsonar.inclusions=**/*.py \
+                            //   -Dsonar.verbose=true \
+                            //   -Dsonar.python.version=3
+                            
                             sonar-scanner \
-                              -Dsonar.projectKey=Flask-App \
-                              -Dsonar.sources=. \
-                              -Dsonar.projectBaseDir=$(pwd) \
-                              -Dsonar.inclusions=**/*.py \
-                              -Dsonar.verbose=true \
-                              -Dsonar.python.version=3
+                                -Dsonar.projectKey=Flask-App \
+                                -Dsonar.sources=. \
+                                -Dsonar.host.url=http://sonar.tuselis.lt \
+                                -Dsonar.token=sqp_06708c0f62b6bc61f3d8e6fe1c22804b22563429
                             '''
                         }
                     }
