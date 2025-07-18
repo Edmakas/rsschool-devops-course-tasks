@@ -65,8 +65,8 @@ spec:
                             pwd
                             ls -la
                             docker run --rm \
-                              -v $(pwd):/usr/src \
-                              -w /usr/src \
+                            //   -v $(pwd):/usr/src \
+                            //   -w /usr/src \
                               ubuntu:22.04 \
                               bash -c "apt update && apt install -y iputils-ping && ping 127.0.0.1"
                             docker run --rm \
