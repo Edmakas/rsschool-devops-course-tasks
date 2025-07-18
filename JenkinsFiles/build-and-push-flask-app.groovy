@@ -125,8 +125,6 @@ spec:
                           --namespace default \
                           --set image.repository=$REGISTRY \
                           --set image.tag=$IMAGE_TAG \
-                          --set ingress.host=flask-app.tuselis.lt \
-                          --set ingress.tls.enabled=false
                         '''
                     }
                 }
