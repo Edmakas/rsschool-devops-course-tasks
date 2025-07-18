@@ -122,6 +122,9 @@ spec:
                     dir('K3S_Manifests/Mod3_Task5/flask_app_HelmChart') {
                         sh '''
                         helm upgrade --install flask-app . \
+                          --namespace default \
+                          --set image.repository=$REGISTRY \
+                          --set image.tag=$IMAGE_TAG \
                           --set ingress.host=flask-app.tuselis.lt \
                           --set ingress.tls.enabled=false
                         '''
