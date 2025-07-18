@@ -69,8 +69,9 @@ spec:
                               -e SONAR_HOST_URL=$SONAR_HOST_URL \
                               -e SONAR_TOKEN=$SONAR_TOKEN \
                               -v $(pwd):/tmp/flask-app \
+                              -w /tmp/flask-app \
                               sonarsource/sonar-scanner-cli \
-                               sh -c "cd /tmp/flask-app && sonar-scanner"
+                              sonar-scanner
                             '''
                         }
                     }
