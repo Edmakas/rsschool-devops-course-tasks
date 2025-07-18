@@ -69,7 +69,7 @@ spec:
                               -v $(pwd):/usr/src \
                               sonarsource/sonar-scanner-cli \
                                sh -c "ls -al && pwd && sonar-scanner \
-                                -Dsonar.projectKey=Flask-APP \
+                                -Dsonar.projectKey=sqp_bb537af4a7bf56e1ec5cac6d855ade31e747cb36 \
                                 -Dsonar.sources=. \
                                 -Dsonar.projectBaseDir=/usr/src \
                                 -Dsonar.inclusions=**/*.py \
