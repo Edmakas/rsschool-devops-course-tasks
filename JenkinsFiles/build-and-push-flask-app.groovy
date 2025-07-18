@@ -67,9 +67,10 @@ spec:
                               -e SONAR_HOST_URL=$SONAR_HOST_URL \
                               -e SONAR_TOKEN=$SONAR_TOKEN \
                               -v $(pwd):/usr/src \
+                              -w /usr/src \
                               sonarsource/sonar-scanner-cli \
-                               sh -c "ls -al && pwd && sonar-scanner \
-                                -Dsonar.projectKey=sqp_bb537af4a7bf56e1ec5cac6d855ade31e747cb36 \
+                               sh -c "sonar-scanner \
+                                -Dsonar.projectKey=Flask-App
                                 -Dsonar.sources=. \
                                 -Dsonar.projectBaseDir=/usr/src \
                                 -Dsonar.inclusions=**/*.py \
