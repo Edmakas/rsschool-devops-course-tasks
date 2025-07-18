@@ -68,7 +68,7 @@ spec:
                     dir('K3S_Manifests/Mod3_Task5/flask_app') {
                         withEnv([
                             'SONAR_HOST_URL=http://sonar.tuselis.lt',
-                            'SONAR_TOKEN=sqp_bb537af4a7bf56e1ec5cac6d855ade31e747cb36'
+                            'SONAR_TOKEN=sqp_5b38ad0301cab4e47d1d6d5b322911fd7e65e33e'
                         ]) {
                             sh '''
                             apt-get update && apt-get install -y wget unzip openjdk-11-jre
