@@ -70,13 +70,7 @@ spec:
                               -e SONAR_TOKEN=$SONAR_TOKEN \
                               -v $(pwd):/tmp/flask-app \
                               sonarsource/sonar-scanner-cli \
-                               sh -c "cd /tmp/flask-app && ls -alR /tmp && pwd && sonar-scanner \
-                                -Dsonar.projectKey=Flask-App \
-                                -Dsonar.sources=. \
-                                -Dsonar.verbose=true \
-                                -Dsonar.python.version=3" \
-                                -Dsonar.language=py \
-                                -Dsonar.inclusions=**/*.py
+                               sh -c "cd /tmp/flask-app && sonar-scanner"
                             '''
                         }
                     }
@@ -127,6 +121,27 @@ spec:
                           --set image.tag=$IMAGE_TAG \
                         '''
                     }
+                }
+            }
+        }
+
+        stage('Verify Deployment') {
+            steps {
+                container('docker') {
+                    sh '''
+                    echo "Verifying deployment at http://flask-app.tuselis.lt ..."
+                    for i in {1..10}; do
+                      if curl -sf http://flask-app.tuselis.lt; then
+                        echo "Deployment verified!"
+                        exit 0
+                      else
+                        echo "Waiting for app to become available... ($i/10)"
+                        sleep 10
+                      fi
+                    done
+                    echo "ERROR: Application not reachable at http://flask-app.tuselis.lt"
+                    exit 1
+                    '''
                 }
             }
         }

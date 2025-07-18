@@ -116,6 +116,8 @@ These are non-sensitive values that can be stored as GitHub repository variables
 │               ├── deployment.yaml        # Flask app deployment
 │               ├── service.yaml           # Flask app service
 │               └── ingress.yaml           # Flask app ingress
+├── JenkinsFiles/                             # Jenkins pipeline scripts
+│   └── build-and-push-flask-app.groovy       # Jenkins pipeline: builds, tests, pushes Docker image, and deploys Flask app via Helm
 ├── .github/
 │   └── workflows/
 │       ├── k3s-deploy.yml                 # Main CI/CD: infra, prerequisites, Jenkins, DNS
@@ -128,6 +130,18 @@ These are non-sensitive values that can be stored as GitHub repository variables
 │       └── helm-flask-app.yml             # Flask app Helm chart management (install/upgrade/remove)
 └── README.md                              # Project documentation (this file)
 ```
+
+## Jenkins Pipeline: build-and-push-flask-app.groovy
+
+This Jenkins pipeline automates the CI/CD process for the Flask application. It performs the following stages:
+
+1. **Checkout code** – Retrieves the latest source code from the repository.
+2. **Build Docker image** – Builds the Docker image for the Flask app.
+3. **Run unit tests** – Executes unit tests inside the built Docker image.
+4. **SonarQube scan** – Runs a SonarQube scan for code quality and security analysis.
+5. **Push Docker image to registry** – Pushes the built image to Docker Hub.
+6. **Deploy Flask app with Helm** – Deploys the Flask app to the Kubernetes cluster using Helm, dynamically setting the image repository, tag, and ingress host.
+7. **Verify deployment** – Uses curl to check that the app is accessible at the expected DNS name (http://flask-app.tuselis.lt).
 
 ### File & Directory Descriptions
 - **Infrastructure/**: All Terraform code for AWS (VPC, EC2, security, Route53, etc.)
@@ -142,6 +156,7 @@ These are non-sensitive values that can be stored as GitHub repository variables
   - **prerequisites-jenkins-Ingress.yaml**: Ingress resource for Jenkins with dynamic domain configuration
   - **letsencrypt-staging-clusterissuer.yaml**: Let's Encrypt staging cluster issuer for SSL certificates
 - **K3S_Manifests/Mod3_Task5/flask_app_HelmChart/**: Flask application Helm chart with deployment, service, and ingress templates
+- **JenkinsFiles/build-and-push-flask-app.groovy**: Jenkins pipeline that builds, tests, and pushes the Flask app Docker image, then deploys it to the Kubernetes cluster using Helm. The pipeline sets the image repository, tag, and ingress host dynamically for each deployment.
 - **.github/workflows/**: GitHub Actions workflows
   - **k3s-deploy.yml**: Main CI/CD workflow - deploys infra, applies Jenkins prerequisites, installs Jenkins via Helm, manages DNS
   - **k3s-manage.yml**: Cluster management (get status, logs, restart Jenkins, etc.)
