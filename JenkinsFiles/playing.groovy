@@ -76,14 +76,6 @@ spec:
                             unzip sonar-scanner-cli-$SONAR_SCANNER_VERSION-linux.zip
                             mv sonar-scanner-$SONAR_SCANNER_VERSION-linux /opt/sonar-scanner
                             export PATH=$PATH:/opt/sonar-scanner/bin
-
-                            // sonar-scanner \
-                            //   -Dsonar.projectKey=Flask-App \
-                            //   -Dsonar.sources=. \
-                            //   -Dsonar.projectBaseDir=$(pwd) \
-                            //   -Dsonar.inclusions=**/*.py \
-                            //   -Dsonar.verbose=true \
-                            //   -Dsonar.python.version=3
                             
                             sonar-scanner \
                                 -Dsonar.projectKey=Flask-App \
