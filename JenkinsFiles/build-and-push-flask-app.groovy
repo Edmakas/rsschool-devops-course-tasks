@@ -64,7 +64,7 @@ spec:
                             sh '''
                             pwd
                             ls -la
-                            docker run --rm -it \
+                            docker run --rm \
                               -v $(pwd):/usr/src \
                               -w /usr/src \
                               ubuntu:22.04 \
