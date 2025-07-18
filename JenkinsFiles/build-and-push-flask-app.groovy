@@ -59,7 +59,7 @@ spec:
                     dir('K3S_Manifests/Mod3_Task5/flask_app') {
                         withEnv([
                             'SONAR_HOST_URL=http://sonar.tuselis.lt',
-                            'SONAR_TOKEN=sqp_96458357bb0b9ca5588f68a7d3fbb4e28fe4b3fc'
+                            'SONAR_TOKEN=sqp_bb537af4a7bf56e1ec5cac6d855ade31e747cb36'
                         ]) {
                             sh '''
                             pwd
@@ -71,8 +71,7 @@ spec:
                               -v $(pwd):/tmp/flask-app \
                               sonarsource/sonar-scanner-cli \
                                sh -c "cd /tmp/flask-app && ls -alR /tmp && pwd && sonar-scanner \
-                                -Dsonar.projectKey=Flask-APP \
-                                -Dsonar.projectBaseDir=/tmp/flask-app/  \
+                                -Dsonar.projectKey=Flask-App \
                                 -Dsonar.sources=. \
                                 -Dsonar.verbose=true \
                                 -Dsonar.python.version=3" \
