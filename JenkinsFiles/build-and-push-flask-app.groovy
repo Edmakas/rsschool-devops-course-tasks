@@ -83,6 +83,7 @@ spec:
                 }
             }
         }
+        
 
         stage('Docker Login') {
             steps {
