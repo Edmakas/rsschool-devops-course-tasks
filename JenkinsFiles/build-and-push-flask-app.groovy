@@ -64,12 +64,19 @@ spec:
                             sh '''
                             pwd
                             ls -la
+                            docker run --rm -it \
+                              -v $(pwd):/usr/src \
+                              -w /usr/src \
+                              ubuntu:22.04 \
+                              bash -c "apt update && apt install -y iputils-ping && ping 127.0.0.1"
                             docker run --rm \
                               --user $(id -u):$(id -g) \
                               -e SONAR_HOST_URL=$SONAR_HOST_URL \
                               -e SONAR_TOKEN=$SONAR_TOKEN \
                               -v $(pwd):/usr/src \
-                              sonarsource/sonar-scanner-cli
+                              -w /usr/src \
+                              sonarsource/sonar-scanner-cli \
+                               -Dproject.settings=sonar-project.properties
                             '''
                         }
                     }
