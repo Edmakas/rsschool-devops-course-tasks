@@ -133,7 +133,15 @@ These are non-sensitive values that can be stored as GitHub repository variables
 
 ## Jenkins Pipeline: build-and-push-flask-app.groovy
 
-This Jenkins pipeline automates the CI/CD process for the Flask application. It performs the following stages:
+This Jenkins pipeline automates the CI/CD process for the Flask application. 
+
+### How to Deploy the Jenkins Pipeline
+
+1. **GitHub Pipeline**: Ensure your repository is set up with a GitHub Actions pipeline. This is typically installed automatically as part of the infrastructure setup.
+2. **Docker Hub Credentials**: In Jenkins, go to *Manage Jenkins* → *Manage Credentials* and add your Docker Hub username and password as a global credential (type: Username with password, ID: `docker-hub`). This is required for the pipeline to push Docker images.
+3. **GitHub Project Configuration**: In your Jenkins job configuration, set the project URL to your GitHub repository and select the option **GitHub hook trigger for GITScm polling**. This allows Jenkins to automatically trigger builds when changes are pushed to GitHub.
+
+The pipeline performs the following stages:
 
 1. **Checkout code** – Retrieves the latest source code from the repository.
 2. **Build Docker image** – Builds the Docker image for the Flask app.
