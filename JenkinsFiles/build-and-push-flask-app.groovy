@@ -62,25 +62,45 @@ spec:
                             'SONAR_TOKEN=sqp_bb537af4a7bf56e1ec5cac6d855ade31e747cb36'
                         ]) {
                             sh '''
-                            pwd
-                            ls -la
-                            docker run --rm \
-                               -v $(pwd):/tmp/flask-app \
-                               -w /tmp/flask-app \
-                              ubuntu:22.04 \
-                              bash -c "apt update && apt install -y iputils-ping && ping 127.0.0.1"
-                            docker run --rm \
-                              --user $(id -u):$(id -g) \
-                              -e SONAR_HOST_URL=$SONAR_HOST_URL \
-                              -e SONAR_TOKEN=$SONAR_TOKEN \
-                              -v $(pwd):/usr/src \
-                              -w /usr/src \
-                              sonarsource/sonar-scanner-cli \
-                               -Dproject.settings=sonar-project.properties
+                            apt update && apt install -y wget unzip openjdk-17-jre
+                            wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
+                            unzip sonar-scanner-cli-*.zip
+                            ./sonar-scanner-*/bin/sonar-scanner \
+                                -Dsonar.projectKey=Flask-App \
+                                -Dsonar.sources=. \
+                                -Dsonar.host.url=$SONAR_HOST_URL \
+                                -Dsonar.login=$SONAR_TOKEN
                             '''
-                        }
-                    }
+                            }
+                    }       
                 }
+
+                // container('docker') {
+                //     dir('K3S_Manifests/Mod3_Task5/flask_app') {
+                //         withEnv([
+                //             'SONAR_HOST_URL=http://sonar.tuselis.lt',
+                //             'SONAR_TOKEN=sqp_bb537af4a7bf56e1ec5cac6d855ade31e747cb36'
+                //         ]) {
+                //             sh '''
+                //             pwd
+                //             ls -la
+                //             docker run --rm \
+                //                -v $(pwd):/tmp/flask-app \
+                //                -w /tmp/flask-app \
+                //               ubuntu:22.04 \
+                //               bash -c "apt update && apt install -y iputils-ping && ping 127.0.0.1"
+                //             docker run --rm \
+                //               --user $(id -u):$(id -g) \
+                //               -e SONAR_HOST_URL=$SONAR_HOST_URL \
+                //               -e SONAR_TOKEN=$SONAR_TOKEN \
+                //               -v $(pwd):/usr/src \
+                //               -w /usr/src \
+                //               sonarsource/sonar-scanner-cli \
+                //                -Dproject.settings=sonar-project.properties
+                //             '''
+                //         }
+                //     }
+                // }
             }
         }
 
