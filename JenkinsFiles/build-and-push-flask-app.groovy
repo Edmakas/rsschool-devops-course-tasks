@@ -62,13 +62,6 @@ spec:
                             'SONAR_TOKEN=sqp_bb537af4a7bf56e1ec5cac6d855ade31e747cb36'
                         ]) {
                             sh '''
-                            // pwd
-                            // ls -la
-                            // docker run --rm \
-                            //    -v $(pwd):/tmp/flask-app \
-                            //    -w /tmp/flask-app \
-                            //   ubuntu:22.04 \
-                            //   bash -c "apt update && apt install -y iputils-ping && ping 127.0.0.1"
                             docker run --rm \
                               --user $(id -u):$(id -g) \
                               -e SONAR_HOST_URL=$SONAR_HOST_URL \
