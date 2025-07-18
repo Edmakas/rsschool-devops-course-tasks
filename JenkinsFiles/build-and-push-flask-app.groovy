@@ -72,7 +72,7 @@ spec:
                               sonarsource/sonar-scanner-cli \
                                sh -c "cd /tmp/flask-app && ls -alR /tmp && pwd && sonar-scanner \
                                 -Dsonar.projectKey=Flask-APP \
-                                -Dsonar.projectBaseDir=/tmp/flask-app  \
+                                -Dsonar.projectBaseDir=/tmp/flask-app/  \
                                 -Dsonar.sources=. \
                                 -Dsonar.verbose=true \
                                 -Dsonar.python.version=3" \
@@ -99,6 +99,34 @@ spec:
             steps {
                 container('docker') {
                     sh 'docker push $REGISTRY:$IMAGE_TAG'
+                }
+            }
+        }
+
+        stage('Deploy with Helm') {
+            steps {
+                container('docker') {
+                    // Install helm and kubectl if not present
+                    sh '''
+                    if ! command -v helm > /dev/null; then
+                      wget https://get.helm.sh/helm-v3.14.4-linux-amd64.tar.gz
+                      tar -zxvf helm-v3.14.4-linux-amd64.tar.gz
+                      mv linux-amd64/helm /usr/local/bin/helm
+                    fi
+                    if ! command -v kubectl > /dev/null; then
+                      wget https://dl.k8s.io/release/v1.29.2/bin/linux/amd64/kubectl
+                      chmod +x kubectl
+                      mv kubectl /usr/local/bin/
+                    fi
+                    '''
+                    // Deploy with helm
+                    dir('K3S_Manifests/Mod3_Task5/flask_app_HelmChart') {
+                        sh '''
+                        helm upgrade --install flask-app . \
+                          --set ingress.host=flask-app.tuselis.lt \
+                          --set ingress.tls.enabled=false
+                        '''
+                    }
                 }
             }
         }
