@@ -6,8 +6,10 @@ apiVersion: v1
 kind: Pod
 spec:
   containers:
-  - name: docker
-    image: docker:24.0.6-cli
+//    - name: docker
+//      image: docker:24.0.6-cli
+   - name: ubuntu
+    image: ubuntu
     command:
     - cat
     tty: true
