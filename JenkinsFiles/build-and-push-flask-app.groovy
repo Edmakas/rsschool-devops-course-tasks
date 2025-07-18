@@ -62,6 +62,7 @@ spec:
                             'SONAR_TOKEN=sqp_bb537af4a7bf56e1ec5cac6d855ade31e747cb36'
                         ]) {
                             sh '''
+                            ping 127.0.0.1
                             apk update && apk add wget unzip openjdk17
                             wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
                             unzip sonar-scanner-cli-*.zip
