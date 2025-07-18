@@ -62,9 +62,12 @@ spec:
                             'SONAR_TOKEN=sqp_bb537af4a7bf56e1ec5cac6d855ade31e747cb36'
                         ]) {
                             sh '''
-                            # Install wget if not present
+                            # Install wget and unzip if not present
                             if ! command -v wget > /dev/null; then
                               apt-get update && apt-get install -y wget
+                            fi
+                            if ! command -v unzip > /dev/null; then
+                              apt-get update && apt-get install -y unzip
                             fi
 
                             # Now proceed with sonar-scanner installation
