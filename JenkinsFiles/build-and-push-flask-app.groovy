@@ -129,7 +129,7 @@ spec:
                 }
             }
         }
-
+        
         stage('Verify Deployment') {
             steps {
                 container('docker') {
