@@ -7,15 +7,22 @@ kind: Pod
 spec:
   containers:
   - name: docker
-    image: docker:24.0.6-cli
-  - name: ubuntu
-    image: ubuntu
+    image: docker:24.0.6
     command:
-    - cat
+    - sleep
+    args:
+    - infinity
     tty: true
     volumeMounts:
     - name: dockersock
       mountPath: /var/run/docker.sock
+  - name: ubuntu
+    image: ubuntu
+    command:
+    - sleep
+    args:
+    - infinity
+    tty: true
   volumes:
   - name: dockersock
     hostPath:
@@ -64,15 +71,8 @@ spec:
                             'SONAR_TOKEN=sqp_bb537af4a7bf56e1ec5cac6d855ade31e747cb36'
                         ]) {
                             sh '''
-                            # Install wget and unzip if not present
-                            if ! command -v wget > /dev/null; then
-                              apt-get update && apt-get install -y wget
-                            fi
-                            if ! command -v unzip > /dev/null; then
-                              apt-get update && apt-get install -y unzip
-                            fi
+                            apt-get update && apt-get install -y wget unzip openjdk-11-jre
 
-                            # Now proceed with sonar-scanner installation
                             export SONAR_SCANNER_VERSION=5.0.1.3006
                             wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-$SONAR_SCANNER_VERSION-linux.zip
                             unzip sonar-scanner-cli-$SONAR_SCANNER_VERSION-linux.zip
@@ -82,8 +82,8 @@ spec:
                             sonar-scanner \
                                 -Dsonar.projectKey=Flask-App \
                                 -Dsonar.sources=. \
-                                -Dsonar.host.url=http://sonar.tuselis.lt \
-                                -Dsonar.token=sqp_06708c0f62b6bc61f3d8e6fe1c22804b22563429
+                                -Dsonar.host.url=$SONAR_HOST_URL \
+                                -Dsonar.token=$SONAR_TOKEN
                             '''
                         }
                     }
@@ -112,7 +112,6 @@ spec:
         stage('Deploy with Helm') {
             steps {
                 container('docker') {
-                    // Install helm and kubectl if not present
                     sh '''
                     if ! command -v helm > /dev/null; then
                       wget https://get.helm.sh/helm-v3.14.4-linux-amd64.tar.gz
@@ -125,27 +124,26 @@ spec:
                       mv kubectl /usr/local/bin/
                     fi
                     '''
-                    // Deploy with helm
                     dir('K3S_Manifests/Mod3_Task5/flask_app_HelmChart') {
                         sh '''
                         helm upgrade --install flask-app . \
                           --namespace default \
                           --set image.repository=$REGISTRY \
-                          --set image.tag=$IMAGE_TAG \
+                          --set image.tag=$IMAGE_TAG
                         '''
                     }
                 }
             }
         }
-        
+
         stage('Verify Deployment') {
             steps {
                 container('docker') {
                     sh '''
-                    # Install curl if not present
                     if ! command -v curl > /dev/null; then
-                      apk add --no-cache curl
+                      apt-get update && apt-get install -y curl
                     fi
+
                     echo "Verifying deployment at http://flask-app.tuselis.lt ..."
                     for i in {1..10}; do
                       if curl -sf http://flask-app.tuselis.lt; then
@@ -156,6 +154,7 @@ spec:
                         sleep 10
                       fi
                     done
+
                     echo "ERROR: Application not reachable at http://flask-app.tuselis.lt"
                     exit 1
                     '''
