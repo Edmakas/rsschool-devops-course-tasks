@@ -83,7 +83,7 @@ spec:
                                 -Dsonar.projectKey=Flask-App \
                                 -Dsonar.sources=. \
                                 -Dsonar.host.url=$SONAR_HOST_URL \
-                                -Dsonar.token=$SONAR_TOKEN
+                                -Dsonar.token=sqp_5b38ad0301cab4e47d1d6d5b322911fd7e65e33e
                             '''
                         }
                     }
