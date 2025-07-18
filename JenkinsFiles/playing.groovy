@@ -62,7 +62,21 @@ spec:
                             'SONAR_TOKEN=sqp_bb537af4a7bf56e1ec5cac6d855ade31e747cb36'
                         ]) {
                             sh '''
-			                 ls -la 
+                            # Install SonarQube scanner CLI if not present
+                            if ! command -v sonar-scanner > /dev/null; then
+                              export SONAR_SCANNER_VERSION=5.0.1.3006
+                              wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-$SONAR_SCANNER_VERSION-linux.zip
+                              unzip sonar-scanner-cli-$SONAR_SCANNER_VERSION-linux.zip
+                              mv sonar-scanner-$SONAR_SCANNER_VERSION-linux /opt/sonar-scanner
+                              export PATH=$PATH:/opt/sonar-scanner/bin
+                            fi
+                            sonar-scanner \
+                              -Dsonar.projectKey=Flask-App \
+                              -Dsonar.sources=. \
+                              -Dsonar.projectBaseDir=$(pwd) \
+                              -Dsonar.inclusions=**/*.py \
+                              -Dsonar.verbose=true \
+                              -Dsonar.python.version=3
                             '''
                         }
                     }
