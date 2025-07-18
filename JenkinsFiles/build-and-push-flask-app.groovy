@@ -134,6 +134,10 @@ spec:
             steps {
                 container('docker') {
                     sh '''
+                    # Install curl if not present
+                    if ! command -v curl > /dev/null; then
+                      apk add --no-cache curl
+                    fi
                     echo "Verifying deployment at http://flask-app.tuselis.lt ..."
                     for i in {1..10}; do
                       if curl -sf http://flask-app.tuselis.lt; then
