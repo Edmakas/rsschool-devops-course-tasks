@@ -68,10 +68,8 @@ spec:
                               --user $(id -u):$(id -g) \
                               -e SONAR_HOST_URL=$SONAR_HOST_URL \
                               -e SONAR_TOKEN=$SONAR_TOKEN \
-                              -v $(pwd):/tmp/flask-app \
-                              -w /tmp/flask-app \
-                              sonarsource/sonar-scanner-cli \
-                              sonar-scanner
+                              -v $(pwd):/usr/src \
+                              sonarsource/sonar-scanner-cli
                             '''
                         }
                     }
