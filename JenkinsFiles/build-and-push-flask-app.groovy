@@ -55,27 +55,33 @@ spec:
 
         stage('SonarQube Scan') {
             steps {
-                container('docker') {
+                container('ubuntu') {
                     dir('K3S_Manifests/Mod3_Task5/flask_app') {
                         withEnv([
                             'SONAR_HOST_URL=http://sonar.tuselis.lt',
                             'SONAR_TOKEN=sqp_bb537af4a7bf56e1ec5cac6d855ade31e747cb36'
                         ]) {
                             sh '''
-			                 docker run --rm \
-                              --user $(id -u):$(id -g) \
-                              -e SONAR_HOST_URL=$SONAR_HOST_URL \
-                              -e SONAR_TOKEN=$SONAR_TOKEN \
-                              -v $(pwd):/usr/src \
-                              -w /usr/src \
-                              sonarsource/sonar-scanner-cli \
-                               sh -c "sonar-scanner \
+                            # Install wget and unzip if not present
+                            if ! command -v wget > /dev/null; then
+                              apt-get update && apt-get install -y wget
+                            fi
+                            if ! command -v unzip > /dev/null; then
+                              apt-get update && apt-get install -y unzip
+                            fi
+
+                            # Now proceed with sonar-scanner installation
+                            export SONAR_SCANNER_VERSION=5.0.1.3006
+                            wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-$SONAR_SCANNER_VERSION-linux.zip
+                            unzip sonar-scanner-cli-$SONAR_SCANNER_VERSION-linux.zip
+                            mv sonar-scanner-$SONAR_SCANNER_VERSION-linux /opt/sonar-scanner
+                            export PATH=$PATH:/opt/sonar-scanner/bin
+                            
+                            sonar-scanner \
                                 -Dsonar.projectKey=Flask-App \
                                 -Dsonar.sources=. \
-                                -Dsonar.projectBaseDir=/usr/src \
-                                -Dsonar.inclusions=**/*.py \
-                                -Dsonar.verbose=true \
-                                -Dsonar.python.version=3"
+                                -Dsonar.host.url=http://sonar.tuselis.lt \
+                                -Dsonar.token=sqp_06708c0f62b6bc61f3d8e6fe1c22804b22563429
                             '''
                         }
                     }
