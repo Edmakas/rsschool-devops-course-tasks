@@ -150,7 +150,8 @@ jobs:
             --set prometheus.ingress.hostname=prom.${{ vars.domain_name }} \
             --set prometheus.ingress.pathType=ImplementationSpecific \
             --set prometheus.ingress.path="/" \
-            --set-string prometheus.ingress.annotations."kubernetes.io/ingress.class"=nginx
+            --set-string prometheus.ingress.annotations."kubernetes\.io/ingress\.class"=nginx
+
 
       - name: Deploy Jenkins to K3s
         run: |
