@@ -139,6 +139,19 @@ jobs:
           
           echo "NGINX Ingress Controller is ready!"
 
+      - name: Install Prometheus via Helm
+        run: |
+          export KUBECONFIG=k3s-config.yaml
+          helm repo add bitnami https://charts.bitnami.com/bitnami
+          helm repo update
+          helm upgrade --install prometheus bitnami/kube-prometheus \
+            --namespace monitoring --create-namespace \
+            --set prometheus.ingress.enabled=true \
+            --set prometheus.ingress.hostname=prom.${{ vars.domain_name }} \
+            --set prometheus.ingress.pathType=ImplementationSpecific \
+            --set prometheus.ingress.path=\"/\" \
+            --set prometheus.ingress.annotations.\"kubernetes\\.io/ingress\\.class\"=nginx
+
       - name: Deploy Jenkins to K3s
         run: |
           export KUBECONFIG=k3s-config.yaml

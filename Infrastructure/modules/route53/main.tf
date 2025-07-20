@@ -30,3 +30,11 @@ resource "aws_route53_record" "sonar" {
   ttl     = "60"
   records = [var.jenkins_ip_address]
 }
+
+resource "aws_route53_record" "prometheus" {
+  zone_id = data.aws_route53_zone.main.zone_id
+  name    = "prom.${var.domain_name}"
+  type    = "A"
+  ttl     = 300
+  records = [var.jenkins_ip_address]
+}
