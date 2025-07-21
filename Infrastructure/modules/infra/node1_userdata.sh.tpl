@@ -56,7 +56,9 @@ cd /tmp
 wget https://github.com/prometheus/node_exporter/releases/download/v${NODE_EXPORTER_VERSION}/node_exporter-${NODE_EXPORTER_VERSION}.linux-amd64.tar.gz
 if [ -f node_exporter-${NODE_EXPORTER_VERSION}.linux-amd64.tar.gz ]; then
   tar xvfz node_exporter-${NODE_EXPORTER_VERSION}.linux-amd64.tar.gz
-  sudo mv node_exporter-${NODE_EXPORTER_VERSION}.linux-amd64/node_exporter /usr/local/bin/
+  sudo mv node_exporter-${NODE_EXPORTER_VERSION}.linux-amd64/node_exporter /usr/local/bin/node_exporter
+  sudo chown root:root /usr/local/bin/node_exporter
+  sudo chmod 755 /usr/local/bin/node_exporter
   sudo useradd -rs /bin/false node_exporter || true
 
   # Create systemd service
@@ -144,62 +146,3 @@ aws ssm put-parameter \
   --value "$(sudo cat /tmp/k3s.yaml)" \
   --overwrite \
   --region ${region}
-
-# --- Add custom registries.yaml for ECR mirror and auth ---
-# log "Creating /etc/rancher/k3s/registries.yaml for ECR mirror and auth..."
-# sudo tee /etc/rancher/k3s/registries.yaml > /dev/null <<EOF
-# mirrors:
-#   "033534701841.dkr.ecr.us-west-2.amazonaws.com":
-#     endpoint:
-#       - "https://033534701841.dkr.ecr.us-west-2.amazonaws.com"
-
-# configs:
-#   "033534701841.dkr.ecr.us-west-2.amazonaws.com":
-#     auth:
-#       username: AWS
-#       password: "$$(aws ecr get-login-password --region us-west-2)"
-# EOF
-
-# log "Restarting k3s to apply new registry configuration..."
-# sudo systemctl restart k3s
-
-# log "=== Node-1 Setup Completed Successfully ===" 
-
-# # --- ECR Secret Refresh Logic ---
-# log "Setting up periodic ECR secret refresh via systemd timer..."
-
-# cat <<'EOF' | sudo tee /usr/local/bin/refresh-ecr-secret.sh > /dev/null
-# #!/bin/bash
-# kubectl create secret docker-registry ecr-creds \
-#   --docker-server=033534701841.dkr.ecr.us-west-2.amazonaws.com \
-#   --docker-username=AWS \
-#   --docker-password="$(aws ecr get-login-password --region us-west-2)" \
-#   --dry-run=client -o yaml | kubectl apply -f -
-# EOF
-
-# sudo chmod +x /usr/local/bin/refresh-ecr-secret.sh
-
-# cat <<'EOF' | sudo tee /etc/systemd/system/refresh-ecr-secret.service > /dev/null
-# [Unit]
-# Description=Refresh AWS ECR Kubernetes Secret
-
-# [Service]
-# Type=oneshot
-# ExecStart=/usr/local/bin/refresh-ecr-secret.sh
-# EOF
-
-# cat <<'EOF' | sudo tee /etc/systemd/system/refresh-ecr-secret.timer > /dev/null
-# [Unit]
-# Description=Run refresh-ecr-secret every 6 hours
-
-# [Timer]
-# OnBootSec=5min
-# OnUnitActiveSec=6h
-
-# [Install]
-# WantedBy=timers.target
-# EOF
-
-# sudo systemctl daemon-reload
-# sudo systemctl enable --now refresh-ecr-secret.timer
-# log "ECR secret refresh systemd timer enabled." 
