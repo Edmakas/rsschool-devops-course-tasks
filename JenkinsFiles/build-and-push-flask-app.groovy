@@ -143,7 +143,7 @@ spec:
 
         stage('Verify Deployment') {
             steps {
-                container('docker') {
+                container('ubuntu') {
                     sh '''
                     if ! command -v curl > /dev/null; then
                       apt-get update && apt-get install -y curl
