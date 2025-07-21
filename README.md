@@ -150,6 +150,29 @@ The pipeline performs the following stages:
 5. **Push Docker image to registry** – Pushes the built image to Docker Hub.
 6. **Deploy Flask app with Helm** – Deploys the Flask app to the Kubernetes cluster using Helm, dynamically setting the image repository, tag, and ingress host.
 7. **Verify deployment** – Uses curl to check that the app is accessible at the expected DNS name (http://flask-app.tuselis.lt).
+8. **Email notification** – Sends an email notification on build success or failure to the address specified in the `NOTIFY_EMAIL` environment variable.
+
+---
+## Jenkins Email Notifications for Pipeline
+
+The Jenkins pipeline in `JenkinsFiles/build-and-push-flask-app.groovy` is configured to send email notifications on build success or failure using the Email Extension Plugin (`emailext`).
+
+### Prerequisites
+- **Email Extension Plugin** must be installed in Jenkins.
+- Jenkins must be configured with a valid SMTP server (Manage Jenkins → Configure System → Extended E-mail Notification).
+
+### How to Configure the Notification Email
+1. **Set the NOTIFY_EMAIL environment variable**
+   - Go to your Jenkins job configuration (or global Jenkins configuration).
+   - Under **Build Environment** or **Global properties**, add an environment variable:
+     - **Name:** `NOTIFY_EMAIL`
+     - **Value:** (your recipient email address, e.g., `your@email.com`)
+
+2. **How it works**
+   - The pipeline will use the value of `NOTIFY_EMAIL` for the recipient in all email notifications.
+   - If the variable is not set, emails will not be sent (the log will show `Sending email to: null`).
+
+---
 
 ### File & Directory Descriptions
 - **Infrastructure/**: All Terraform code for AWS (VPC, EC2, security, Route53, etc.)
