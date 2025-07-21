@@ -35,6 +35,11 @@ spec:
         REGISTRY = 'eckanas/rsschool_flask_app'
         IMAGE_TAG = "${env.GIT_COMMIT}"
         DOCKER_BUILDKIT = '1'
+        SONAR_HOST_URL = 'http://sonar.tuselis.lt'
+    }
+
+    parameters {
+        string(name: 'NOTIFY_EMAIL', defaultValue: '', description: 'Notification email address')
     }
 
     stages {
@@ -64,28 +69,30 @@ spec:
 
         stage('SonarQube Scan') {
             steps {
-                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-                    container('ubuntu') {
-                        dir('K3S_Manifests/Mod3_Task5/flask_app') {
-                            withEnv([
-                                'SONAR_HOST_URL=http://sonar.tuselis.lt',
-                                'SONAR_TOKEN=sqp_5b38ad0301cab4e47d1d6d5b322911fd7e65e33e'
-                            ]) {
-                                sh '''
-                                apt-get update && apt-get install -y wget unzip openjdk-11-jre
+                withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
+                    catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                        container('ubuntu') {
+                            dir('K3S_Manifests/Mod3_Task5/flask_app') {
+                                withEnv([
+                                    "SONAR_HOST_URL=${env.SONAR_HOST_URL}",
+                                    "SONAR_TOKEN=${env.SONAR_TOKEN}"
+                                ]) {
+                                    sh '''
+                                    apt-get update && apt-get install -y wget unzip openjdk-11-jre
 
-                                export SONAR_SCANNER_VERSION=5.0.1.3006
-                                wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-$SONAR_SCANNER_VERSION-linux.zip
-                                unzip sonar-scanner-cli-$SONAR_SCANNER_VERSION-linux.zip
-                                mv sonar-scanner-$SONAR_SCANNER_VERSION-linux /opt/sonar-scanner
-                                export PATH=$PATH:/opt/sonar-scanner/bin
-                                
-                                sonar-scanner \
-                                    -Dsonar.projectKey=Flask-App \
-                                    -Dsonar.sources=. \
-                                    -Dsonar.host.url=$SONAR_HOST_URL \
-                                    -Dsonar.token=$SONAR_TOKEN
-                                '''
+                                    export SONAR_SCANNER_VERSION=5.0.1.3006
+                                    wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-$SONAR_SCANNER_VERSION-linux.zip
+                                    unzip sonar-scanner-cli-$SONAR_SCANNER_VERSION-linux.zip
+                                    mv sonar-scanner-$SONAR_SCANNER_VERSION-linux /opt/sonar-scanner
+                                    export PATH=$PATH:/opt/sonar-scanner/bin
+                                    
+                                    sonar-scanner \
+                                        -Dsonar.projectKey=Flask-App \
+                                        -Dsonar.sources=. \
+                                        -Dsonar.host.url=$SONAR_HOST_URL \
+                                        -Dsonar.token=$SONAR_TOKEN
+                                    '''
+                                }
                             }
                         }
                     }
@@ -166,18 +173,22 @@ spec:
     }
     post {
         success {
-            emailext (
-                subject: "SUCCESS: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
-                body: "Good news! Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' succeeded.\nCheck details at: ${env.BUILD_URL}",
-                to: "${env.NOTIFY_EMAIL}"
-            )
+            withCredentials([string(credentialsId: 'notify-email', variable: 'NOTIFY_EMAIL')]) {
+                emailext (
+                    subject: "SUCCESS: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+                    body: "Good news! Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' succeeded.\nCheck details at: ${env.BUILD_URL}",
+                    to: "${params.NOTIFY_EMAIL ?: env.NOTIFY_EMAIL}"
+                )
+            }
         }
         failure {
-            emailext (
-                subject: "FAILURE: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
-                body: "Unfortunately, job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' failed.\nCheck details at: ${env.BUILD_URL}",
-                to: "${env.NOTIFY_EMAIL}"
-            )
+            withCredentials([string(credentialsId: 'notify-email', variable: 'NOTIFY_EMAIL')]) {
+                emailext (
+                    subject: "FAILURE: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+                    body: "Unfortunately, job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' failed.\nCheck details at: ${env.BUILD_URL}",
+                    to: "${params.NOTIFY_EMAIL ?: env.NOTIFY_EMAIL}"
+                )
+            }
         }
     }
 }
