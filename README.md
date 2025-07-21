@@ -173,6 +173,28 @@ The Jenkins pipeline in `JenkinsFiles/build-and-push-flask-app.groovy` is config
    - If the variable is not set, emails will not be sent (the log will show `Sending email to: null`).
 
 ---
+## Jenkins SonarQube Token Configuration
+
+The Jenkins pipeline in `JenkinsFiles/build-and-push-flask-app.groovy` requires a SonarQube token for code quality analysis.
+
+### Prerequisites
+- You must have a valid SonarQube token (generate it from your SonarQube user account).
+- The token must be stored in Jenkins as a **Secret Text** credential with the ID `sonarqube-token`.
+
+### How to Configure the SonarQube Token
+1. Go to **Manage Jenkins** → **Manage Credentials**.
+2. Select the appropriate domain (usually `(global)`).
+3. Click **Add Credentials**.
+4. For **Kind**, select **Secret text**.
+5. **Secret**: Paste your SonarQube token.
+6. **ID**: Enter `sonarqube-token` (must match exactly).
+7. **Description**: (Optional) e.g., "SonarQube API Token for pipeline analysis".
+
+### How it works
+- The pipeline will use the value of the `sonarqube-token` credential for authenticating with SonarQube during the scan stage.
+- If the credential is not set, the SonarQube scan stage will fail with a credentials error.
+
+---
 
 ### File & Directory Descriptions
 - **Infrastructure/**: All Terraform code for AWS (VPC, EC2, security, Route53, etc.)
