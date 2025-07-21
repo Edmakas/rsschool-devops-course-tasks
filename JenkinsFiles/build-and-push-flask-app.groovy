@@ -169,22 +169,18 @@ spec:
     }
     post {
         success {
-            withCredentials([string(credentialsId: 'notify-email', variable: 'NOTIFY_EMAIL')]) {
-                emailext (
-                    subject: "SUCCESS: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
-                    body: "Good news! Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' succeeded.\nCheck details at: ${env.BUILD_URL}",
-                    to: "${env.NOTIFY_EMAIL}"
-                )
-            }
+            emailext (
+                subject: "SUCCESS: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+                body: "Good news! Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' succeeded.\nCheck details at: ${env.BUILD_URL}",
+                to: "${env.NOTIFY_EMAIL}"
+            )
         }
         failure {
-            withCredentials([string(credentialsId: 'notify-email', variable: 'NOTIFY_EMAIL')]) {
-                emailext (
-                    subject: "FAILURE: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
-                    body: "Unfortunately, job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' failed.\nCheck details at: ${env.BUILD_URL}",
-                    to: "${env.NOTIFY_EMAIL}"
-                )
-            }
+            emailext (
+                subject: "FAILURE: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+                body: "Unfortunately, job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' failed.\nCheck details at: ${env.BUILD_URL}",
+                to: "${env.NOTIFY_EMAIL}"
+            )
         }
     }
 }
