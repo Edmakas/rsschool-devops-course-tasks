@@ -14,9 +14,10 @@ resource "aws_instance" "node-1" {
   }
 
   user_data = base64encode(templatefile("${path.module}/node1_userdata.sh.tpl", {
-    private_key = var.private_key,
-    prefix      = var.prefix,
-    region      = var.aws_region
+    private_key           = var.private_key,
+    prefix                = var.prefix,
+    region                = var.aws_region,
+    NODE_EXPORTER_VERSION = var.node_exporter_version
   }))
 
   tags = {

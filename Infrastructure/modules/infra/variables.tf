@@ -37,3 +37,9 @@ variable "aws_region" {
   description = "AWS region for resources and scripts."
   type        = string
 }
+
+variable "node_exporter_version" {
+  description = "Version of Prometheus Node Exporter to install"
+  type        = string
+  default     = "1.8.1"
+}

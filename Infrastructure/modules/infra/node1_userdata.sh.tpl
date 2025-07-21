@@ -49,6 +49,40 @@ if ! command -v docker &> /dev/null; then
   log "Docker installed successfully."
 fi
 
+# Install Node Exporter
+log "Installing Node Exporter..."
+NODE_EXPORTER_VERSION="${NODE_EXPORTER_VERSION}"
+cd /tmp
+wget https://github.com/prometheus/node_exporter/releases/download/v${NODE_EXPORTER_VERSION}/node_exporter-${NODE_EXPORTER_VERSION}.linux-amd64.tar.gz
+if [ -f node_exporter-${NODE_EXPORTER_VERSION}.linux-amd64.tar.gz ]; then
+  tar xvfz node_exporter-${NODE_EXPORTER_VERSION}.linux-amd64.tar.gz
+  sudo mv node_exporter-${NODE_EXPORTER_VERSION}.linux-amd64/node_exporter /usr/local/bin/
+  sudo useradd -rs /bin/false node_exporter || true
+
+  # Create systemd service
+  cat <<EOF | sudo tee /etc/systemd/system/node_exporter.service
+[Unit]
+Description=Node Exporter
+After=network.target
+
+[Service]
+User=node_exporter
+Group=node_exporter
+Type=simple
+ExecStart=/usr/local/bin/node_exporter
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+  sudo systemctl daemon-reload
+  sudo systemctl start node_exporter
+  sudo systemctl enable node_exporter
+  log "Node Exporter installed and started."
+else
+  log "Failed to download Node Exporter."
+fi
+
 
 # Get public IP for TLS SAN
 TOKEN=$(curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 60")
