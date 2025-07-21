@@ -38,3 +38,11 @@ resource "aws_route53_record" "prometheus" {
   ttl     = 300
   records = [var.jenkins_ip_address]
 }
+
+resource "aws_route53_record" "node1" {
+  zone_id = aws_route53_zone.main.zone_id
+  name    = "node1"
+  type    = "A"
+  ttl     = 300
+  records = [aws_instance.node1.public_ip]
+}
