@@ -39,6 +39,14 @@ resource "aws_route53_record" "prometheus" {
   records = [var.jenkins_ip_address]
 }
 
+resource "aws_route53_record" "grafana" {
+  zone_id = data.aws_route53_zone.main.zone_id
+  name    = "grafana.${var.domain_name}"
+  type    = "A"
+  ttl     = 300
+  records = [var.jenkins_ip_address]
+}
+
 resource "aws_route53_record" "node1" {
   zone_id = data.aws_route53_zone.main.zone_id
   name    = "node1"
