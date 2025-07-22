@@ -37,6 +37,7 @@ spec:
         DOCKER_BUILDKIT = '1'
         SONAR_HOST_URL = 'http://sonar.tuselis.lt'
         NOTIFY_EMAIL = "${env.NOTIFY_EMAIL}"
+        RECIPIENT_EMAIL = "${RECIPIENT_EMAIL}"
     }
 
     stages {
@@ -173,7 +174,7 @@ spec:
             emailext (
                 subject: "SUCCESS: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
                 body: "Good news! Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' succeeded.\nCheck details at: ${env.BUILD_URL}",
-                to: "rakauskased@gmail.com",
+                to: "${RECIPIENT_EMAIL}"
                 from: "${NOTIFY_EMAIL}"
             )
         }
@@ -181,7 +182,7 @@ spec:
             emailext (
                 subject: "FAILURE: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
                 body: "Unfortunately, job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' failed.\nCheck details at: ${env.BUILD_URL}",
-                to: "rakauskased@gmail.com",
+                to: "${RECIPIENT_EMAIL}"
                 from: "${NOTIFY_EMAIL}"
             )
         }
