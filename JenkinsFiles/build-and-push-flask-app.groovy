@@ -36,6 +36,7 @@ spec:
         IMAGE_TAG = "${env.GIT_COMMIT}"
         DOCKER_BUILDKIT = '1'
         SONAR_HOST_URL = 'http://sonar.tuselis.lt'
+        NOTIFY_EMAIL = 'you@example.com'
     }
 
     stages {
@@ -173,6 +174,7 @@ spec:
                 subject: "SUCCESS: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
                 body: "Good news! Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' succeeded.\nCheck details at: ${env.BUILD_URL}",
                 to: "${env.NOTIFY_EMAIL}"
+                from: "edmundas.rakauskas@i-chekcout.eu"
             )
         }
         failure {
@@ -180,6 +182,7 @@ spec:
                 subject: "FAILURE: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
                 body: "Unfortunately, job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' failed.\nCheck details at: ${env.BUILD_URL}",
                 to: "${env.NOTIFY_EMAIL}"
+                from: "edmundas.rakauskas@i-chekcout.eu"
             )
         }
     }
