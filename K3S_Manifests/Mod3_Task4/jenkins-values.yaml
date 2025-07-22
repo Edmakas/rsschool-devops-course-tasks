@@ -414,6 +414,8 @@ controller:
     - configuration-as-code:1971.vf9280461ea_89
     - job-dsl
     - github
+    - pipeline-stage-view
+    - email-ext
 
   # If set to false, Jenkins will download the minimum required version of all dependencies.
   # -- Download the minimum required version or latest version of all dependencies
