@@ -40,7 +40,7 @@ resource "aws_route53_record" "prometheus" {
 }
 
 resource "aws_route53_record" "node1" {
-  zone_id = aws_route53_zone.main.zone_id
+  zone_id = data.aws_route53_zone.main.zone_id
   name    = "node1"
   type    = "A"
   ttl     = 300
