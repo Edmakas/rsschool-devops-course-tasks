@@ -171,8 +171,8 @@ jobs:
             --set admin.user=admin \
             --set smtp.enabled=true \
             --set smtp.host="email-smtp.us-west-2.amazonaws.com:587" \          
-            --set smtp.user=${{ secrets.TF_VAR_SMTP_USER }} \
-            --set smtp.password=${{ secrets.TF_VAR_SMTP_PASSWORD }} \
+            --set smtp.user=${{ secrets.SMTP_USER }} \
+            --set smtp.password=${{ secrets.SMTP_PASSWORD }} \
             --set smtp.from_address=${{ secrets.SMTP_FROM_ADDRESS }} \
             --set smtp.from_name="Grafana" \
             --set smtp.startTLSPolicy="OpportunisticStartTLS"
