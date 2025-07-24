@@ -24,7 +24,10 @@ jobs:
       TF_VAR_ips_to_bastion:     ${{ vars.IPS_TO_BASTION }}
       TF_VAR_CERT_MANAGER_EMAIL: ${{ secrets.CERT_MANAGER_EMAIL }}
       TF_VAR_domain_name:        ${{ vars.domain_name }}
-      TF_VAR_node_instance_profile: ${{ vars.node_instance_profile}}
+      TF_VAR_node_instance_profile: ${{ vars.node_instance_profile}} 
+      TF_VAR_SMTP_USER: ${{ secrets.SMTP_USER }}
+      TF_VAR_SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+      TF_VAR_SMTP_FROM_ADDRESS: ${{ secrets.SMTP_FROM_ADDRESS }}
     defaults:
       run:
         working-directory: Infrastructure
@@ -166,7 +169,13 @@ jobs:
             --set-string ingress.annotations."kubernetes\.io/ingress\.class"=nginx \
             --set admin.password=admin123 \
             --set admin.user=admin
-
+            --set smtp.enabled=true \
+            --set smtp.host="email-smtp.us-west-2.amazonaws.com:587" \                             
+            --set smtp.user=${{ env.TF_VAR_SMTP_USER }} \
+            --set smtp.password=${{ env.TF_VAR_SMTP_PASSWORD }} \
+            --set smtp.from_address=${{ secrets.SMTP_FROM_ADDRESS }} \
+            --set smtp.from_name="Grafana" \
+            --set smtp.startTLSPolicy="OpportunisticStartTLS"
 
       - name: Deploy Jenkins to K3s
         run: |
@@ -200,6 +209,7 @@ jobs:
           kubectl get clusterrolebinding jenkins
           
           # Add getting of AWS ECR token
+          kubectl get secret ecr-creds >/dev/null 2>&1 || \
           kubectl create secret docker-registry ecr-creds \
            --docker-server=033534701841.dkr.ecr.us-west-2.amazonaws.com \
            --docker-username=AWS \

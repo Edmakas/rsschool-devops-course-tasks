@@ -1,0 +1,10 @@
+admin:
+  password: admin123
+  user: admin
+ingress:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+  enabled: true
+  hostname: grafana.tuselis.lt
+  path: /
+  pathType: ImplementationSpecific
