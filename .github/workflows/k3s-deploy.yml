@@ -171,9 +171,9 @@ jobs:
             --set admin.user=admin \
             --set smtp.enabled=true \
             --set smtp.host="email-smtp.us-west-2.amazonaws.com:587" \
-            --set smtp.user=${{ secrets.SMTP_USER }} \
-            --set smtp.password=${{ secrets.SMTP_PASSWORD }} \
-            --set smtp.from_address=${{ secrets.SMTP_FROM_ADDRESS }} \
+            --set smtp.user="AKIAQPTWS6EIX7PYQRNH" \
+            --set smtp.password="BCBxFI41LgkAKEI1+9iVxC65pe7kYZn4H9T52ngZhIi9" \
+            --set smtp.from_address="grafana@tuselis.lt" \
             --set smtp.from_name="Grafana" \
             --set smtp.startTLSPolicy="OpportunisticStartTLS"
 
