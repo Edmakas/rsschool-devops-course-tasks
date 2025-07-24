@@ -169,6 +169,7 @@ jobs:
             --set-string ingress.annotations."kubernetes\.io/ingress\.class"=nginx \
             --set admin.password=admin123 \
             --set admin.user=admin \
+            --set replicaCount=1 
             --set smtp.enabled=true \
             --set smtp.host="email-smtp.us-west-2.amazonaws.com:587" \
             --set smtp.user="AKIAQPTWS6EIW746K4HN" \
