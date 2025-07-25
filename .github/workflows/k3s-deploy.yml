@@ -161,9 +161,18 @@ jobs:
           helm repo add bitnami https://charts.bitnami.com/bitnami
           helm repo update
           
-          # Install Grafana from local chart directory
-          helm upgrade --install grafana ../K3S_Manifests/Mod4_Task7/grafana \
-            --namespace monitoring
+          # Process the rsschool ConfigMap with environment variables
+          export SMTP_HOST=${{ vars.TF_VAR_SMTP_USER }}
+          export SMTP_USER=${{ secrets.TF_VAR_SMTP_USER }}
+          export SMTP_PASSWORD=${{ secrets.TF_VAR_SMTP_PASSWORD }}
+          export SMTP_FROM_ADDRESS=${{ vars.SMTP_FROM_ADDRESS }}
+          envsubst < ../K3S_Manifests/Mod4_Task7/rsschool-configmap.yaml | kubectl apply -f -
+          
+          # Install Grafana from Bitnami repository with ConfigMap reference
+          helm upgrade --install grafana bitnami/grafana \
+            --namespace monitoring \
+            --set config.useGrafanaIniFile=true \
+            --set config.grafanaIniConfigMap=rsschool
 
       - name: Deploy Jenkins to K3s
         run: |

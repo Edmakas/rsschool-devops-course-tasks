@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rsschool
+  namespace: monitoring
+data:
+  grafana.ini: |
+    [smtp]
+    enabled = true
+    host = ${SMTP_HOST}
+    user = ${SMTP_USER}
+    password = ${SMTP_PASSWORD}
+    from_address = ${SMTP_FROM_ADDRESS}
+    from_name = Grafana
+    skip_verify = false
+    startTLS_policy = Always 

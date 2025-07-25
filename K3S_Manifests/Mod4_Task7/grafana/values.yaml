@@ -98,7 +98,7 @@ admin:
   user: "admin"
   ## @param admin.password Admin password. If a password is not provided a random password will be generated
   ##
-  password: ""
+  password: "ls427wad_?"
   ## @param admin.existingSecret Name of the existing secret containing admin password
   ##
   existingSecret: ""
@@ -113,21 +113,21 @@ smtp:
   enabled: true
   ## @param smtp.user SMTP user
   ##
-  user: user
+  user: AKIAQPTWS6EIQF2JNBM7
   ## @param smtp.password SMTP password
   ##
-  password: password
+  password: BGnttEUy/NocUyd/2GCmOuJ0aOdBWENpPiAWY6606lzx
   ## @param smtp.host Custom host for the smtp server
   ## e.g:
   ##   host: mysmtphost.com
   ##
-  host: ""
+  host: email-smtp.us-west-2.amazonaws.com:587
   ## @param smtp.fromAddress From address
   ##
-  fromAddress: ""
+  fromAddress: "grafana@tuselis.lt"
   ## @param smtp.fromName From name
   ##
-  fromName: ""
+  fromName: "Grafana"
   ## @param smtp.skipVerify Enable skip verify
   ##
   skipVerify: "false"
@@ -242,8 +242,8 @@ imageRenderer:
 ## @param config.grafanaIniSecret Name of the Secret containing the `grafana.ini` file
 ##
 config:
-  useGrafanaIniFile: false
-  grafanaIniConfigMap: ""
+  useGrafanaIniFile: true
+  grafanaIniConfigMap: "rsschool"
   grafanaIniSecret: ""
 ## Create dasboard provider to load dashboards, a default one is created to load dashboards
 ## from "/opt/bitnami/grafana/dashboards"
@@ -783,7 +783,7 @@ networkPolicy:
 ingress:
   ## @param ingress.enabled Set to true to enable ingress record generation
   ##
-  enabled: false
+  enabled: true
   ## DEPRECATED: Use ingress.annotations instead of ingress.certManager
   ## certManager: false
   ##
@@ -796,7 +796,7 @@ ingress:
   apiVersion: ""
   ## @param ingress.hostname When the ingress is enabled, a host pointing to this will be created
   ##
-  hostname: grafana.local
+  hostname: grafana.tuselis.lt
   ## @param ingress.path Default path for the ingress resource
   ## The Path to Grafana. You may need to set this to '/*' in order to use this with ALB ingress controllers.
   ##
@@ -861,7 +861,7 @@ ingress:
   ##
   selfSigned: false
   ## @param ingress.ingressClassName IngressClass that will be be used to implement the Ingress (Kubernetes 1.18+)
-  ingressClassName: ""
+  ingressClassName: "nginx"
   ## @param ingress.extraRules Additional rules to be covered with this ingress record
   ## ref: https://kubernetes.io/docs/concepts/services-networking/ingress/#ingress-rules
   ## e.g:
