@@ -164,7 +164,7 @@ jobs:
           export SMTP_USER=${{ secrets.SMTP_USER }}
           export SMTP_PASSWORD=${{ secrets.SMTP_PASSWORD }}
           export SMTP_FROM_ADDRESS=${{ vars.SMTP_FROM_ADDRESS }}
-          envsubst < ../K3S_Manifests/Mod4_Task7/rsschool-configmap.yaml | kubectl apply -f -
+          envsubst < ../K3S_Manifests/Mod4_Task7/rsschool-smtp-configmap.yaml | kubectl apply -f -
           
           # Apply Grafana alert rules
           kubectl apply -f ../K3S_Manifests/Mod4_Task7/Grafana_Install/Alerts/HostHighCpuLoad.yaml

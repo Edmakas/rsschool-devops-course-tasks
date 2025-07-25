@@ -14,7 +14,7 @@ data:
         rules:
           - uid: host-high-cpu-load
             title: HostHighCpuLoad
-            condition: C
+            condition: A
             for: 10m
             annotations:
               summary: Host high CPU load (instance {{ $labels.instance }})
@@ -24,15 +24,25 @@ data:
                 LABELS = {{ $labels }}
             labels:
               severity: warning
-            datasourceUid: prometheus
-            expr: |
-              (
-                sum by (instance) (
-                  avg by (mode, instance) (
-                    rate(node_cpu_seconds_total{mode!="idle"}[2m])
-                  )
-                )
-              ) * on(instance) group_left(nodename) node_uname_info{nodename=~".+"}
+            data:
+              - refId: A
+                datasourceUid: prometheus
+                relativeTimeRange:
+                  from: 120
+                  to: 0
+                model:
+                  expr: |
+                    (
+                      sum by (instance) (
+                        avg by (mode, instance) (
+                          rate(node_cpu_seconds_total{mode!="idle"}[2m])
+                        )
+                      )
+                    ) * on(instance) group_left(nodename) node_uname_info{nodename=~".+"}
+                  format: time_series
+                  interval: ""
+                  intervalFactor: 1
+                  refId: A
             noDataState: NoData
             execErrState: Alerting
             isPaused: false
