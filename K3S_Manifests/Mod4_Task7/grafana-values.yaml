@@ -5,23 +5,14 @@ admin:
 grafana:
   replicaCount: 1
 
-  extraEnvVars:
-    - name: GF_SMTP_ENABLED
-      value: "true"
-    - name: GF_SMTP_HOST
-      value: "${SMTP_HOST}"
-    - name: GF_SMTP_USER
-      value: "${SMTP_USER}"
-    - name: GF_SMTP_PASSWORD
-      value: "${SMTP_PASSWORD}"
-    - name: GF_SMTP_FROM_ADDRESS
-      value: "${SMTP_FROM_ADDRESS}"
-    - name: GF_SMTP_FROM_NAME
-      value: "Grafana"
-    - name: GF_SMTP_SKIP_VERIFY
-      value: "false"
-    - name: GF_SMTP_STARTTLS_POLICY
-      value: "Always"
+smtp:
+  enabled: true
+  host: "${SMTP_HOST}"
+  user: "${SMTP_USER}"
+  password: "${SMTP_PASSWORD}"
+  fromAddress: "${SMTP_FROM_ADDRESS}"
+  fromName: "Grafana"
+  skipVerify: false
 
 ingress:
   annotations:
