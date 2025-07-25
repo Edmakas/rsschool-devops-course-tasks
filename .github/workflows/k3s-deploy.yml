@@ -161,10 +161,9 @@ jobs:
           helm repo add bitnami https://charts.bitnami.com/bitnami
           helm repo update
           
-          # Install Grafana using the original values.yaml file
-          helm upgrade --install grafana bitnami/grafana \
-            --namespace monitoring \
-            --values ../K3S_Manifests/Mod4_Task7/values.yaml
+          # Install Grafana from local chart directory
+          helm upgrade --install grafana ../K3S_Manifests/Mod4_Task7/grafana \
+            --namespace monitoring
 
       - name: Deploy Jenkins to K3s
         run: |
