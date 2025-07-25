@@ -25,6 +25,7 @@ jobs:
       TF_VAR_CERT_MANAGER_EMAIL: ${{ secrets.CERT_MANAGER_EMAIL }}
       TF_VAR_domain_name:        ${{ vars.domain_name }}
       TF_VAR_node_instance_profile: ${{ vars.node_instance_profile}} 
+      TF_VAR_SMTP_HOST: ${{ vars.SMTP_HOST }}
       TF_VAR_SMTP_USER: ${{ secrets.SMTP_USER }}
       TF_VAR_SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
       TF_VAR_SMTP_FROM_ADDRESS: ${{ secrets.SMTP_FROM_ADDRESS }}
@@ -160,7 +161,7 @@ jobs:
           export KUBECONFIG=k3s-config.yaml
           
           # Process the rsschool ConfigMap with environment variables
-          export SMTP_HOST=${{ vars.TF_VAR_SMTP_USER }}
+          export SMTP_HOST=${{ vars.TF_VAR_SMTP_HOST }}
           export SMTP_USER=${{ secrets.TF_VAR_SMTP_USER }}
           export SMTP_PASSWORD=${{ secrets.TF_VAR_SMTP_PASSWORD }}
           export SMTP_FROM_ADDRESS=${{ vars.SMTP_FROM_ADDRESS }}
