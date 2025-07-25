@@ -131,6 +131,8 @@ smtp:
   ## @param smtp.skipVerify Enable skip verify
   ##
   skipVerify: "false"
+
+
   ## @param smtp.existingSecret Name of existing secret containing SMTP credentials (user and password)
   ##
   existingSecret: ""
@@ -589,7 +591,23 @@ grafana:
   ##  - name: GF_DEFAULT_INSTANCE_NAME
   ##    value: my-instance
   ##
-  extraEnvVars: []
+  extraEnvVars:
+    - name: GF_SMTP_ENABLED
+      value: "true"
+    - name: GF_SMTP_HOST
+      value: "email-smtp.us-west-2.amazonaws.com:587"
+    - name: GF_SMTP_USER
+      value: "AKIAQPTWS6EIW746K4HN"
+    - name: GF_SMTP_PASSWORD
+      value: "BCuiP3cz34vp/tEv30UAcnEqYwfarE9AaI3XLmDiSzV3"
+    - name: GF_SMTP_FROM_ADDRESS
+      value: "grafana@tuselis.lt"
+    - name: GF_SMTP_FROM_NAME
+      value: "Grafana"
+    - name: GF_SMTP_SKIP_VERIFY
+      value: "false"
+    - name: GF_SMTP_STARTTLS_POLICY
+      value: "Always"
   ## @param grafana.extraConfigmaps Array to mount extra ConfigMaps to configure Grafana
   ## For example:
   ## extraConfigmaps:
