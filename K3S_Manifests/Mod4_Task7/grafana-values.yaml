@@ -1,23 +1,24 @@
 admin:
-  password: admin123
   user: admin
+  password: admin123
 
 grafana:
   replicaCount: 1
-
-smtp:
-  enabled: true
-  host: "${SMTP_HOST}"
-  user: "${SMTP_USER}"
-  password: "${SMTP_PASSWORD}"
-  fromAddress: "${SMTP_FROM_ADDRESS}"
-  fromName: "Grafana"
-  skipVerify: false
+  extraConfiguration:
+    smtp:
+      enabled: true
+      host: "${SMTP_HOST}"
+      user: "${SMTP_USER}"
+      password: "${SMTP_PASSWORD}"
+      from_address: "${SMTP_FROM_ADDRESS}"
+      from_name: "Grafana"
+      skip_verify: false
+      startTLS_policy: "Always"
 
 ingress:
-  annotations:
-    kubernetes.io/ingress.class: nginx
   enabled: true
   hostname: grafana.${DOMAIN_NAME}
   path: /
   pathType: ImplementationSpecific
+  annotations:
+    kubernetes.io/ingress.class: nginx
