@@ -28,7 +28,6 @@ jobs:
       TF_VAR_SMTP_HOST: ${{ vars.SMTP_HOST }}
       TF_VAR_SMTP_USER: ${{ secrets.SMTP_USER }}
       TF_VAR_SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
-      TF_VAR_SMTP_FROM_ADDRESS: ${{ secrets.SMTP_FROM_ADDRESS }}
     defaults:
       run:
         working-directory: Infrastructure
@@ -161,9 +160,9 @@ jobs:
           export KUBECONFIG=k3s-config.yaml
           
           # Process the rsschool ConfigMap with environment variables
-          export SMTP_HOST=${{ vars.TF_VAR_SMTP_HOST }}
-          export SMTP_USER=${{ secrets.TF_VAR_SMTP_USER }}
-          export SMTP_PASSWORD=${{ secrets.TF_VAR_SMTP_PASSWORD }}
+          export SMTP_HOST=${{ vars.SMTP_HOST }}
+          export SMTP_USER=${{ secrets.SMTP_USER }}
+          export SMTP_PASSWORD=${{ secrets.SMTP_PASSWORD }}
           export SMTP_FROM_ADDRESS=${{ vars.SMTP_FROM_ADDRESS }}
           envsubst < ../K3S_Manifests/Mod4_Task7/rsschool-configmap.yaml | kubectl apply -f -
 
