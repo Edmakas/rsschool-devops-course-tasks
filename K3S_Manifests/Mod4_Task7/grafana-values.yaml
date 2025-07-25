@@ -20,7 +20,8 @@ grafana:
       value: "Grafana"
     - name: GF_SMTP_SKIP_VERIFY
       value: "false"
-    startTLSPolicy: "Always"
+    - name: GF_SMTP_STARTTLS_POLICY
+      value: "Always"
 
 ingress:
   annotations:
