@@ -110,7 +110,7 @@ admin:
 smtp:
   ## @param smtp.enabled Enable SMTP configuration
   ##
-  enabled: false
+  enabled: true
   ## @param smtp.user SMTP user
   ##
   user: user
