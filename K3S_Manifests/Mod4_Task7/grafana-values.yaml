@@ -7,17 +7,17 @@ grafana:
   extraConfiguration:
     smtp:
       enabled: true
-      host: "${SMTP_HOST}"
-      user: "${SMTP_USER}"
-      password: "${SMTP_PASSWORD}"
-      from_address: "${SMTP_FROM_ADDRESS}"
+      host: "email-smtp.us-west-2.amazonaws.com:587"
+      user: "AKIAQPTWS6EIW746K4HN"
+      password: "BCuiP3cz34vp/tEv30UAcnEqYwfarE9AaI3XLmDiSzV3"
+      from_address: "grafana@tuselis.lt"
       from_name: "Grafana"
       skip_verify: false
       startTLS_policy: "Always"
 
 ingress:
   enabled: true
-  hostname: grafana.${DOMAIN_NAME}
+  hostname: grafana.tuselis.lt
   path: /
   pathType: ImplementationSpecific
   annotations:
