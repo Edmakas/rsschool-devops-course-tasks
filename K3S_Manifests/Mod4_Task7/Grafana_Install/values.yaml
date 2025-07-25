@@ -3,3 +3,4 @@ extraConfigmaps:
     mountPath: /opt/bitnami/grafana/conf/provisioning/alerting
     configMap: cpu-alerts-grafana-rules
     readOnly: true
+replicaCount: 3
