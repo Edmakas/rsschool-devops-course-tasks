@@ -162,16 +162,20 @@ jobs:
           helm repo update
           
           # Process Grafana values file with dynamic variables
-          export DOMAIN_NAME=${{ vars.domain_name }}
-          export SMTP_HOST="email-smtp.us-west-2.amazonaws.com:587"
-          export SMTP_USER=${{ env.TF_VAR_SMTP_USER }}
-          export SMTP_PASSWORD=${{ env.TF_VAR_SMTP_PASSWORD }}
-          export SMTP_FROM_ADDRESS=${{ secrets.SMTP_FROM_ADDRESS }}
-          envsubst < ../K3S_Manifests/Mod4_Task7/grafana-values.yaml > ./grafana-values-processed.yaml
+          # export DOMAIN_NAME=${{ vars.domain_name }}
+          # export SMTP_HOST="email-smtp.us-west-2.amazonaws.com:587"
+          # export SMTP_USER=${{ env.TF_VAR_SMTP_USER }}
+          # export SMTP_PASSWORD=${{ env.TF_VAR_SMTP_PASSWORD }}
+          # export SMTP_FROM_ADDRESS=${{ secrets.SMTP_FROM_ADDRESS }}
+          # envsubst < ../K3S_Manifests/Mod4_Task7/grafana-values.yaml > ./grafana-values-processed.yaml
           
           helm upgrade --install grafana bitnami/grafana \
             --namespace monitoring \
-            --values ./grafana-values-processed.yaml
+            --set smtp.enabled=true
+            --set smtp.user=user
+            --set smtp.password=pass
+            --set extraEnvVars[0].name=GF_SMTP_HOST,extraEnvVars[0].value=email-smtp.us-west-2.amazonaws.com
+            # --values ./grafana-values-processed.yaml
 
       - name: Deploy Jenkins to K3s
         run: |
