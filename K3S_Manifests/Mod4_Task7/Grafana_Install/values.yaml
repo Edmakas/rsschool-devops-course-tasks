@@ -1,4 +1,4 @@
-extraConfigmapMounts:
+extraConfigmaps:
   - name: cpu-alerts-grafana-rules
     mountPath: /opt/bitnami/grafana/conf/provisioning/alerting
     configMap: cpu-alerts-grafana-rules

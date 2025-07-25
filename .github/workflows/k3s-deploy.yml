@@ -180,7 +180,7 @@ jobs:
             --namespace monitoring \
             --values ../K3S_Manifests/Mod4_Task7/Grafana_Install/values.yaml \
             --set config.useGrafanaIniFile=true \
-            --set config.grafanaIniConfigMap=rsschool \
+            --set config.grafanaIniConfigMap=rsschool-smtp \
             --set grafana.replicaCount=1 \
             --set ingress.enabled=true \
             --set ingress.hostname=grafana.${{ vars.domain_name }} \
