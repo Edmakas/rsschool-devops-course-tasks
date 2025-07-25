@@ -1,0 +1,5 @@
+extraConfigmapMounts:
+  - name: cpu-alerts-grafana-rules
+    mountPath: /etc/grafana/provisioning/alerting
+    configMap: cpu-alerts-grafana-rules
+    readOnly: true

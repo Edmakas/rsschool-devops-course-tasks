@@ -49,6 +49,14 @@ if ! command -v docker &> /dev/null; then
   log "Docker installed successfully."
 fi
 
+# Install stress for load testing
+if ! command -v stress &> /dev/null; then
+  log "Installing stress..."
+  sudo apt-get update -y
+  sudo apt-get install -y stress
+  log "Stress installed successfully."
+fi
+
 # Install Node Exporter
 # log "Installing Node Exporter..."
 # NODE_EXPORTER_VERSION="${NODE_EXPORTER_VERSION}"

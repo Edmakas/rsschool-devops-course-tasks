@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cpu-alerts-grafana-rules
+  namespace: monitoring
+  labels:
+    grafana_alert: "1"
+data:
+  HostHighCpuLoad.yaml: |
+    apiVersion: 1
+    groups:
+      - name: cpu-alerts
+        interval: 1m
+        rules:
+          - uid: host-high-cpu-load
+            title: HostHighCpuLoad
+            condition: C
+            for: 10m
+            annotations:
+              summary: Host high CPU load (instance {{ $labels.instance }})
+              description: |
+                CPU load is > 80%
+                VALUE = {{ $values.A }}
+                LABELS = {{ $labels }}
+            labels:
+              severity: warning
+            datasourceUid: prometheus
+            expr: |
+              (
+                sum by (instance) (
+                  avg by (mode, instance) (
+                    rate(node_cpu_seconds_total{mode!="idle"}[2m])
+                  )
+                )
+              ) * on(instance) group_left(nodename) node_uname_info{nodename=~".+"}
+            noDataState: NoData
+            execErrState: Alerting
+            isPaused: false
