@@ -14,7 +14,7 @@ data:
       folder: General
       interval: 30s
       rules:
-        - uid: bet2eydufecxsd
+        - uid: rs-high-cpu
           title: RsSchool High CPU
           condition: C
           data:

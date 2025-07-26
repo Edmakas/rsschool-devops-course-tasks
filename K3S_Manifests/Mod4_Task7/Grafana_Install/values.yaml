@@ -5,5 +5,5 @@ grafana:
         name: cpu-alerts-grafana-rules
   extraVolumeMounts:
     - name: cpu-alerts
-      mountPath: /bitnami/grafana/conf/provisioning/alerting
+      mountPath: /opt/bitnami/grafana/conf/provisioning/alerting
       readOnly: true
