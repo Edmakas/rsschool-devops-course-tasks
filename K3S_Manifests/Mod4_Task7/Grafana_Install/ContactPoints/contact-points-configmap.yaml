@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-contact-points
+  namespace: monitoring
+  labels:
+    grafana_contact_points: "1"
+data:
+  contact-points.yaml: |
+    apiVersion: 1
+    contactPoints:
+      - orgId: 1
+        name: "Email Contact Point"
+        receivers:
+          - uid: email_contact_point
+            type: email
+            settings:
+              addresses: ${ALERT_EMAIL_ADDRESS}
+            disableResolveMessage: false
+        isDefault: true 

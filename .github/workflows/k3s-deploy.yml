@@ -168,6 +168,10 @@ jobs:
           
           # Apply Grafana alert rules
           kubectl apply -f ../K3S_Manifests/Mod4_Task7/Grafana_Install/Alerts/HostHighCpuLoad.yaml
+          
+          # Apply Grafana contact points configuration
+          export ALERT_EMAIL_ADDRESS=${{ vars.ALERT_EMAIL_ADDRESS }}
+          envsubst < ../K3S_Manifests/Mod4_Task7/Grafana_Install/ContactPoints/contact-points-configmap.yaml | kubectl apply -f -
 
       - name: Install Grafana via Helm
         run: |

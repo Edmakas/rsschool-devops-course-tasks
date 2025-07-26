@@ -1,9 +1,15 @@
 grafana:
   extraVolumes:
-    - name: cpu-alerts
+    - name: rsschool-alerts
       configMap:
-        name: cpu-alerts-grafana-rules
+        name: rsschool-alerts-grafana-rules
+    - name: contact-points
+      configMap:
+        name: grafana-contact-points
   extraVolumeMounts:
-    - name: cpu-alerts
+    - name: rsschool-alerts
       mountPath: /bitnami/grafana/conf/provisioning/alerting
+      readOnly: true
+    - name: contact-points
+      mountPath: /bitnami/grafana/conf/provisioning/notifiers
       readOnly: true
