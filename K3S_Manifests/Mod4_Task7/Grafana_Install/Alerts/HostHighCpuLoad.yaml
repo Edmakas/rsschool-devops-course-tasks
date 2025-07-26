@@ -11,7 +11,7 @@ data:
     groups:
     - orgId: 1
       name: RsSchool_30sec_Evaluation_v1.0
-      folder: RSSchool_Alerts
+      folder: General
       interval: 30s
       rules:
         - uid: bet2eydufecxsd
@@ -22,7 +22,7 @@ data:
               relativeTimeRange:
                 from: 600
                 to: 0
-              datasourceUid: bet2decg643cwb
+              datasourceUid: eet2mmxyuuozkc
               model:
                 editorMode: code
                 expr: rate(node_cpu_seconds_total{job="node-exporter", mode="user"}[$__rate_interval]) * 100
@@ -61,6 +61,4 @@ data:
           execErrState: Error
           for: 30s
           isPaused: false
-          notification_settings:
-            receiver: RsSchool
 
