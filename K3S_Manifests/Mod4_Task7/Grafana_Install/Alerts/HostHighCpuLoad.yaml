@@ -10,7 +10,7 @@ data:
     apiVersion: 1
     groups:
     - orgId: 1
-      name: RsSchool_30sec_Evaluation
+      name: RsSchool_30sec_Evaluation_v1.0
       folder: RSSchool_Alerts
       interval: 30s
       rules:
