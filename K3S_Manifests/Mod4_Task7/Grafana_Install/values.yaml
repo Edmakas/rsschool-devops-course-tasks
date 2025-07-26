@@ -3,19 +3,7 @@ grafana:
     - name: cpu-alerts
       configMap:
         name: cpu-alerts-grafana-rules
-    - name: contact-points
-      configMap:
-        name: grafana-contact-points
-    - name: notification-policies
-      configMap:
-        name: grafana-notification-policies
   extraVolumeMounts:
     - name: cpu-alerts
       mountPath: /bitnami/grafana/conf/provisioning/alerting
-      readOnly: true
-    - name: contact-points
-      mountPath: /bitnami/grafana/conf/provisioning/notifiers
-      readOnly: true
-    - name: notification-policies
-      mountPath: /bitnami/grafana/conf/provisioning/alerting/notification-policies
       readOnly: true
