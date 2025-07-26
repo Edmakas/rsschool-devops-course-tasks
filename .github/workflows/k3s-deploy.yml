@@ -155,7 +155,7 @@ jobs:
             --set prometheus.ingress.path="/" \
             --set-string prometheus.ingress.annotations."kubernetes\.io/ingress\.class"=nginx
 
-      - name: Configure Grafana SMTP and Alerts
+      - name: Configure Grafana SMTP, Alerts, and Contact Points
         run: |
           export KUBECONFIG=k3s-config.yaml
           
@@ -168,6 +168,10 @@ jobs:
           
           # Apply Grafana alert rules
           kubectl apply -f ../K3S_Manifests/Mod4_Task7/Grafana_Install/Alerts/HostHighCpuLoad.yaml
+          
+          # Apply Grafana Contact Points and Notification Policies
+          kubectl apply -f ../K3S_Manifests/Mod4_Task7/Grafana_Install/ContactPoints/contact-points.yaml
+          kubectl apply -f ../K3S_Manifests/Mod4_Task7/Grafana_Install/ContactPoints/notification-policies.yaml
 
       - name: Install Grafana via Helm
         run: |
