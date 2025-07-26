@@ -1,6 +1,11 @@
-extraConfigmaps:
-  - name: cpu-alerts-grafana-rules
-    mountPath: /opt/bitnami/grafana/conf/provisioning/alerting
-    configMap: cpu-alerts-grafana-rules
-    readOnly: true
-replicaCount: 3
+grafana:
+  extraVolumes:
+    - name: cpu-alerts
+      configMap:
+        name: cpu-alerts-grafana-rules
+  extraVolumeMounts:
+    - name: cpu-alerts
+      mountPath: /opt/bitnami/grafana/conf/provisioning/alerting
+      readOnly: true
+
+

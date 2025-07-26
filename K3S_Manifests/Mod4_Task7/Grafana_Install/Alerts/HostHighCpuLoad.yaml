@@ -9,40 +9,58 @@ data:
   HostHighCpuLoad.yaml: |
     apiVersion: 1
     groups:
-      - name: cpu-alerts
-        interval: 1m
-        rules:
-          - uid: host-high-cpu-load
-            title: HostHighCpuLoad
-            condition: A
-            for: 10m
-            annotations:
-              summary: Host high CPU load (instance {{ $labels.instance }})
-              description: |
-                CPU load is > 80%
-                VALUE = {{ $values.A }}
-                LABELS = {{ $labels }}
-            labels:
-              severity: warning
-            data:
-              - refId: A
-                datasourceUid: prometheus
-                relativeTimeRange:
-                  from: 120
-                  to: 0
-                model:
-                  expr: |
-                    (
-                      sum by (instance) (
-                        avg by (mode, instance) (
-                          rate(node_cpu_seconds_total{mode!="idle"}[2m])
-                        )
-                      )
-                    ) * on(instance) group_left(nodename) node_uname_info{nodename=~".+"}
-                  format: time_series
-                  interval: ""
-                  intervalFactor: 1
-                  refId: A
-            noDataState: NoData
-            execErrState: Alerting
-            isPaused: false
+    - orgId: 1
+      name: RsSchool_30sec_Evaluation
+      folder: RSSchool_Alerts
+      interval: 30s
+      rules:
+        - uid: bet2eydufecxsd
+          title: RsSchool High CPU
+          condition: C
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 600
+                to: 0
+              datasourceUid: bet2decg643cwb
+              model:
+                editorMode: code
+                expr: rate(node_cpu_seconds_total{job="node-exporter", mode="user"}[$__rate_interval]) * 100
+                instant: true
+                intervalMs: 1000
+                legendFormat: __auto
+                maxDataPoints: 43200
+                range: false
+                refId: A
+            - refId: C
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 50
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - C
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: A
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: C
+                type: threshold
+          noDataState: NoData
+          execErrState: Error
+          for: 30s
+          isPaused: false
+          notification_settings:
+            receiver: RsSchool
+
