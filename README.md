@@ -1,6 +1,6 @@
-# RS School: AWS DevOps 2025Q2 – Task 6 (modules/3_ci-configuration/task_6.md)
+# RS School: AWS DevOps 2025Q2 – Task 7 (modules/4_monitoring-configuration/task_7.md)
 
-This project automates AWS infrastructure provisioning and K3s Kubernetes cluster deployment using Terraform and GitHub Actions. Jenkins is deployed on the cluster with all required Kubernetes prerequisites handled automatically.
+This project automates AWS infrastructure provisioning and K3s Kubernetes cluster deployment using Terraform and GitHub Actions. Jenkins is deployed on the cluster with all required Kubernetes prerequisites handled automatically. The project also includes comprehensive monitoring with Prometheus and Grafana, including automatic Contact Points configuration for alerting.
 
 ---
 
@@ -30,22 +30,28 @@ These are sensitive values that should be stored as GitHub repository secrets:
 | Secret Name | Description | Example |
 |-------------|-------------|---------|
 | `AWS_ACCOUNT_ID` | Your AWS account ID (12 digits) | `123456789012` |
-| `SSH_PUBLIC_KEY` | Public SSH key for bastion host and nodes | `ssh-rsa AAAAB3NzaC1yc2E...` |
-| `SSH_PRIVATE_KEY` | Private SSH key for connecting to the nodes | `-----BEGIN OPENSSH PRIVATE KEY-----...` |
 | `CERT_MANAGER_EMAIL` | Email address for Let's Encrypt certificates (if using SSL) | `admin@yourdomain.com` |
-
+| `SMTP_PASSWORD` | SMTP password for Grafana email notifications | `your-smtp-password` |
+| `SMTP_USER` | SMTP username for Grafana email notifications | `your-smtp-username` |
+| `SONARQUBE_MONITORING_PASSCODE` | Monitoring passcode for SonarQube | `your-sonarqube-passcode` |
+| `SSH_PRIVATE_KEY` | Private SSH key for connecting to the nodes | `-----BEGIN OPENSSH PRIVATE KEY-----...` |
+| `SSH_PUBLIC_KEY` | Public SSH key for bastion host and nodes | `ssh-rsa AAAAB3NzaC1yc2E...` |
 
 ### **Required Variables**
 These are non-sensitive values that can be stored as GitHub repository variables:
 
 | Variable Name | Description | Example | Required |
 |---------------|-------------|---------|----------|
-| `GITHUBACTIONSROLE` | Name of the IAM role for GitHub Actions | `GithubActionsRole` | ✅ Yes |
-| `VPC_CIDR` | CIDR block for your VPC | `10.0.0.0/16` | ✅ Yes |
-| `NODE_INSTANCE_PROFILE` | Instance profile for K3s nodes | `k3s-node-instance-profile` | ✅ Yes |
+| `ALERT_EMAIL_ADDRESS` | Email address for Grafana alert notifications | `alerts@yourdomain.com` | ✅ Yes |
 | `DOMAIN_NAME` | Your domain name for Route53 DNS management | `tuselis.lt` | ✅ Yes |
-| `IPS_TO_BASTION` | IP addresses allowed to access bastion host (comma-separated) | `192.168.1.100/32,10.0.0.0/8` | ✅ Yes |
-| `PREFIX` | Prefix for fifferent resources | `rsschool` | ✅ Yes |
+| `GITHUBACTIONSROLE` | Name of the IAM role for GitHub Actions | `GithubActionsRole` | ✅ Yes |
+| `IPS_TO_BASTION` | IP addresses allowed to access bastion host (JSON array) | `["0.0.0.0/0", "10.0.0.0/16"]` | ✅ Yes |
+| `NODE_EXPORTER_VERSION` | Version of Prometheus Node Exporter to install | `1.8.1` | ✅ Yes |
+| `NODE_INSTANCE_PROFILE` | Instance profile for K3s nodes | `cif-k3s-node-instance-profile` | ✅ Yes |
+| `PREFIX` | Prefix for different resources | `rsschool` | ✅ Yes |
+| `SMTP_FROM_ADDRESS` | From address for Grafana email notifications | `grafana@yourdomain.com` | ✅ Yes |
+| `SMTP_HOST` | SMTP server host and port for Grafana | `email-smtp.us-west-2.amazonaws.com:587` | ✅ Yes |
+| `VPC_CIDR` | CIDR block for your VPC | `10.0.0.0/16` | ✅ Yes |
 
 ---
 
@@ -55,16 +61,41 @@ These are non-sensitive values that can be stored as GitHub repository variables
 3. **Go to GitHub Actions** → **"Create AWS, K3S infra "** → **"Run workflow"** -> **"Manage Flask App Helm Chart"** → **"Run workflow"**
 4. **Sit back and watch** - everything happens automatically:
    - ✅ Creates AWS infrastructure (VPC, EC2 instances, security groups)
-   - ✅ Deploys K3S cluster, Jenkins, and the Flask app
+   - ✅ Deploys K3S cluster, Jenkins, Prometheus, and Grafana
+   - ✅ Configures automatic Contact Points for Grafana alerting
+   - ✅ Deploys the Flask app
    - ✅ Updates Route53 DNS records
    - ✅ Provides access information
-5. Access to Jenkins and the Flask app is shown in the workflow summary logs
+5. Access to Jenkins, Grafana, Prometheus, and the Flask app is shown in the workflow summary logs
 
 ---
 
 ### 5. **Destroying Infrastructure:**
 1. **Go to GitHub Actions** → **"Destroy K3S Workload"** workflow → **"Run workflow"**
 2. **Sit back and watch** - everything is cleaned up automatically
+
+---
+
+## Monitoring and Alerting
+
+### Grafana Automatic Contact Points Configuration
+
+The project includes automatic Contact Points configuration for Grafana alerting:
+
+- **Contact Points ConfigMap**: Located at `K3S_Manifests/Mod4_Task7/Grafana_Install/ContactPoints/contact-points-configmap.yaml`
+- **Automatic Provisioning**: Contact points are automatically configured during Grafana installation
+- **Email Notifications**: Configured to send alerts to the email address specified in `ALERT_EMAIL_ADDRESS` variable
+- **SMTP Configuration**: Uses AWS SES or other SMTP providers configured via `SMTP_HOST`, `SMTP_USER`, and `SMTP_PASSWORD`
+
+### Access URLs
+
+After deployment, the following services will be available:
+
+- **Jenkins**: `http://jenkins.{DOMAIN_NAME}` (e.g., `http://jenkins.tuselis.lt`)
+- **Grafana**: `http://grafana.{DOMAIN_NAME}` (e.g., `http://grafana.tuselis.lt`)
+- **Prometheus**: `http://prom.{DOMAIN_NAME}` (e.g., `http://prom.tuselis.lt`)
+- **Flask App**: `http://flask-app.{DOMAIN_NAME}` (e.g., `http://flask-app.tuselis.lt`)
+- **SonarQube**: `http://sonar.{DOMAIN_NAME}` (e.g., `http://sonar.tuselis.lt`)
 
 ---
 
@@ -108,14 +139,22 @@ These are non-sensitive values that can be stored as GitHub repository variables
 │   │       ├── prerequisites-jenkins-SA.yaml      # ServiceAccount, ClusterRole, ClusterRoleBinding for Jenkins
 │   │       ├── prerequisites-jenkins-Ingress.yaml # Ingress for Jenkins with dynamic domain
 │   │       └── letsencrypt-staging-clusterissuer.yaml # Let's Encrypt staging cluster issuer
-│   └── Mod3_Task5/
-│       └── flask_app_HelmChart/           # Flask application Helm chart
-│           ├── Chart.yaml                 # Helm chart metadata
-│           ├── values.yaml                # Default values for Flask app
-│           └── templates/                 # Kubernetes templates
-│               ├── deployment.yaml        # Flask app deployment
-│               ├── service.yaml           # Flask app service
-│               └── ingress.yaml           # Flask app ingress
+│   ├── Mod3_Task5/
+│   │   └── flask_app_HelmChart/           # Flask application Helm chart
+│   │       ├── Chart.yaml                 # Helm chart metadata
+│   │       ├── values.yaml                # Default values for Flask app
+│   │       └── templates/                 # Kubernetes templates
+│   │           ├── deployment.yaml        # Flask app deployment
+│   │           ├── service.yaml           # Flask app service
+│   │           └── ingress.yaml           # Flask app ingress
+│   └── Mod4_Task7/
+│       └── Grafana_Install/               # Grafana monitoring configuration
+│           ├── values.yaml                # Grafana Helm chart values with alerting config
+│           ├── Alerts/                    # Grafana alert rules
+│           │   └── HostHighCpuLoad.yaml   # CPU alert rules ConfigMap
+│           ├── ContactPoints/             # Grafana contact points configuration
+│           │   └── contact-points-configmap.yaml # Contact points ConfigMap
+│           └── rsschool-smtp-configmap.yaml # SMTP configuration for Grafana
 ├── JenkinsFiles/                             # Jenkins pipeline scripts
 │   └── build-and-push-flask-app.groovy       # Jenkins pipeline: builds, tests, pushes Docker image, and deploys Flask app via Helm
 ├── .github/
@@ -164,6 +203,11 @@ The pipeline performs the following stages:
   - **prerequisites-jenkins-Ingress.yaml**: Ingress resource for Jenkins with dynamic domain configuration
   - **letsencrypt-staging-clusterissuer.yaml**: Let's Encrypt staging cluster issuer for SSL certificates
 - **K3S_Manifests/Mod3_Task5/flask_app_HelmChart/**: Flask application Helm chart with deployment, service, and ingress templates
+- **K3S_Manifests/Mod4_Task7/Grafana_Install/**: Grafana monitoring configuration
+  - **values.yaml**: Grafana Helm chart values with alerting and contact points configuration
+  - **Alerts/HostHighCpuLoad.yaml**: CPU alert rules ConfigMap for Grafana
+  - **ContactPoints/contact-points-configmap.yaml**: Contact points configuration for email notifications
+  - **rsschool-smtp-configmap.yaml**: SMTP configuration for Grafana email notifications
 - **JenkinsFiles/build-and-push-flask-app.groovy**: Jenkins pipeline that builds, tests, and pushes the Flask app Docker image, then deploys it to the Kubernetes cluster using Helm. The pipeline sets the image repository, tag, and ingress host dynamically for each deployment.
 - **.github/workflows/**: GitHub Actions workflows
   - **k3s-deploy.yml**: Main CI/CD workflow - deploys infra, applies Jenkins prerequisites, installs Jenkins via Helm, manages DNS
