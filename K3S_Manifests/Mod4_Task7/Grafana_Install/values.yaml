@@ -1,44 +1,9 @@
-# grafana:
-#   extraVolumes:
-#     - name: cpu-alerts
-#       configMap:
-#         name: cpu-alerts-grafana-rules
-#   extraVolumeMounts:
-#     - name: cpu-alerts
-#       mountPath: /bitnami/grafana/conf/provisioning/alerting
-#       readOnly: true
 grafana:
-  ## 2a) Define the ConfigMap volume that holds your rule
   extraVolumes:
-    - name: alert-rules-cm
+    - name: cpu-alerts
       configMap:
         name: cpu-alerts-grafana-rules
-
-  ## 2b) Mount your Grafana data (PVC) so initContainer and main container share it
-  persistence:
-    enabled: true
-    existingClaim: grafana  # or whatever your PVC is called
-
-  ## 2c) Use an initContainer to copy from /source → /bitnami/grafana/...
-  initContainers:
-    - name: copy-alerting-rules
-      image: docker.io/bitnami/grafana:12.1.0-debian-12-r0
-      command: ["/bin/sh", "-c"]
-      args:
-        - |
-          mkdir -p /bitnami/grafana/conf/provisioning/alerting && \
-          cp /source/*.yaml /bitnami/grafana/conf/provisioning/alerting/
-      volumeMounts:
-        # 1) Mount the ConfigMap under /source
-        - name: alert-rules-cm
-          mountPath: /source
-        # 2) Mount the same PVC that Grafana uses under /bitnami/grafana
-        - name: grafana-data
-          mountPath: /bitnami/grafana
-
-  ## 2d) Mount the PVC into the main container too
   extraVolumeMounts:
-    - name: grafana-data
-      mountPath: /bitnami/grafana
-      subPath: ""
-      readOnly: false
+    - name: cpu-alerts
+      mountPath: /bitnami/grafana/conf/provisioning/alerting
+      readOnly: true
